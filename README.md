@@ -1,8 +1,8 @@
-# KotlinMultiplatformJvmJsTemplate
+# DevToolkt
 
 ## Recommended repository setup
 
-### [Settings](https://github.com/cubuspl42/KotlinMultiplatformJvmJsTemplate/settings)
+### [Settings](https://github.com/dev-toolkt/DevToolkt/settings)
 
 #### Pull Requests
 
@@ -12,7 +12,7 @@
 - Allow auto-merge: **Yes** (default: **No**)
 - Automatically delete head branches: **Yes** (default: **No**)
 
-### [Rulesets](https://github.com/cubuspl42/KotlinMultiplatformJvmJsTemplate/settings/rules)
+### [Rulesets](https://github.com/dev-toolkt/DevToolkt/settings/rules)
 
 #### Main branch ruleset
 
