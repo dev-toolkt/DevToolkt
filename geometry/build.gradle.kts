@@ -16,14 +16,6 @@ repositories {
 }
 
 kotlin {
-    compilerOptions {
-        freeCompilerArgs.addAll(
-            listOf(
-                "-Xexpect-actual-classes",
-            ),
-        )
-    }
-
     jvm()
 
     js(IR) {
@@ -34,11 +26,14 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(libs.kotlinx.benchmark.runtime)
+            implementation(project(":core"))
+            implementation(project(":math"))
         }
 
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(project(":coreTestUtils"))
+            implementation(project(":geometryTestUtils"))
         }
 
         jvmMain.dependencies {}

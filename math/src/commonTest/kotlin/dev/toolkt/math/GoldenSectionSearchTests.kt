@@ -1,7 +1,6 @@
-package dev.toolkt.core.iterable
+package dev.toolkt.math
 
-import diy.lingerie.test_utils.assertEqualsWithTolerance
-import diy.lingerie.utils.minByUnimodalWithSelectee
+import dev.toolkt.core.numeric.assertEqualsWithTolerance
 import kotlin.math.PI
 import kotlin.math.sin
 import kotlin.test.Test
