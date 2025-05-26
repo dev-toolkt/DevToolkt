@@ -1,4 +1,4 @@
-package org.example
+package dev.toolkt
 
 expect class Platform {
     constructor()
