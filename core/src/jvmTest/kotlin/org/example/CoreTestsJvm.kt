@@ -6,13 +6,13 @@ package org.example
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
-class AppTestsJs {
+class CoreTestsJvm {
     @Test
-    fun testGreetingJs() {
-        val classUnderTest = App()
+    fun testGreetingJvm() {
+        val core = Core()
 
         assertTrue(
-            classUnderTest.greeting.endsWith("[JS]"),
+            core.greeting.endsWith("[JVM]"),
         )
     }
 }

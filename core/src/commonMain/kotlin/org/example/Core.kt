@@ -3,7 +3,7 @@
  */
 package org.example
 
-class App {
+class Core {
     val platform = Platform()
 
     val greeting: String
@@ -13,5 +13,5 @@ class App {
 }
 
 fun main() {
-    println(App().greeting)
+    println(Core().greeting)
 }
