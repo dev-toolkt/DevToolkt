@@ -6,13 +6,13 @@ package org.example
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
-class AppTests {
+class CoreTests {
     @Test
     fun testGreeting() {
-        val app = App()
+        val core = Core()
 
         assertTrue(
-            app.greeting.startsWith("Hello"),
+            core.greeting.startsWith("Hello"),
         )
     }
 }
