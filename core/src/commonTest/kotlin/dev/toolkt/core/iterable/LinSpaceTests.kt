@@ -1,6 +1,6 @@
 package dev.toolkt.core.iterable
 
-import diy.lingerie.test_utils.assertEqualsWithTolerance
+import dev.toolkt.core.numeric.assertEqualsWithTolerance
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails

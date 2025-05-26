@@ -13,5 +13,8 @@ rootProject.name = "DevToolkt"
 
 include(
     "core",
+    "math",
+    "geometry",
     "coreTestUtils",
+    "geometryTestUtils",
 )
