@@ -18,7 +18,7 @@ kotlin {
         freeCompilerArgs.addAll(
             listOf(
                 "-Xexpect-actual-classes",
-            )
+            ),
         )
     }
 
