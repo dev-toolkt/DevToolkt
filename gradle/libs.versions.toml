@@ -2,7 +2,7 @@
 # https://docs.gradle.org/current/userguide/platforms.html#sub::toml-dependencies-format
 
 [versions]
-kotlinx-benchmark = "0.4.13"
+kotlinx-benchmark = "0.4.14"
 kotlin = "2.1.21"
 
 [libraries]
