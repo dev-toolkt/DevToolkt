@@ -9,6 +9,8 @@ plugins {
     alias(libs.plugins.kotlinx.benchmark)
 }
 
+group = "dev.toolkt"
+
 repositories {
     mavenCentral()
 }
@@ -36,6 +38,7 @@ kotlin {
 
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+//            implementation(project("coreTestUtils"))
         }
 
         jvmMain.dependencies {}
