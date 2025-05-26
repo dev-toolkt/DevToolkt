@@ -1,7 +1,7 @@
 @file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 
-package org.example
+package dev.toolkt
 
 actual class Platform {
-    actual val name: String = "JVM"
+    actual val name: String = "JS"
 }
