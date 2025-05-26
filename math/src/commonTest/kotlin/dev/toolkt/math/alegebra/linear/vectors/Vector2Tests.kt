@@ -1,6 +1,6 @@
 package dev.toolkt.math.alegebra.linear.vectors
 
-import dev.toolkt.geometry.Vector2
+import dev.toolkt.math.algebra.linear.vectors.Vector2
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
