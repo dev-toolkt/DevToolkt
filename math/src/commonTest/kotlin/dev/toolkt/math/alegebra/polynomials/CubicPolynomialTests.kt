@@ -7,6 +7,7 @@ import dev.toolkt.math.algebra.polynomials.LinearPolynomial
 import dev.toolkt.math.algebra.polynomials.QuadraticPolynomial
 import dev.toolkt.math.algebra.polynomials.times
 import dev.toolkt.core.numeric.assertEqualsWithTolerance
+import dev.toolkt.math.algebra.polynomials.plus
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
