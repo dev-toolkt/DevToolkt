@@ -11,4 +11,7 @@ plugins {
 
 rootProject.name = "DevToolkt"
 
-include("core")
+include(
+    "core",
+    "coreTestUtils",
+)
