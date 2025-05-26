@@ -8,7 +8,7 @@ class Core {
 
     val greeting: String
         get() {
-            return "Hello World! [${platform.name}]"
+            return "Hello! [${platform.name}]"
         }
 }
 
