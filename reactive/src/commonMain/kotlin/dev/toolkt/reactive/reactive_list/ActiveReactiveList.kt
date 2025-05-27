@@ -21,7 +21,7 @@ abstract class ActiveReactiveList<E>() : ReactiveList<E>() {
         ),
     )
 
-    final override fun <T : Any> pipe(
+    final override fun <T : Any> bind(
         target: T,
         mutableList: MutableList<in E>,
     ) {

@@ -76,7 +76,7 @@ abstract class ReactiveList<out E> {
             transform: (Nothing) -> Er,
         ): ReactiveList<Er> = Empty
 
-        override fun <T : Any> pipe(
+        override fun <T : Any> bind(
             target: T,
             mutableList: MutableList<*>,
         ) {
@@ -104,7 +104,7 @@ abstract class ReactiveList<out E> {
         TODO()
     }
 
-    abstract fun <T : Any> pipe(
+    abstract fun <T : Any> bind(
         target: T,
         mutableList: MutableList<in E>,
     )
