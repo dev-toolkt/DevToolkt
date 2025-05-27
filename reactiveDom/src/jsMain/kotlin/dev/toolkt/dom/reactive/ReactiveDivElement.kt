@@ -13,7 +13,7 @@ class ReactiveDivElement(
 ) {
     override val elementName: String = "div"
 
-    override fun attachEventHandlers(element: Element) {
+    override fun setupElement(element: Element) {
     }
 
     init {

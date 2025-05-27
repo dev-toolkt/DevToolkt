@@ -4,6 +4,7 @@ import dev.toolkt.dom.reactive.event.ReactiveEventHandler
 import dev.toolkt.dom.reactive.event.ReactiveMouseEvent
 import dev.toolkt.dom.reactive.event.attach
 import dev.toolkt.reactive.event_stream.EventEmitter
+import dev.toolkt.reactive.event_stream.EventStream
 import dev.toolkt.reactive.reactive_list.ReactiveList
 import org.w3c.dom.Element
 
@@ -18,10 +19,10 @@ class ReactiveButtonElement(
 
     private val onClickEmitter = EventEmitter<ReactiveMouseEvent>()
 
-    val onClick: EventEmitter<ReactiveMouseEvent>
+    val onClick: EventStream<ReactiveMouseEvent>
         get() = onClickEmitter
 
-    override fun attachEventHandlers(element: Element) {
+    override fun setupElement(element: Element) {
         handleClick.attach(
             target = element,
             eventName = "click",
@@ -35,3 +36,4 @@ class ReactiveButtonElement(
         rawElement
     }
 }
+
