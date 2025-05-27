@@ -10,9 +10,11 @@ import org.w3c.dom.Element
 
 class ReactiveButtonElement(
     override val children: ReactiveList<ReactiveNode>,
+    style: ReactiveStyle? = null,
     handleMouseDown: ReactiveEventHandler<ReactiveMouseEvent>? = null,
     private val handleClick: ReactiveEventHandler<ReactiveMouseEvent>? = ReactiveEventHandler.Accepting,
 ) : ReactiveHtmlElement(
+    style = style,
     handleMouseDown = handleMouseDown,
 ) {
     override val elementName: String = "button"

@@ -7,8 +7,10 @@ import org.w3c.dom.Element
 
 class ReactiveDivElement(
     override val children: ReactiveList<ReactiveNode>,
+    style: ReactiveStyle? = null,
     handleMouseDown: ReactiveEventHandler<ReactiveMouseEvent> = ReactiveEventHandler.Accepting,
 ) : ReactiveHtmlElement(
+    style = style,
     handleMouseDown = handleMouseDown,
 ) {
     override val elementName: String = "div"

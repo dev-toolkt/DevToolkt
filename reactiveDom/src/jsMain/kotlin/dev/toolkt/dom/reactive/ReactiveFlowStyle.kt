@@ -2,6 +2,7 @@ package dev.toolkt.dom.reactive
 
 import dev.toolkt.dom.pure.style.PureDisplayInside
 import dev.toolkt.dom.pure.style.PureDisplayOutside
+import dev.toolkt.reactive.Subscription
 import org.w3c.dom.css.CSSStyleDeclaration
 
 data class ReactiveFlowStyle(
@@ -12,7 +13,5 @@ data class ReactiveFlowStyle(
 
     override fun bind(
         styleDeclaration: CSSStyleDeclaration,
-    ) {
-        TODO("Not yet implemented")
-    }
+    ): Subscription.Noop = Subscription.Noop
 }

@@ -1,11 +1,12 @@
 package dev.toolkt.dom.reactive
 
+import dev.toolkt.reactive.Subscription
 import dev.toolkt.reactive.cell.Cell
 import dev.toolkt.reactive.cell.bindNested
 import org.w3c.dom.css.CSSStyleDeclaration
 
 data class ReactiveStyle(
-    val displayInsideStyleDeclaration: Cell<ReactiveDisplayStyle>? = null,
+    val displayStyle: Cell<ReactiveDisplayStyle>? = null,
 ) {
     companion object {
         val Default = ReactiveStyle()
@@ -14,13 +15,20 @@ data class ReactiveStyle(
     fun bind(
         styleDeclaration: CSSStyleDeclaration,
     ) {
-        displayInsideStyleDeclaration?.bindNested(
+        displayStyle?.bindNested(
             target = styleDeclaration,
-            updateOuter = { it, reactiveDisplayStyle ->
-                it.display = reactiveDisplayStyle.displayString
-            },
             bindInner = { it, reactiveDisplayStyle ->
-                reactiveDisplayStyle.bind(styleDeclaration = it)
+                it.display = reactiveDisplayStyle.displayString
+
+                val innerSubscription = reactiveDisplayStyle.bind(styleDeclaration = it)
+
+                object : Subscription {
+                    override fun cancel() {
+                        innerSubscription.cancel()
+
+                        it.display = ""
+                    }
+                }
             },
         )
     }

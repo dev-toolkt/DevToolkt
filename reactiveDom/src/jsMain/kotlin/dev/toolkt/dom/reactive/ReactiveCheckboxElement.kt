@@ -7,9 +7,10 @@ import dev.toolkt.reactive.reactive_list.ReactiveList
 
 class ReactiveCheckboxElement(
     override val children: ReactiveList<ReactiveNode> = ReactiveList.Empty,
-    handleMouseDown: ReactiveEventHandler<
-            ReactiveMouseEvent> = ReactiveEventHandler.Accepting,
+    style: ReactiveStyle? = null,
+    handleMouseDown: ReactiveEventHandler<ReactiveMouseEvent> = ReactiveEventHandler.Accepting,
 ) : ReactiveInputElement<ReactiveCheckboxChangeEvent>(
+    style = style,
     handleMouseDown = handleMouseDown,
 ) {
     override val changeEventWrapper = ReactiveCheckboxChangeEvent

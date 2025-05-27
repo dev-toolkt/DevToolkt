@@ -7,6 +7,7 @@ import dev.toolkt.dom.pure.style.PureFlexAlignItems
 import dev.toolkt.dom.pure.style.PureFlexDirection
 import dev.toolkt.dom.pure.style.PureFlexJustifyContent
 import dev.toolkt.dom.reactive.utils.gap
+import dev.toolkt.reactive.Subscription
 import org.w3c.dom.css.CSSStyleDeclaration
 
 data class ReactiveFlexStyle(
@@ -20,7 +21,7 @@ data class ReactiveFlexStyle(
 
     override fun bind(
         styleDeclaration: CSSStyleDeclaration,
-    ) {
+    ): Subscription {
         direction?.let {
             styleDeclaration.flexDirection = it.cssValue
         }
@@ -35,6 +36,17 @@ data class ReactiveFlexStyle(
 
         gap?.let {
             styleDeclaration.gap = it.toDimensionString()
+        }
+
+        return object : Subscription {
+            override fun cancel() {
+                styleDeclaration.apply {
+                    flexDirection = ""
+                    alignItems = ""
+                    justifyContent = ""
+                    gap = ""
+                }
+            }
         }
     }
 }

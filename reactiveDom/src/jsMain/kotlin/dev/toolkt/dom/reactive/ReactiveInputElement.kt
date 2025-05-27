@@ -11,9 +11,11 @@ import org.w3c.dom.Element
 import org.w3c.dom.HTMLInputElement
 
 abstract class ReactiveInputElement<ChangeEventT : ReactiveInputChangeEvent>(
-    handleMouseDown: ReactiveEventHandler<ReactiveMouseEvent>? = null,
+    style: ReactiveStyle?,
+    handleMouseDown: ReactiveEventHandler<ReactiveMouseEvent>?,
     private val handleChange: ReactiveEventHandler<ChangeEventT> = ReactiveEventHandler.Accepting,
 ) : ReactiveHtmlElement(
+    style = style,
     handleMouseDown = handleMouseDown,
 ) {
     final override val elementName: String = "input"
