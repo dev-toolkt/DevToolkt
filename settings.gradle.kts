@@ -15,6 +15,7 @@ include(
     "core",
     "math",
     "geometry",
+    "pureDom",
     "coreTestUtils",
     "geometryTestUtils",
 )
