@@ -16,7 +16,7 @@ data class ConstReactiveList<out E>(
         constElements = constElements.map(transform),
     )
 
-    override fun <T : Any> pipe(
+    override fun <T : Any> bind(
         target: T,
         mutableList: MutableList<in E>,
     ) {

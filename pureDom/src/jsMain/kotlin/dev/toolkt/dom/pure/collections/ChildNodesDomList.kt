@@ -69,3 +69,6 @@ class ChildNodesDomList(
     override val itemArrayLike: ItemArrayLike<Node>
         get() = node.childNodes
 }
+
+val Node.childNodesList: MutableList<Node>
+    get() = ChildNodesDomList(this)
