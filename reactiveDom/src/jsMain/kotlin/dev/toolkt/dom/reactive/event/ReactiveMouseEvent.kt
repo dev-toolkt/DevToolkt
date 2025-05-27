@@ -1,17 +1,17 @@
-package dev.toolkt.dom.reactive.html
+package dev.toolkt.dom.reactive.event
 
 import dev.toolkt.geometry.Point
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.MouseEvent
 
-data class HtmlMouseEvent(
+data class ReactiveMouseEvent(
     val position: Point,
-) : HtmlEvent() {
-    companion object : Wrapper<HtmlMouseEvent> {
-        override fun wrap(rawEvent: Event): HtmlMouseEvent {
+) : ReactiveEvent() {
+    companion object : Wrapper<ReactiveMouseEvent> {
+        override fun wrap(rawEvent: Event): ReactiveMouseEvent {
             val mouseEvent = rawEvent as MouseEvent
 
-            return HtmlMouseEvent(
+            return ReactiveMouseEvent(
                 position = Point(
                     x = mouseEvent.x,
                     y = mouseEvent.y,
