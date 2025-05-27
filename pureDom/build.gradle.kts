@@ -34,6 +34,7 @@ kotlin {
             implementation(libs.batik.anim)
             implementation(libs.batik.svg.dom)
             implementation(libs.batik.css)
+            implementation(libs.fop)
         }
 
         jvmTest.dependencies {}
