@@ -45,7 +45,13 @@ abstract class ActiveCell<V> : Cell<V>() {
         target: T,
         update: (T, V) -> Unit,
     ) {
-        TODO("Not yet implemented")
+        update(target, currentValue)
+
+        newValues.pipe(
+            target = target,
+        ) { newValue ->
+            update(target, newValue)
+        }
     }
 
     internal abstract val vertex: CellVertex<V>
