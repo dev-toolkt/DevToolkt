@@ -5,6 +5,7 @@ import dev.toolkt.dom.reactive.event.ReactiveEventHandler
 import dev.toolkt.dom.reactive.event.ReactiveMouseEvent
 import dev.toolkt.dom.reactive.event.attach
 import dev.toolkt.reactive.event_stream.EventEmitter
+import dev.toolkt.reactive.event_stream.EventStream
 import dev.toolkt.reactive.reactive_list.ReactiveList
 import kotlinx.browser.document
 import org.w3c.dom.Element
@@ -29,14 +30,14 @@ abstract class ReactiveHtmlElement(
 
     private val onMouseDownEmitter = EventEmitter<ReactiveMouseEvent>()
 
-    val onMouseDown: EventEmitter<ReactiveMouseEvent>
+    val onMouseDown: EventStream<ReactiveMouseEvent>
         get() = onMouseDownEmitter
 
     override val rawElement: Element by lazy {
         document.createElement(
             localName = elementName,
         ).also { element ->
-            attachEventHandlers(
+            setupElement(
                 element = element,
             )
 
@@ -58,7 +59,7 @@ abstract class ReactiveHtmlElement(
 
     abstract val children: ReactiveList<ReactiveNode>
 
-    protected abstract fun attachEventHandlers(
+    protected abstract fun setupElement(
         element: Element,
     )
 }
