@@ -13,7 +13,7 @@ import org.w3c.dom.Node
 import org.w3c.dom.css.ElementCSSInlineStyle
 
 abstract class ReactiveHtmlElement(
-    style: ReactiveStyle? = null,
+    style: ReactiveStyle?,
     handleMouseDown: ReactiveEventHandler<ReactiveMouseEvent>?,
 ) : ReactiveElement() {
     companion object {

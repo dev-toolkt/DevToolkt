@@ -103,55 +103,23 @@ sealed class Cell<out V> {
 
 fun <V, T : Any> Cell<V>.bindNested(
     target: T,
-    updateOuter: (T, V) -> Unit,
-    bindInner: (T, V) -> Unit,
-) {
-    TODO("Not yet implemented")
+    bindInner: (T, V) -> Subscription,
+): Subscription = object : Subscription {
+    private var innerSubscription = bindInner(
+        target,
+        currentValue,
+    )
+
+    private val outerSubscription = bind(
+        target = target,
+        update = { it, newValue ->
+            innerSubscription.cancel()
+            innerSubscription = bindInner(it, newValue)
+        },
+    )
+
+    override fun cancel() {
+        outerSubscription.cancel()
+        innerSubscription.cancel()
+    }
 }
-
-
-//
-//internal fun <V> Cell<V>.subscribeToNewValues(
-//    handle: (V) -> Unit,
-//): Subscription = this.newValues.subscribe(
-//    listener = object : Listener<V> {
-//        override fun handle(event: V) {
-//            handle(event)
-//        }
-//    },
-//)
-//
-//internal fun <V> Cell<V>.subscribeToNewValuesBound(
-//    target: Any,
-//    handle: (V) -> Unit,
-//) {
-//    this.subscribeToChangesBound(
-//        target = target,
-//    ) { change ->
-//        handle(change.newValue)
-//    }
-//}
-//
-//internal fun <V> Cell<V>.subscribeToChanges(
-//    handle: (Cell.Change<V>) -> Unit,
-//): Subscription {
-//    return changes.subscribe(
-//        listener = object : Listener<Cell.Change<V>> {
-//            override fun handle(event: Cell.Change<V>) {
-//                handle(event)
-//            }
-//        },
-//    )
-//}
-//
-//internal fun <V> Cell<V>.subscribeToChangesBound(
-//    target: Any,
-//    handle: (Cell.Change<V>) -> Unit,
-//): Subscription = changes.subscribeBound(
-//    target = target,
-//    listener = object : Listener<Cell.Change<V>> {
-//        override fun handle(event: Cell.Change<V>) {
-//            handle(event)
-//        }
-//    },
-//)
