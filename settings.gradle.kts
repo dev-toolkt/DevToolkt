@@ -17,6 +17,7 @@ include(
     "geometry",
     "pureDom",
     "reactive",
+    "reactiveDom",
     "coreTestUtils",
     "geometryTestUtils",
 )
