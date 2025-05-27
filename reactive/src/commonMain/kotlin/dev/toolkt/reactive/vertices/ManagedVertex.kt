@@ -3,7 +3,7 @@ package dev.toolkt.reactive.vertices
 import dev.toolkt.reactive.Listener
 import dev.toolkt.core.platform.mutableWeakSetOf
 
-abstract class ManagedVertex<T> : AbstractVertex<T>() {
+abstract class ManagedVertex<T> : Vertex<T>() {
     enum class State {
         Paused, Resumed,
     }
@@ -43,7 +43,7 @@ abstract class ManagedVertex<T> : AbstractVertex<T>() {
         pauseIfLostListeners()
     }
 
-    override fun addStrongListener(
+    final override fun addStrongListener(
         listener: Listener<T>,
     ) {
         val wasAdded = strongListeners.add(listener)
@@ -51,7 +51,7 @@ abstract class ManagedVertex<T> : AbstractVertex<T>() {
         if (!wasAdded) throw AssertionError("Listener is already strongly-subscribed (???)")
     }
 
-    override fun removeStrongListener(
+    final override fun removeStrongListener(
         listener: Listener<T>,
     ) {
         val wasRemoved = strongListeners.remove(listener)
@@ -59,7 +59,7 @@ abstract class ManagedVertex<T> : AbstractVertex<T>() {
         if (!wasRemoved) throw AssertionError("Listener is not strongly-subscribed (???)")
     }
 
-    override fun addWeakListener(
+    final override fun addWeakListener(
         listener: Listener<T>,
     ) {
         val wasAdded = weakListeners.add(listener)
@@ -67,7 +67,7 @@ abstract class ManagedVertex<T> : AbstractVertex<T>() {
         if (!wasAdded) throw AssertionError("Listener is already weakly-subscribed (???)")
     }
 
-    override fun removeWeakListener(
+    final override fun removeWeakListener(
         listener: Listener<T>,
     ) {
         val wasRemoved = weakListeners.remove(listener)
@@ -75,18 +75,16 @@ abstract class ManagedVertex<T> : AbstractVertex<T>() {
         if (!wasRemoved) throw AssertionError("Listener is not weakly-subscribed (???)")
     }
 
-    override fun onSubscribed() {
+    final override fun onSubscribed() {
         resumeIfPaused()
     }
 
-    override fun onUnsubscribed() {
+    final override fun onUnsubscribed() {
         pauseIfLostListeners()
     }
 
     private fun resumeIfPaused() {
         if (state == State.Paused) {
-//            println("Resuming vertex $tag [$phase]...")
-
             onResumed()
 
             state = State.Resumed
@@ -95,8 +93,6 @@ abstract class ManagedVertex<T> : AbstractVertex<T>() {
 
     private fun pauseIfLostListeners() {
         if (!hasListeners() && state == State.Resumed) {
-//            println("Pausing vertex $tag [$phase]...")
-
             onPaused()
 
             state = State.Paused

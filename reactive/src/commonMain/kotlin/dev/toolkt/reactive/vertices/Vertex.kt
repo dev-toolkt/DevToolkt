@@ -10,18 +10,18 @@ import dev.toolkt.reactive.Subscription
  * between cells, event stream and dynamic collections internals, though from
  * the public interface perspective these entities are strongly distinct.
  */
-abstract class AbstractVertex<T>() {
+abstract class Vertex<T>() {
     sealed class ListenerStrength {
         data object Weak : ListenerStrength() {
             override fun <T> addListener(
-                vertex: AbstractVertex<T>,
+                vertex: Vertex<T>,
                 listener: Listener<T>,
             ) {
                 vertex.addStrongListener(listener = listener)
             }
 
             override fun <T> removeListener(
-                vertex: AbstractVertex<T>,
+                vertex: Vertex<T>,
                 listener: Listener<T>,
             ) {
                 vertex.removeStrongListener(listener = listener)
@@ -30,14 +30,14 @@ abstract class AbstractVertex<T>() {
 
         data object Strong : ListenerStrength() {
             override fun <T> addListener(
-                vertex: AbstractVertex<T>,
+                vertex: Vertex<T>,
                 listener: Listener<T>,
             ) {
                 vertex.addWeakListener(listener = listener)
             }
 
             override fun <T> removeListener(
-                vertex: AbstractVertex<T>,
+                vertex: Vertex<T>,
                 listener: Listener<T>,
             ) {
                 vertex.removeWeakListener(listener = listener)
@@ -45,12 +45,12 @@ abstract class AbstractVertex<T>() {
         }
 
         abstract fun <T> addListener(
-            vertex: AbstractVertex<T>,
+            vertex: Vertex<T>,
             listener: Listener<T>,
         )
 
         abstract fun <T> removeListener(
-            vertex: AbstractVertex<T>,
+            vertex: Vertex<T>,
             listener: Listener<T>,
         )
     }
@@ -91,7 +91,7 @@ abstract class AbstractVertex<T>() {
 
             override fun cancel() {
                 currentStrength.removeListener(
-                    vertex = this@AbstractVertex,
+                    vertex = this@Vertex,
                     listener = listener,
                 )
 
@@ -106,12 +106,12 @@ abstract class AbstractVertex<T>() {
                 }
 
                 currentStrength.removeListener(
-                    vertex = this@AbstractVertex,
+                    vertex = this@Vertex,
                     listener = listener,
                 )
 
                 newStrength.addListener(
-                    vertex = this@AbstractVertex,
+                    vertex = this@Vertex,
                     listener = listener,
                 )
 

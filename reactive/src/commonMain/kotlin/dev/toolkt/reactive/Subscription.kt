@@ -1,6 +1,6 @@
 package dev.toolkt.reactive
 
-import dev.toolkt.reactive.vertices.AbstractVertex.ListenerStrength
+import dev.toolkt.reactive.vertices.Vertex.ListenerStrength
 
 interface Subscription {
     object Noop : Subscription {
