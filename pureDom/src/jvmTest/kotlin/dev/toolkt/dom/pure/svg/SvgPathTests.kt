@@ -1,7 +1,6 @@
 package dev.toolkt.dom.pure.svg
 
 import dev.toolkt.core.numeric.assertEqualsWithTolerance
-import dev.toolkt.dom.pure.PureColor
 import dev.toolkt.dom.pure.utils.xml.childElements
 import dev.toolkt.dom.pure.utils.xml.svg.SVGDOMImplementationUtils
 import dev.toolkt.dom.pure.utils.xml.svg.documentSvgElement
