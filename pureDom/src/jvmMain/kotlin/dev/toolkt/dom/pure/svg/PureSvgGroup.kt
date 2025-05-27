@@ -56,7 +56,7 @@ data class PureSvgGroup(
     }
 }
 
-fun SVGGElement.toSimpleGroup(): PureSvgGroup = PureSvgGroup(
+fun SVGGElement.toPureGroup(): PureSvgGroup = PureSvgGroup(
     id = id,
     transformation = Transformation.fromSvgTransformList(
         transformList = transform.baseVal,

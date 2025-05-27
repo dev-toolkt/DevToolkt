@@ -12,7 +12,7 @@ import dev.toolkt.dom.pure.PureColor
 import dev.toolkt.dom.pure.utils.xml.svg.asList
 import dev.toolkt.dom.pure.utils.xml.svg.getComputedStyle
 import dev.toolkt.dom.pure.utils.xml.svg.toList
-import dev.toolkt.dom.pure.utils.xml.svg.toSimpleColor
+import dev.toolkt.dom.pure.utils.xml.svg.toPureColor
 import org.apache.batik.css.engine.SVGCSSEngine
 import org.w3c.dom.Document
 import org.w3c.dom.Element
@@ -264,11 +264,11 @@ data class PureSvgPath(
     )
 }
 
-fun SVGPathElement.toSimplePath(): PureSvgPath {
+fun SVGPathElement.toPurePath(): PureSvgPath {
     val (segments, _) = pathSegList.asList().mapCarrying(
         initialCarry = Point.origin,
     ) { currentPoint, svgPathSeg ->
-        val segment = svgPathSeg.toSimpleSegment(currentPoint = currentPoint)
+        val segment = svgPathSeg.toPureSegment(currentPoint = currentPoint)
 
         Pair(
             segment,
@@ -283,7 +283,7 @@ fun SVGPathElement.toSimplePath(): PureSvgPath {
 }
 
 fun SVGElement.extractStroke(): PureSvgShape.Stroke {
-    val strokeColor = getComputedStyle(SVGCSSEngine.STROKE_INDEX).toSimpleColor()
+    val strokeColor = getComputedStyle(SVGCSSEngine.STROKE_INDEX).toPureColor()
     val strokeWidth = getComputedStyle(SVGCSSEngine.STROKE_WIDTH_INDEX).floatValue.toDouble()
     val strokeDashArray = getComputedStyle(SVGCSSEngine.STROKE_DASHARRAY_INDEX).toList()
 
@@ -294,7 +294,7 @@ fun SVGElement.extractStroke(): PureSvgShape.Stroke {
     )
 }
 
-fun SVGPathSeg.toSimpleSegment(
+fun SVGPathSeg.toPureSegment(
     currentPoint: Point,
 ): PureSvgPath.Segment = when (pathSegType) {
     SVGPathSeg.PATHSEG_MOVETO_ABS -> {

@@ -25,8 +25,8 @@ abstract class PureSvgGraphicsElement : PureSvgElement() {
 }
 
 fun Element.toSvgGraphicsElements(): PureSvgGraphicsElement? = when (this) {
-    is SVGPathElement -> toSimplePath()
-    is SVGGElement -> toSimpleGroup()
-    is SVGRectElement -> toSimpleRect()
+    is SVGPathElement -> toPurePath()
+    is SVGGElement -> toPureGroup()
+    is SVGRectElement -> toPureRect()
     else -> null
 }
