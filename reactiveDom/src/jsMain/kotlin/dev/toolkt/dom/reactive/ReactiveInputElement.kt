@@ -20,6 +20,9 @@ abstract class ReactiveInputElement<ChangeEventT : ReactiveInputChangeEvent>(
 ) {
     final override val elementName: String = "input"
 
+    protected val rawInputElement: HTMLInputElement
+        get() = rawElement as HTMLInputElement
+
     private val onChangeEmitter = EventEmitter<ChangeEventT>()
 
     val onChange: EventStream<ChangeEventT>
