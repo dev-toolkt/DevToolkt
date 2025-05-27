@@ -5,6 +5,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 
 class PureDimensionTests {
     @Test
@@ -153,10 +154,15 @@ class PureDimensionTests {
 
     @Test
     fun testToDimensionString() {
-        assertEquals("123.0mm", 123.0.mm.toDimensionString())
-        assertEquals("72.0pt", 72.0.pt.toDimensionString())
-        assertEquals("1.0in", 1.0.inch.toDimensionString())
-        assertEquals("50.0%", 50.0.percent.toDimensionString())
+        assertEquals("123.1mm", 123.1.mm.toDimensionString())
+        assertEquals("72.2pt", 72.2.pt.toDimensionString())
+        assertEquals("1.3in", 1.3.inch.toDimensionString())
+        assertEquals("50.2%", 50.2.percent.toDimensionString())
+
+        // JS/JVM differences
+        assertTrue(
+            123.0.mm.toDimensionString() in setOf("123mm", "123.0mm")
+        )
     }
 
     @Test
