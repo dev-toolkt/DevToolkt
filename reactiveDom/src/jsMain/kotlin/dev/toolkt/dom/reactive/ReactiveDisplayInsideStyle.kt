@@ -6,6 +6,7 @@ import org.w3c.dom.css.CSSStyleDeclaration
 sealed class ReactiveDisplayInsideStyle {
     abstract val type: PureDisplayInside
 
-    fun bind(style: CSSStyleDeclaration) {
-    }
+    abstract fun bind(
+        styleDeclaration: CSSStyleDeclaration,
+    )
 }

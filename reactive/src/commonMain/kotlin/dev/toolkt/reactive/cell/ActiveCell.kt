@@ -41,5 +41,12 @@ abstract class ActiveCell<V> : Cell<V>() {
         return target
     }
 
+    override fun <T : Any> bind(
+        target: T,
+        update: (T, V) -> Unit,
+    ) {
+        TODO("Not yet implemented")
+    }
+
     internal abstract val vertex: CellVertex<V>
 }
