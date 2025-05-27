@@ -10,8 +10,8 @@ import org.w3c.dom.Element
 
 class ReactiveButtonElement(
     override val children: ReactiveList<ReactiveNode>,
-    handleMouseDown: ReactiveEventHandler<ReactiveMouseEvent> = ReactiveEventHandler.Accepting,
-    private val handleClick: ReactiveEventHandler<ReactiveMouseEvent> = ReactiveEventHandler.Accepting,
+    handleMouseDown: ReactiveEventHandler<ReactiveMouseEvent>? = null,
+    private val handleClick: ReactiveEventHandler<ReactiveMouseEvent>? = ReactiveEventHandler.Accepting,
 ) : ReactiveHtmlElement(
     handleMouseDown = handleMouseDown,
 ) {
@@ -23,7 +23,7 @@ class ReactiveButtonElement(
         get() = onClickEmitter
 
     override fun setupElement(element: Element) {
-        handleClick.attach(
+        handleClick?.attach(
             target = element,
             eventName = "click",
             wrapper = ReactiveMouseEvent.Companion,

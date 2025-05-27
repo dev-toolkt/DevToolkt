@@ -10,9 +10,11 @@ import dev.toolkt.reactive.reactive_list.ReactiveList
 import kotlinx.browser.document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
+import org.w3c.dom.css.ElementCSSInlineStyle
 
 abstract class ReactiveHtmlElement(
-    handleMouseDown: ReactiveEventHandler<ReactiveMouseEvent>,
+    style: ReactiveStyle? = null,
+    handleMouseDown: ReactiveEventHandler<ReactiveMouseEvent>?,
 ) : ReactiveElement() {
     companion object {
         private fun bindChildren(
@@ -37,11 +39,18 @@ abstract class ReactiveHtmlElement(
         document.createElement(
             localName = elementName,
         ).also { element ->
+            @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+            element as ElementCSSInlineStyle
+
             setupElement(
                 element = element,
             )
 
-            handleMouseDown.attach(
+            style?.bind(
+                styleDeclaration = element.style,
+            )
+
+            handleMouseDown?.attach(
                 target = element,
                 eventName = "mouseDown",
                 wrapper = ReactiveMouseEvent.Companion,

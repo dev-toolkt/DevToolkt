@@ -11,7 +11,7 @@ import org.w3c.dom.Element
 import org.w3c.dom.HTMLInputElement
 
 abstract class ReactiveInputElement<ChangeEventT : ReactiveInputChangeEvent>(
-    handleMouseDown: ReactiveEventHandler<ReactiveMouseEvent> = ReactiveEventHandler.Accepting,
+    handleMouseDown: ReactiveEventHandler<ReactiveMouseEvent>? = null,
     private val handleChange: ReactiveEventHandler<ChangeEventT> = ReactiveEventHandler.Accepting,
 ) : ReactiveHtmlElement(
     handleMouseDown = handleMouseDown,
