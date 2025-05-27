@@ -21,6 +21,7 @@ kotlin {
             implementation(libs.kotlinx.benchmark.runtime)
             implementation(project(":core"))
             implementation(project(":geometry"))
+            implementation("xml-apis:xml-apis-ext:1.3.04")
         }
 
         commonTest.dependencies {
@@ -29,7 +30,11 @@ kotlin {
             implementation(project(":geometryTestUtils"))
         }
 
-        jvmMain.dependencies {}
+        jvmMain.dependencies {
+            implementation(libs.batik.anim)
+            implementation(libs.batik.svg.dom)
+            implementation(libs.batik.css)
+        }
 
         jvmTest.dependencies {}
     }

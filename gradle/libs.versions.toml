@@ -4,10 +4,14 @@
 [versions]
 kotlinx-benchmark = "0.4.13"
 kotlin = "2.1.21"
+batik = "1.19"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlinx-benchmark-runtime = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-runtime", version.ref = "kotlinx-benchmark" }
+batik-anim = { module = "org.apache.xmlgraphics:batik-anim", version.ref = "batik" }
+batik-svg-dom = { module = "org.apache.xmlgraphics:batik-svg-dom", version.ref = "batik" }
+batik-css = { module = "org.apache.xmlgraphics:batik-css", version.ref = "batik" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
