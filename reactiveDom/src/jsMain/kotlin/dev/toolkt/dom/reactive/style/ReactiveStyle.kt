@@ -1,4 +1,4 @@
-package dev.toolkt.dom.reactive
+package dev.toolkt.dom.reactive.style
 
 import dev.toolkt.reactive.Subscription
 import dev.toolkt.reactive.cell.Cell

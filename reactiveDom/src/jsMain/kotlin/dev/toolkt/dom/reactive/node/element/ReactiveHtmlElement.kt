@@ -1,9 +1,11 @@
-package dev.toolkt.dom.reactive
+package dev.toolkt.dom.reactive.node.element
 
 import dev.toolkt.dom.pure.collections.ChildNodesDomList
 import dev.toolkt.dom.reactive.event.ReactiveEventHandler
 import dev.toolkt.dom.reactive.event.ReactiveMouseEvent
 import dev.toolkt.dom.reactive.event.attach
+import dev.toolkt.dom.reactive.node.ReactiveNode
+import dev.toolkt.dom.reactive.style.ReactiveStyle
 import dev.toolkt.reactive.event_stream.EventEmitter
 import dev.toolkt.reactive.event_stream.EventStream
 import dev.toolkt.reactive.reactive_list.ReactiveList

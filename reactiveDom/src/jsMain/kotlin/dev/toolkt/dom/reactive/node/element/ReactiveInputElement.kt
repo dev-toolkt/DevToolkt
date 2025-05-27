@@ -1,10 +1,11 @@
-package dev.toolkt.dom.reactive
+package dev.toolkt.dom.reactive.node.element
 
 import dev.toolkt.dom.reactive.event.ReactiveEvent
 import dev.toolkt.dom.reactive.event.ReactiveEventHandler
 import dev.toolkt.dom.reactive.event.ReactiveInputChangeEvent
 import dev.toolkt.dom.reactive.event.ReactiveMouseEvent
 import dev.toolkt.dom.reactive.event.attach
+import dev.toolkt.dom.reactive.style.ReactiveStyle
 import dev.toolkt.reactive.event_stream.EventEmitter
 import dev.toolkt.reactive.event_stream.EventStream
 import org.w3c.dom.Element

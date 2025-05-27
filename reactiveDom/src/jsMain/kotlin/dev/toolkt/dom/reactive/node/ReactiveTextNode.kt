@@ -1,4 +1,4 @@
-package dev.toolkt.dom.reactive
+package dev.toolkt.dom.reactive.node
 
 import dev.toolkt.reactive.cell.Cell
 import kotlinx.browser.document

@@ -1,5 +1,6 @@
-package dev.toolkt.dom.reactive
+package dev.toolkt.dom.reactive.node.element
 
+import dev.toolkt.dom.reactive.node.ReactiveNode
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 
