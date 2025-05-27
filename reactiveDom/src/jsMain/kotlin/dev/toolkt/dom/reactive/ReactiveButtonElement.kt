@@ -1,16 +1,19 @@
 package dev.toolkt.dom.reactive
 
-import dev.toolkt.reactive.reactive_list.ReactiveList
-import dev.toolkt.reactive.event_stream.EventEmitter
 import dev.toolkt.dom.reactive.event.ReactiveEventHandler
 import dev.toolkt.dom.reactive.event.ReactiveMouseEvent
 import dev.toolkt.dom.reactive.event.attach
-import org.w3c.dom.events.EventTarget
+import dev.toolkt.reactive.event_stream.EventEmitter
+import dev.toolkt.reactive.reactive_list.ReactiveList
+import org.w3c.dom.Element
 
 class ReactiveButtonElement(
     override val children: ReactiveList<ReactiveNode>,
+    handleMouseDown: ReactiveEventHandler<ReactiveMouseEvent> = ReactiveEventHandler.Accepting,
     private val handleClick: ReactiveEventHandler<ReactiveMouseEvent> = ReactiveEventHandler.Accepting,
-) : ReactiveHtmlElement() {
+) : ReactiveHtmlElement(
+    handleMouseDown = handleMouseDown,
+) {
     override val elementName: String = "button"
 
     private val onClickEmitter = EventEmitter<ReactiveMouseEvent>()
@@ -18,14 +21,15 @@ class ReactiveButtonElement(
     val onClick: EventEmitter<ReactiveMouseEvent>
         get() = onClickEmitter
 
-    override fun attachEventHandlers(target: EventTarget) {
+    override fun attachEventHandlers(element: Element) {
         handleClick.attach(
-            target = target,
+            target = element,
             eventName = "click",
             wrapper = ReactiveMouseEvent.Companion,
             emitter = onClickEmitter,
         )
     }
+
 
     init {
         rawElement

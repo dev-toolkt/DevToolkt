@@ -1,13 +1,18 @@
 package dev.toolkt.dom.reactive
 
 import dev.toolkt.dom.pure.collections.ChildNodesDomList
+import dev.toolkt.dom.reactive.event.ReactiveEventHandler
+import dev.toolkt.dom.reactive.event.ReactiveMouseEvent
+import dev.toolkt.dom.reactive.event.attach
+import dev.toolkt.reactive.event_stream.EventEmitter
 import dev.toolkt.reactive.reactive_list.ReactiveList
 import kotlinx.browser.document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
-import org.w3c.dom.events.EventTarget
 
-abstract class ReactiveHtmlElement() : ReactiveElement() {
+abstract class ReactiveHtmlElement(
+    handleMouseDown: ReactiveEventHandler<ReactiveMouseEvent>,
+) : ReactiveElement() {
     companion object {
         private fun bindChildren(
             target: Node,
@@ -22,13 +27,24 @@ abstract class ReactiveHtmlElement() : ReactiveElement() {
         }
     }
 
+    private val onMouseDownEmitter = EventEmitter<ReactiveMouseEvent>()
+
+    val onMouseDown: EventEmitter<ReactiveMouseEvent>
+        get() = onMouseDownEmitter
 
     override val rawElement: Element by lazy {
         document.createElement(
             localName = elementName,
         ).also { element ->
             attachEventHandlers(
+                element = element,
+            )
+
+            handleMouseDown.attach(
                 target = element,
+                eventName = "mouseDown",
+                wrapper = ReactiveMouseEvent.Companion,
+                emitter = onMouseDownEmitter,
             )
 
             bindChildren(
@@ -43,6 +59,6 @@ abstract class ReactiveHtmlElement() : ReactiveElement() {
     abstract val children: ReactiveList<ReactiveNode>
 
     protected abstract fun attachEventHandlers(
-        target: EventTarget,
+        element: Element,
     )
 }
