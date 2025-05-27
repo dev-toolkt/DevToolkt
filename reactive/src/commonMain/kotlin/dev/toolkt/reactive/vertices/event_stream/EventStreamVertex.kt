@@ -1,9 +1,9 @@
 package dev.toolkt.reactive.vertices.event_stream
 
 import dev.toolkt.reactive.Subscription
-import dev.toolkt.reactive.vertices.Vertex
+import dev.toolkt.reactive.vertices.ManagedVertex
 
-abstract class EventStreamVertex<E> : Vertex<E>() {
+abstract class EventStreamVertex<E> : ManagedVertex<E>() {
     private var subscription: Subscription? = null
 
     final override fun onResumed() {

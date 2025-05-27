@@ -1,9 +1,9 @@
 package dev.toolkt.reactive.vertices.event_stream
 
-import dev.toolkt.reactive.vertices.Vertex
+import dev.toolkt.reactive.vertices.ManagedVertex
 
 internal class FilterEventStreamVertex<E>(
-    source: Vertex<E>,
+    source: ManagedVertex<E>,
     private val predicate: (E) -> Boolean,
 ) : TransformingEventStreamVertex<E, E>(
     source = source,

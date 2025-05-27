@@ -3,7 +3,7 @@ package dev.toolkt.reactive.event_stream
 import dev.toolkt.reactive.Listener
 import dev.toolkt.core.platform.PlatformFinalizationRegistry
 import dev.toolkt.reactive.Subscription
-import dev.toolkt.reactive.vertices.Vertex
+import dev.toolkt.reactive.vertices.ManagedVertex
 import dev.toolkt.reactive.vertices.event_stream.FilterEventStreamVertex
 import dev.toolkt.reactive.vertices.event_stream.MapEventStreamVertex
 
@@ -55,5 +55,5 @@ abstract class ActiveEventStream<E>() : EventStream<E>() {
         }
     }
 
-    internal abstract val vertex: Vertex<E>
+    internal abstract val vertex: ManagedVertex<E>
 }
