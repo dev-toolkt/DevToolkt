@@ -1,4 +1,4 @@
-package dev.toolkt.dom.reactive
+package dev.toolkt.dom.reactive.style
 
 import dev.toolkt.dom.pure.style.PureDisplayInside
 import dev.toolkt.dom.pure.style.PureDisplayOutside

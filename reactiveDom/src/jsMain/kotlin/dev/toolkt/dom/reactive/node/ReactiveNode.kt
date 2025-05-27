@@ -1,4 +1,4 @@
-package dev.toolkt.dom.reactive
+package dev.toolkt.dom.reactive.node
 
 import org.w3c.dom.Node
 
