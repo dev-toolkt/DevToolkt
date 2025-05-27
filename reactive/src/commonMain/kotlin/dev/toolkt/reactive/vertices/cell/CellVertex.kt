@@ -1,11 +1,11 @@
 package dev.toolkt.reactive.vertices.cell
 
 import dev.toolkt.reactive.cell.Cell
-import dev.toolkt.reactive.vertices.Vertex
+import dev.toolkt.reactive.vertices.ManagedVertex
 
 abstract class CellVertex<V>(
     initialValue: V,
-) : Vertex<Cell.Change<V>>() {
+) : ManagedVertex<Cell.Change<V>>() {
     private var mutableValue: V = initialValue
 
     val currentValue: V

@@ -1,9 +1,9 @@
 package dev.toolkt.reactive.vertices.event_stream
 
-import dev.toolkt.reactive.vertices.Vertex
+import dev.toolkt.reactive.vertices.ManagedVertex
 
 internal class MapEventStreamVertex<E, Er>(
-    source: Vertex<E>,
+    source: ManagedVertex<E>,
     private val transform: (E) -> Er,
 ) : TransformingEventStreamVertex<E, Er>(
     source = source,

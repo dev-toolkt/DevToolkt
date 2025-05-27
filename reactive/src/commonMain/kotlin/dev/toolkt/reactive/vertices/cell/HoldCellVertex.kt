@@ -1,10 +1,10 @@
 package dev.toolkt.reactive.vertices.cell
 
 import dev.toolkt.reactive.Listener
-import dev.toolkt.reactive.vertices.Vertex
+import dev.toolkt.reactive.vertices.ManagedVertex
 
 internal class HoldCellVertex<V>(
-    private val values: Vertex<V>,
+    private val values: ManagedVertex<V>,
     initialValue: V,
 ) : DependentCellVertex<V>(
     initialValue = initialValue,

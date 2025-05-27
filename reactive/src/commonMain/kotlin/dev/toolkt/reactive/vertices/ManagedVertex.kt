@@ -3,7 +3,7 @@ package dev.toolkt.reactive.vertices
 import dev.toolkt.reactive.Listener
 import dev.toolkt.core.platform.mutableWeakSetOf
 
-abstract class Vertex<T> : AbstractVertex<T>() {
+abstract class ManagedVertex<T> : AbstractVertex<T>() {
     enum class State {
         Paused, Resumed,
     }
