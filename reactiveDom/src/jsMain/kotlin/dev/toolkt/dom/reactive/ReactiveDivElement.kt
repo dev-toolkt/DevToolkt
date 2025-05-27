@@ -10,7 +10,7 @@ import org.w3c.dom.events.EventTarget
 class ReactiveDivElement(
     override val children: ReactiveList<ReactiveNode>,
     private val handleMouseDown: ReactiveEventHandler<ReactiveMouseEvent> = ReactiveEventHandler.Accepting,
-) : ReactiveGenericHtmlElement() {
+) : ReactiveHtmlElement() {
     override val elementName: String = "div"
 
     private val onMouseDownEmitter = EventEmitter<ReactiveMouseEvent>()

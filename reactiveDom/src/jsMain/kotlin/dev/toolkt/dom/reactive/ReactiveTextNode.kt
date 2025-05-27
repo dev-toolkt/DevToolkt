@@ -4,7 +4,7 @@ import dev.toolkt.reactive.cell.Cell
 import kotlinx.browser.document
 import org.w3c.dom.Text
 
-class ReactiveHtmlText(
+class ReactiveTextNode(
     val data: Cell<String>,
 ) : ReactiveNode() {
     override val rawNode: Text = data.form(
