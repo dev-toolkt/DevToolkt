@@ -1,14 +1,14 @@
 package dev.toolkt.dom.pure.style
 
 enum class PureDisplayOutside(val type: String) {
-    BLOCK("block"), INLINE("inline");
+    Block("block"), Inline("inline");
 
     companion object {
         fun parse(
             type: String,
         ): PureDisplayOutside = when (type.lowercase()) {
-            "block" -> BLOCK
-            "inline" -> INLINE
+            "block" -> Block
+            "inline" -> Inline
             else -> throw IllegalArgumentException("Unknown display-outside type: $type")
         }
     }

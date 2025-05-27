@@ -18,8 +18,12 @@ internal class ConstCell<V>(
         constValue = transform(constValue),
     )
 
-    override fun <T: Any> form(
+    override fun <T : Any> form(
         create: (V) -> T,
         update: (T, V) -> Unit,
     ): T = create(constValue)
+
+    override fun <T : Any> bind(target: T, update: (T, V) -> Unit) {
+        update(target, constValue)
+    }
 }

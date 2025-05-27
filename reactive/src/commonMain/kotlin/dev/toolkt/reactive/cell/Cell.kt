@@ -22,6 +22,26 @@ sealed class Cell<out V> {
             )
         }
 
+        fun <V1, V2, Vr> map2(
+            cell1: Cell<V1>,
+            cell2: Cell<V2>,
+            transform: (V1, V2) -> Cell<Vr>,
+        ): Cell<Vr> = cell1.switchOf { value1 ->
+            cell2.switchOf { value2 ->
+                transform(value1, value2)
+            }
+        }
+
+        fun <Vr1, Vr2> zip2(
+            cell1: Cell<Vr1>,
+            cell2: Cell<Vr2>,
+        ): Cell<Pair<Vr1, Vr2>> = cell1.switchOf { value1 ->
+            cell2.map { value2 ->
+                Pair(value1, value2)
+            }
+        }
+
+
         fun <V> of(value: V): Cell<V> = ConstCell(
             constValue = value,
         )
@@ -41,6 +61,11 @@ sealed class Cell<out V> {
         create: (V) -> T,
         update: (T, V) -> Unit,
     ): T
+
+    abstract fun <T : Any> bind(
+        target: T,
+        update: (T, V) -> Unit,
+    )
 
     fun <Vr> switchOf(
         transform: (V) -> Cell<Vr>,
