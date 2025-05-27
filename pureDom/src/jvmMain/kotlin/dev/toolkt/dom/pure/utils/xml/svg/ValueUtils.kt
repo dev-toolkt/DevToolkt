@@ -13,7 +13,7 @@ val Value.primitiveTypeOrNull: Short?
         else -> null
     }
 
-fun Value.toSimpleColor(): PureColor? {
+fun Value.toPureColor(): PureColor? {
     if (primitiveTypeOrNull != CSSPrimitiveValue.CSS_RGBCOLOR) {
         return null
     }

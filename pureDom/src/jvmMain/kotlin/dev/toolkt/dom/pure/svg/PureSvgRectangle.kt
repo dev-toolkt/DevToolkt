@@ -60,7 +60,7 @@ data class PureSvgRectangle(
     }
 }
 
-fun SVGRectElement.toSimpleRect(): PureSvgRectangle = PureSvgRectangle(
+fun SVGRectElement.toPureRect(): PureSvgRectangle = PureSvgRectangle(
     position = Point(
         x = x.baseVal.value.toDouble(),
         y = y.baseVal.value.toDouble(),

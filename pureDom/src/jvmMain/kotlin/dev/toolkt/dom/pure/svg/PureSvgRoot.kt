@@ -139,7 +139,7 @@ data class PureSvgRoot(
     }
 }
 
-fun SVGDocument.toSimple(): PureSvgRoot {
+fun SVGDocument.toPure(): PureSvgRoot {
     val widthString =
         documentSvgElement.getAttributeOrNull("width") ?: throw IllegalArgumentException("Width is not set")
     val heightString =

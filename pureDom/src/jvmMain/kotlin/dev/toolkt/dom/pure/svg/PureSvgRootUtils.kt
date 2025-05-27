@@ -23,7 +23,7 @@ fun PureSvgRoot.Companion.parse(
 
     document.cssEngine = svgDomImplementation.createCSSEngine(document, MinimalCssContext())
 
-    return document.toSimple()
+    return document.toPure()
 }
 
 fun PureSvgRoot.toSvgDocument(): SVGDocument = svgDomImplementation.createSvgDocument().apply {
