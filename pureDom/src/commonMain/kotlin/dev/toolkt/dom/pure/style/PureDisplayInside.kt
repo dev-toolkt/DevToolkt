@@ -13,3 +13,4 @@ enum class PureDisplayInside(val type: String) {
         }
     }
 }
+

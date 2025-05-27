@@ -79,6 +79,16 @@ sealed class Cell<out V> {
         nestedEventStream = map(transform),
     )
 }
+
+fun <V, T : Any> Cell<V>.bindNested(
+    target: T,
+    updateOuter: (T, V) -> Unit,
+    bindInner: (T, V) -> Unit,
+) {
+    TODO("Not yet implemented")
+}
+
+
 //
 //internal fun <V> Cell<V>.subscribeToNewValues(
 //    handle: (V) -> Unit,
