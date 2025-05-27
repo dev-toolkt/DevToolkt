@@ -2,6 +2,7 @@ package dev.toolkt.reactive.event_stream
 
 import dev.toolkt.reactive.Listener
 import dev.toolkt.core.platform.PlatformFinalizationRegistry
+import dev.toolkt.reactive.Subscription
 import dev.toolkt.reactive.vertices.Vertex
 import dev.toolkt.reactive.vertices.event_stream.FilterEventStreamVertex
 import dev.toolkt.reactive.vertices.event_stream.MapEventStreamVertex
@@ -30,8 +31,8 @@ abstract class ActiveEventStream<E>() : EventStream<E>() {
     final override fun <T : Any> pipe(
         target: T,
         consume: (E) -> Unit,
-    ) {
-        val subscription = vertex.subscribeStrong(
+    ): Subscription {
+        val innerSubscription = vertex.subscribeStrong(
             listener = object : Listener<E> {
                 override fun handle(event: E) {
                     consume(event)
@@ -39,10 +40,18 @@ abstract class ActiveEventStream<E>() : EventStream<E>() {
             },
         )
 
-        finalizationRegistry.register(
+        val cleanable = finalizationRegistry.register(
             target = target,
         ) {
-            subscription.cancel()
+            innerSubscription.cancel()
+        }
+
+        return object : Subscription {
+            override fun cancel() {
+                // Remove the registered finalization entry and cancel the inner
+                // subscription
+                cleanable.clean()
+            }
         }
     }
 

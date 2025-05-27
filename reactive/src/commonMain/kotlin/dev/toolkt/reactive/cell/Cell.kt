@@ -1,5 +1,6 @@
 package dev.toolkt.reactive.cell
 
+import dev.toolkt.reactive.Subscription
 import dev.toolkt.reactive.event_stream.EventStream
 import dev.toolkt.reactive.vertices.cell.SwitchCellVertex
 
@@ -60,12 +61,32 @@ sealed class Cell<out V> {
     abstract fun <T : Any> form(
         create: (V) -> T,
         update: (T, V) -> Unit,
-    ): T
+    ): Pair<T, Subscription>
+
+    fun <T : Any> formAndForget(
+        create: (V) -> T,
+        update: (T, V) -> Unit,
+    ): T {
+        val (target, _) = form(create, update)
+
+        // Forget the subscription, relying purely on garbage collection
+        return target
+    }
 
     abstract fun <T : Any> bind(
         target: T,
         update: (T, V) -> Unit,
-    )
+    ): Subscription
+
+    fun <T : Any> bindAndForget(
+        target: T,
+        update: (T, V) -> Unit,
+    ) {
+        bind(
+            target = target,
+            update = update,
+        )
+    }
 
     fun <Vr> switchOf(
         transform: (V) -> Cell<Vr>,
