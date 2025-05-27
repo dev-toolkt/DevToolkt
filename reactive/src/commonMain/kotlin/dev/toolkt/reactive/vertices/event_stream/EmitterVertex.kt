@@ -5,6 +5,10 @@ import dev.toolkt.reactive.vertices.Vertex
 class EmitterVertex<E> : Vertex<E>() {
     override val kind: String = "Emitter"
 
+    fun emit(event: E) {
+        notify(event)
+    }
+
     override fun onResumed() {
     }
 
