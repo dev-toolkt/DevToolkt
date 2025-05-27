@@ -10,7 +10,7 @@ import org.w3c.dom.events.EventTarget
 class ReactiveButtonElement(
     override val children: ReactiveList<ReactiveNode>,
     private val handleClick: ReactiveEventHandler<ReactiveMouseEvent> = ReactiveEventHandler.Accepting,
-) : ReactiveGenericHtmlElement() {
+) : ReactiveHtmlElement() {
     override val elementName: String = "button"
 
     private val onClickEmitter = EventEmitter<ReactiveMouseEvent>()
