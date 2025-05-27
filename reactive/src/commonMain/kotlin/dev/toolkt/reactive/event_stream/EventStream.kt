@@ -1,5 +1,6 @@
 package dev.toolkt.reactive.event_stream
 
+import dev.toolkt.reactive.Subscription
 import dev.toolkt.reactive.vertices.cell.HoldCellVertex
 import dev.toolkt.reactive.cell.ActiveCell
 import dev.toolkt.reactive.cell.Cell
@@ -35,7 +36,18 @@ sealed class EventStream<out E> {
     abstract fun <T : Any> pipe(
         target: T,
         consume: (E) -> Unit,
-    )
+    ): Subscription
+
+    fun <T : Any> pipeAndForget(
+        target: T,
+        consume: (E) -> Unit,
+    ) {
+        // Forget the subscription, relying purely on garbage collection
+        pipe(
+            target = target,
+            consume = consume,
+        )
+    }
 }
 
 fun <E> EventStream<E>.hold(

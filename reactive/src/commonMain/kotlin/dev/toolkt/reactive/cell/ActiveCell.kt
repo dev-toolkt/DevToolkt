@@ -1,5 +1,6 @@
 package dev.toolkt.reactive.cell
 
+import dev.toolkt.reactive.Subscription
 import dev.toolkt.reactive.event_stream.DependentEventStream
 import dev.toolkt.reactive.event_stream.EventStream
 import dev.toolkt.reactive.vertices.cell.CellVertex
@@ -29,25 +30,25 @@ abstract class ActiveCell<V> : Cell<V>() {
     final override fun <T : Any> form(
         create: (V) -> T,
         update: (T, V) -> Unit
-    ): T {
+    ): Pair<T, Subscription> {
         val target = create(currentValue)
 
-        newValues.pipe(
+        val subscription = newValues.pipe(
             target = target,
         ) { newValue ->
             update(target, newValue)
         }
 
-        return target
+        return Pair(target, subscription)
     }
 
     override fun <T : Any> bind(
         target: T,
         update: (T, V) -> Unit,
-    ) {
+    ): Subscription {
         update(target, currentValue)
 
-        newValues.pipe(
+        return newValues.pipe(
             target = target,
         ) { newValue ->
             update(target, newValue)

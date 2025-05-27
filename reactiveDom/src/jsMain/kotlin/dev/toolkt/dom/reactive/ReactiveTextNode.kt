@@ -7,7 +7,7 @@ import org.w3c.dom.Text
 class ReactiveTextNode(
     val data: Cell<String>,
 ) : ReactiveNode() {
-    override val rawNode: Text = data.form(
+    override val rawNode: Text = data.formAndForget(
         create = { initialValue: String ->
             document.createTextNode(
                 data = initialValue,

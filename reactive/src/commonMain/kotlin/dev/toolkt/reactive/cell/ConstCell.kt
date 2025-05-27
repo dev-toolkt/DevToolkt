@@ -1,5 +1,6 @@
 package dev.toolkt.reactive.cell
 
+import dev.toolkt.reactive.Subscription
 import dev.toolkt.reactive.event_stream.EventStream
 
 internal class ConstCell<V>(
@@ -21,9 +22,17 @@ internal class ConstCell<V>(
     override fun <T : Any> form(
         create: (V) -> T,
         update: (T, V) -> Unit,
-    ): T = create(constValue)
+    ): Pair<T, Subscription> = Pair(
+        create(constValue),
+        Subscription.Noop,
+    )
 
-    override fun <T : Any> bind(target: T, update: (T, V) -> Unit) {
+    override fun <T : Any> bind(
+        target: T,
+        update: (T, V) -> Unit,
+    ): Subscription {
         update(target, constValue)
+
+        return Subscription.Noop
     }
 }
