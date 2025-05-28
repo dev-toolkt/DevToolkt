@@ -2,6 +2,7 @@ package dev.toolkt.dom.reactive.utils.html
 
 import dev.toolkt.dom.pure.input.PureInputType
 import dev.toolkt.dom.reactive.style.ReactiveStyle
+import dev.toolkt.dom.reactive.utils.createReactiveElement
 import dev.toolkt.reactive.cell.Cell
 import dev.toolkt.reactive.event_stream.EventStream
 import dev.toolkt.reactive.event_stream.getEventStream
@@ -22,8 +23,8 @@ fun <T : PureInputType> Document.createReactiveHtmlInputElement(
     style: ReactiveStyle? = null,
     children: ReactiveList<Node>? = null,
 ): HTMLTypedInputElement<T> {
-    val inputElement = createReactiveHtmlElement(
-        localName = "input",
+    val inputElement = createReactiveElement(
+        name = "input",
         style = style,
         children = children,
     ) as HTMLInputElement
