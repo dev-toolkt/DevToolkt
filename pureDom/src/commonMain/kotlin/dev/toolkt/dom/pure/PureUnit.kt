@@ -114,6 +114,8 @@ sealed class PureUnit {
     }
 
     data object Percent : PureUnit() {
+        val full = 100.percent
+
         override val string: String = "%"
     }
 

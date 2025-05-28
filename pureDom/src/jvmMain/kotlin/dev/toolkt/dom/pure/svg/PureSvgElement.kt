@@ -9,13 +9,11 @@ import org.w3c.dom.svg.SVGPathElement
 import org.w3c.dom.svg.SVGRectElement
 
 abstract class PureSvgElement : PureElement() {
-    companion object {
-        const val SVG_NS = "http://www.w3.org/2000/svg"
-    }
+
 
     protected fun Document.createSvgElement(
         name: String,
-    ): Element = createElementNS(SVG_NS, "svg:$name")
+    ): Element = createElementNS(PureSvg.Namespace, "svg:$name")
 }
 
 abstract class PureSvgGraphicsElement : PureSvgElement() {
