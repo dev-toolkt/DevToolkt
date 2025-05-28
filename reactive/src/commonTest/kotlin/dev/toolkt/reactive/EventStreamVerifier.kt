@@ -24,7 +24,7 @@ class EventStreamVerifier<E>(
 }
 
 private fun <E> EventStream<E>.subscribe(
-    listener: RawListener<E>,
+    listener: Listener<E>,
 ) {
     (this as? ActiveEventStream<E>)?.let {
         this.vertex.subscribeStrongRaw(listener = listener)

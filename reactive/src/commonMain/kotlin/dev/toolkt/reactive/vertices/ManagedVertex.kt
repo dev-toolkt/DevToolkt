@@ -32,11 +32,11 @@ abstract class ManagedVertex<T> : Vertex<T>() {
         value: T,
     ) {
         strongListeners.forEach {
-            it.handle(value)
+            it(value)
         }
 
         weakListeners.forEach {
-            it.handle(value)
+            it(value)
         }
 
         // Touching the weak listeners set could purge all (unreachable) listeners
