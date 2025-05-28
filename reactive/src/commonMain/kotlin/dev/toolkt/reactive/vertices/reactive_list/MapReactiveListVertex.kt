@@ -1,8 +1,5 @@
 package dev.toolkt.reactive.vertices.reactive_list
 
-import dev.toolkt.reactive.reactive_list.ReactiveList
-import dev.toolkt.reactive.Listener
-
 class MapReactiveListVertex<E, Er>(
     private val source: ReactiveListVertex<E>,
     private val transform: (E) -> Er,
@@ -11,22 +8,11 @@ class MapReactiveListVertex<E, Er>(
 ) {
     override val kind: String = "MapL"
 
-    override fun buildHybridSubscription() = source.subscribeHybrid(
-        listener = object : Listener<ReactiveList.Change<E>> {
-            override fun handle(change: ReactiveList.Change<E>) {
-                update(
-                    change = ReactiveList.Change(
-                        updates = change.updates.map { update ->
-                            ReactiveList.Change.Update(
-                                indexRange = update.indexRange,
-                                updatedElements = update.updatedElements.map(transform),
-                            )
-                        }.toSet(),
-                    ),
-                )
-            }
-        },
-    )
+    override fun buildHybridSubscription() = source.subscribeHybridRaw { change ->
+        update(
+            change = change.map(transform),
+        )
+    }
 
     init {
         init()

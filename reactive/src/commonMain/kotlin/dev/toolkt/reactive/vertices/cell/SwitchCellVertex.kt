@@ -14,17 +14,13 @@ class SwitchCellVertex<V>(
     override val kind: String = "Switch"
 
     override fun buildHybridSubscription() = object : HybridSubscription {
-        private val outerSubscription = nestedCell.subscribeHybrid(
-            listener = object : Listener<Cell.Change<Cell<V>>> {
-                override fun handle(change: Cell.Change<Cell<V>>) {
-                    val newInnerCell = change.newValue
+        private val outerSubscription = nestedCell.subscribeHybridRaw {
+            val newInnerCell = it.newValue
 
-                    update(newInnerCell.currentValue)
+            update(newInnerCell.currentValue)
 
-                    resubscribeToInner(newInnerCell = newInnerCell)
-                }
-            },
-        )
+            resubscribeToInner(newInnerCell = newInnerCell)
+        }
 
         private var innerSubscription = subscribeToInner(
             innerCell = nestedCell.currentValue,
@@ -33,16 +29,8 @@ class SwitchCellVertex<V>(
         private fun subscribeToInner(
             innerCell: Cell<V>,
         ): HybridSubscription = when (innerCell) {
-            is ActiveCell<V> -> {
-                innerCell.vertex.subscribeHybrid(
-                    listener = object : Listener<Cell.Change<V>> {
-                        override fun handle(change: Cell.Change<V>) {
-                            val newValue = change.newValue
-
-                            update(newValue)
-                        }
-                    },
-                )
+            is ActiveCell<V> -> innerCell.vertex.subscribeHybridRaw {
+                update(it.newValue)
             }
 
             is ConstCell<V> -> HybridSubscription.Noop

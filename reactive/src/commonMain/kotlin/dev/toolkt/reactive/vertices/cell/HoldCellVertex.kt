@@ -1,6 +1,5 @@
 package dev.toolkt.reactive.vertices.cell
 
-import dev.toolkt.reactive.Listener
 import dev.toolkt.reactive.vertices.ManagedVertex
 
 internal class HoldCellVertex<V>(
@@ -11,13 +10,9 @@ internal class HoldCellVertex<V>(
 ) {
     override val kind: String = "Hold"
 
-    override fun buildHybridSubscription() = values.subscribeHybrid(
-        listener = object : Listener<V> {
-            override fun handle(value: V) {
-                update(value)
-            }
-        },
-    )
+    override fun buildHybridSubscription() = values.subscribeHybridRaw {
+        update(it)
+    }
 
     init {
         init()

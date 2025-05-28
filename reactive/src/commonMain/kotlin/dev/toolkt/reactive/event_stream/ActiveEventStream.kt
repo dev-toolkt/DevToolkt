@@ -32,13 +32,7 @@ abstract class ActiveEventStream<E>() : EventStream<E>() {
         target: T,
         consume: (E) -> Unit,
     ): Subscription {
-        val innerSubscription = vertex.subscribeStrong(
-            listener = object : Listener<E> {
-                override fun handle(event: E) {
-                    consume(event)
-                }
-            },
-        )
+        val innerSubscription = vertex.subscribeStrongRaw(consume)
 
         val cleanable = finalizationRegistry.register(
             target = target,

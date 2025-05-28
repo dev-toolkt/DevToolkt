@@ -40,6 +40,13 @@ abstract class ReactiveList<out E> {
                 )
             }
 
+            fun <Er> map(
+                transform: (E) -> Er,
+            ): Update<Er> = Update(
+                indexRange = indexRange,
+                updatedElements = updatedElements.map(transform),
+            )
+
             fun toChange(): Change<E> = Change(
                 updates = setOf(this),
             )
@@ -59,6 +66,14 @@ abstract class ReactiveList<out E> {
 
         val updatesInOrder: List<Update<E>>
             get() = updates.sortedBy { it.indexRange.first }
+
+        fun <Er> map(
+            transform: (E) -> Er,
+        ): Change<Er> = Change(
+            updates = updates.map { update ->
+                update.map(transform)
+            }.toSet(),
+        )
 
         init {
             updates.allUniquePairs().none { (updateA, updateB) ->
