@@ -13,7 +13,7 @@ import dev.toolkt.reactive.Subscription
  */
 abstract class Vertex<T>() {
     sealed class ListenerStrength {
-        data object Weak : ListenerStrength() {
+        data object Strong : ListenerStrength() {
             override fun <T> addListener(
                 vertex: Vertex<T>,
                 listener: Listener<T>,
@@ -29,7 +29,7 @@ abstract class Vertex<T>() {
             }
         }
 
-        data object Strong : ListenerStrength() {
+        data object Weak : ListenerStrength() {
             override fun <T> addListener(
                 vertex: Vertex<T>,
                 listener: Listener<T>,
