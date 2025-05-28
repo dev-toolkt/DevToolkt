@@ -1,12 +1,11 @@
-package dev.toolkt.reactive
+package dev.toolkt.reactive.event_stream
 
-import dev.toolkt.reactive.event_stream.hold
+import dev.toolkt.reactive.EventStreamVerifier
 import dev.toolkt.reactive.cell.Cell
-import dev.toolkt.reactive.event_stream.EventEmitter
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class StreamHoldTests {
+class EventStreamHoldTests {
     @Test
     fun testHold() {
         val eventEmitter = EventEmitter<Int>()

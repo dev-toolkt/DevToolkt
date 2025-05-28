@@ -1,11 +1,9 @@
-package dev.toolkt.reactive
+package dev.toolkt.reactive.reactive_list
 
-import dev.toolkt.reactive.reactive_list.ReactiveList
-import dev.toolkt.reactive.reactive_list.applyTo
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class ReactiveListTests {
+class ReactiveListChangeTests {
     @Test
     fun testChangeApply() {
         val originalList = listOf(
