@@ -2,7 +2,6 @@ package dev.toolkt.reactive.reactive_list
 
 import dev.toolkt.core.range.single
 import dev.toolkt.reactive.EventStreamVerifier
-import dev.toolkt.reactive.cell.Cell
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -19,7 +18,7 @@ class ReactiveListMapTests {
         )
 
         val mutableReactiveList = MutableReactiveList(
-            initialElements = originalContent
+            initialContent = originalContent,
         )
 
         val mappedList = mutableReactiveList.map {
@@ -44,7 +43,7 @@ class ReactiveListMapTests {
 
         mutableReactiveList.set(
             index = 2,
-            element = 21,
+            newValue = 21,
         )
 
         assertEquals(
@@ -73,7 +72,7 @@ class ReactiveListMapTests {
 
         mutableReactiveList.set(
             index = 4,
-            element = 41,
+            newValue = 41,
         )
 
         assertEquals(

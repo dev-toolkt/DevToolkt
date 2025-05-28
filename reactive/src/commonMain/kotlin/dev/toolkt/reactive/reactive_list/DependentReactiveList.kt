@@ -1,7 +1,20 @@
 package dev.toolkt.reactive.reactive_list
 
-import dev.toolkt.reactive.vertices.reactive_list.DependentReactiveListVertex
+abstract class DependentReactiveList<E>(
+    initialContent: List<E>,
+) : ActiveReactiveList<E>() {
+    internal val cachedContent = initialContent.toMutableList()
 
-class DependentReactiveList<E>(
-    override val vertex: DependentReactiveListVertex<E>,
-) : ActiveReactiveList<E>()
+    final override val currentElements: List<E>
+        get() = cachedContent.toList()
+
+    protected fun init() {
+        changes.listenWeak(
+            target = this,
+        ) { self, change ->
+            change.applyTo(
+                mutableList = cachedContent,
+            )
+        }
+    }
+}

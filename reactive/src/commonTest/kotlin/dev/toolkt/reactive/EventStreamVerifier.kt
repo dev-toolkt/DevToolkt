@@ -1,6 +1,5 @@
 package dev.toolkt.reactive
 
-import dev.toolkt.reactive.event_stream.ActiveEventStream
 import dev.toolkt.reactive.event_stream.EventStream
 
 class EventStreamVerifier<E>(
@@ -9,8 +8,10 @@ class EventStreamVerifier<E>(
     private val mutableReceivedEvents = mutableListOf<E>()
 
     init {
-        eventStream.subscribe {
-            mutableReceivedEvents.add(it)
+        eventStream.listenWeak(
+            target = this,
+        ) { self, event ->
+            self.mutableReceivedEvents.add(event)
         }
     }
 
@@ -20,13 +21,5 @@ class EventStreamVerifier<E>(
         mutableReceivedEvents.clear()
 
         return receivedEvents
-    }
-}
-
-private fun <E> EventStream<E>.subscribe(
-    listener: Listener<E>,
-) {
-    (this as? ActiveEventStream<E>)?.let {
-        this.vertex.subscribeStrongRaw(listener = listener)
     }
 }

@@ -1,9 +1,9 @@
-package dev.toolkt.reactive.event_stream_ng
+package dev.toolkt.reactive.event_stream
 
-class MapEventStreamNg<E, Er>(
-    source: EventStreamNg<E>,
+class MapEventStream<E, Er>(
+    source: EventStream<E>,
     private val transform: (E) -> Er,
-) : TransformingEventStreamNg<E, Er>(
+) : TransformingEventStream<E, Er>(
     source = source,
 ) {
     override fun transformEvent(event: E) {

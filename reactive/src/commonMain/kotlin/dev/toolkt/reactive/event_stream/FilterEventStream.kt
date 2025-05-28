@@ -1,9 +1,9 @@
-package dev.toolkt.reactive.event_stream_ng
+package dev.toolkt.reactive.event_stream
 
-class FilterEventStreamNg<E>(
-    source: EventStreamNg<E>,
+class FilterEventStream<E>(
+    source: EventStream<E>,
     private val predicate: (E) -> Boolean,
-) : TransformingEventStreamNg<E, E>(
+) : TransformingEventStream<E, E>(
     source = source,
 ) {
     override fun transformEvent(event: E) {

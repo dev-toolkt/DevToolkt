@@ -1,11 +1,11 @@
 package dev.toolkt.reactive.reactive_list
 
 import dev.toolkt.core.iterable.allUniquePairs
+import dev.toolkt.core.iterable.updateRange
+import dev.toolkt.core.range.empty
+import dev.toolkt.core.range.overlaps
 import dev.toolkt.reactive.cell.Cell
 import dev.toolkt.reactive.event_stream.EventStream
-import dev.toolkt.core.range.empty
-import dev.toolkt.core.iterable.updateRange
-import dev.toolkt.core.range.overlaps
 
 abstract class ReactiveList<out E> {
     data class Change<out E>(
@@ -93,9 +93,9 @@ abstract class ReactiveList<out E> {
 
         override fun <T : Any> bind(
             target: T,
-            mutableList: MutableList<*>,
+            extract: (T) -> MutableList<in Nothing>,
         ) {
-            mutableList.clear()
+            extract(target).clear()
         }
     }
 
@@ -121,7 +121,7 @@ abstract class ReactiveList<out E> {
 
     abstract fun <T : Any> bind(
         target: T,
-        mutableList: MutableList<in E>,
+        extract: (T) -> MutableList<in E>,
     )
 }
 
@@ -148,4 +148,3 @@ fun <E> ReactiveList.Change<E>.applyTo(
         update.applyTo(mutableList = mutableList)
     }
 }
-

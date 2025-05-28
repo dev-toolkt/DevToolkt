@@ -1,28 +1,20 @@
 package dev.toolkt.reactive.event_stream
 
 import dev.toolkt.reactive.Subscription
-import dev.toolkt.reactive.vertices.cell.HoldCellVertex
-import dev.toolkt.reactive.cell.ActiveCell
 import dev.toolkt.reactive.cell.Cell
-import dev.toolkt.reactive.cell.ConstCell
-import dev.toolkt.reactive.cell.DependentCell
-import dev.toolkt.reactive.vertices.event_stream.DivertEventStreamVertex
+import dev.toolkt.reactive.cell.HoldCell
 
-sealed class EventStream<out E> {
+typealias WeakListener<T, E> = (T, E) -> Unit
+
+abstract class EventStream<out E> : EventSourceNg<E> {
     companion object {
         val Never: EventStream<Nothing> = NeverEventStream
 
         fun <V> divert(
             nestedEventStream: Cell<EventStream<V>>,
-        ): EventStream<V> = when (nestedEventStream) {
-            is ActiveCell<EventStream<V>> -> DependentEventStream(
-                vertex = DivertEventStreamVertex(
-                    nestedEventStream = nestedEventStream.vertex,
-                ),
-            )
-
-            is ConstCell<EventStream<V>> -> nestedEventStream.constValue
-        }
+        ): EventStream<V> = DivertEventStream(
+            nestedEventStream = nestedEventStream,
+        )
     }
 
     abstract fun <Er> map(
@@ -35,32 +27,24 @@ sealed class EventStream<out E> {
 
     abstract fun <T : Any> pipe(
         target: T,
-        consume: (E) -> Unit,
+        forward: (T, E) -> Unit,
     ): Subscription
 
     fun <T : Any> pipeAndForget(
         target: T,
-        consume: (E) -> Unit,
+        forward: (T, E) -> Unit,
     ) {
         // Forget the subscription, relying purely on garbage collection
         pipe(
             target = target,
-            consume = consume,
+            forward = forward,
         )
     }
 }
 
 fun <E> EventStream<E>.hold(
     initialValue: E,
-): Cell<E> = when (this) {
-    is ActiveEventStream<E> -> DependentCell(
-        HoldCellVertex(
-            values = this.vertex,
-            initialValue = initialValue,
-        )
-    )
-
-    NeverEventStream -> ConstCell(
-        constValue = initialValue,
-    )
-}
+): Cell<E> = HoldCell(
+    newValues = this,
+    initialValue = initialValue,
+)

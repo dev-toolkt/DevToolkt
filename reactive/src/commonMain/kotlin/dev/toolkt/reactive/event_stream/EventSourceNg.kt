@@ -1,4 +1,4 @@
-package dev.toolkt.reactive.event_stream_ng
+package dev.toolkt.reactive.event_stream
 
 import dev.toolkt.reactive.Listener
 import dev.toolkt.reactive.Subscription

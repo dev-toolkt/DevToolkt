@@ -2,7 +2,6 @@ package dev.toolkt.reactive.cell
 
 import dev.toolkt.reactive.Subscription
 import dev.toolkt.reactive.event_stream.EventStream
-import dev.toolkt.reactive.vertices.cell.SwitchCellVertex
 
 sealed class Cell<out V> {
     data class Change<out V>(
@@ -13,15 +12,9 @@ sealed class Cell<out V> {
     companion object {
         fun <V> switch(
             nestedCell: Cell<Cell<V>>,
-        ): Cell<V> = when (nestedCell) {
-            is ConstCell<Cell<V>> -> nestedCell.constValue
-
-            is ActiveCell<Cell<V>> -> DependentCell(
-                vertex = SwitchCellVertex(
-                    nestedCell = nestedCell.vertex,
-                ),
-            )
-        }
+        ): Cell<V> = SwitchCell(
+            nestedCell = nestedCell,
+        )
 
         fun <V1, V2, Vr> map2(
             cell1: Cell<V1>,
@@ -42,10 +35,9 @@ sealed class Cell<out V> {
             }
         }
 
-
-        fun <V> of(value: V): Cell<V> = ConstCell(
-            constValue = value,
-        )
+        fun <V> of(
+            value: V,
+        ): Cell<V> = ConstCell(constValue = value)
     }
 
     abstract val newValues: EventStream<V>
@@ -96,7 +88,7 @@ sealed class Cell<out V> {
 
     fun <Er> divertOf(
         transform: (V) -> EventStream<Er>,
-    ): EventStream<Er> = EventStream.Companion.divert(
+    ): EventStream<Er> = EventStream.divert(
         nestedEventStream = map(transform),
     )
 }

@@ -1,11 +1,11 @@
-package dev.toolkt.reactive.event_stream_ng
+package dev.toolkt.reactive.event_stream
 
 import dev.toolkt.core.platform.PlatformWeakReference
 import dev.toolkt.core.platform.mutableWeakMapOf
 import dev.toolkt.reactive.Listener
 import dev.toolkt.reactive.Subscription
 
-abstract class ManagedEventStreamNg<E> : ActiveEventStreamNg<E>() {
+abstract class ManagedEventStream<E> : ActiveEventStream<E>() {
     private val listeners = mutableSetOf<Listener<E>>()
 
     private val weakListeners = mutableWeakMapOf<Any, WeakListener<Any, E>>()
