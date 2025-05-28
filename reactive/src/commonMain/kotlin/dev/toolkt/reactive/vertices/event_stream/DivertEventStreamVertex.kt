@@ -1,11 +1,10 @@
 package dev.toolkt.reactive.vertices.event_stream
 
-import dev.toolkt.reactive.event_stream.ActiveEventStream
-import dev.toolkt.reactive.cell.Cell
-import dev.toolkt.reactive.event_stream.EventStream
 import dev.toolkt.reactive.Listener
-import dev.toolkt.reactive.event_stream.NeverEventStream
 import dev.toolkt.reactive.Subscription
+import dev.toolkt.reactive.event_stream.ActiveEventStream
+import dev.toolkt.reactive.event_stream.EventStream
+import dev.toolkt.reactive.event_stream.NeverEventStream
 import dev.toolkt.reactive.vertices.cell.CellVertex
 
 internal class DivertEventStreamVertex<E>(
@@ -14,15 +13,9 @@ internal class DivertEventStreamVertex<E>(
     override val kind: String = "Divert"
 
     override fun observe(): Subscription = object : Subscription {
-        private val outerSubscription = nestedEventStream.subscribeStrong(
-            listener = object : Listener<Cell.Change<EventStream<E>>> {
-                override fun handle(change: Cell.Change<EventStream<E>>) {
-                    val newInnerStream = change.newValue
-
-                    resubscribeToInner(newInnerStream = newInnerStream)
-                }
-            },
-        )
+        private val outerSubscription = nestedEventStream.subscribeStrongRaw {
+            resubscribeToInner(newInnerStream = it.newValue)
+        }
 
         private var innerSubscription: Subscription = subscribeToInner(
             nestedEventStream.currentValue,
@@ -31,13 +24,9 @@ internal class DivertEventStreamVertex<E>(
         private fun subscribeToInner(
             innerStream: EventStream<E>,
         ): Subscription = when (innerStream) {
-            is ActiveEventStream<E> -> innerStream.vertex.subscribeStrong(
-                listener = object : Listener<E> {
-                    override fun handle(event: E) {
-                        notify(event)
-                    }
-                },
-            )
+            is ActiveEventStream<E> -> innerStream.vertex.subscribeStrongRaw {
+                notify(it)
+            }
 
             NeverEventStream -> Subscription.Noop
         }
