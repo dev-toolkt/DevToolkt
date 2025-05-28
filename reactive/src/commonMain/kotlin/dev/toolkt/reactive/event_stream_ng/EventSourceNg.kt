@@ -8,7 +8,7 @@ interface EventSourceNg<out E> {
         listener: Listener<E>,
     ): Subscription
 
-    fun <T> listenWeak(
+    fun <T: Any> listenWeak(
         target: T,
         listener: WeakListener<T, E>,
     ): Subscription
