@@ -50,11 +50,3 @@ abstract class ReactiveInputElement<ChangeEventT : ReactiveInputChangeEvent>(
     protected abstract val changeEventWrapper: ReactiveEvent.Wrapper<ChangeEventT>
 }
 
-fun Document.createReactiveHtmlInputElement(
-    style: ReactiveStyle? = null,
-    children: ReactiveList<Node>? = null,
-): HTMLInputElement = createReactiveHtmlElement(
-    localName = "input",
-    style = style,
-    children = children,
-) as HTMLInputElement

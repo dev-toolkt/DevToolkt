@@ -40,6 +40,12 @@ abstract class EventStream<out E> : EventSourceNg<E> {
             forward = forward,
         )
     }
+
+    fun units(): EventStream<Unit> = map { }
+}
+
+fun <E> EventStream<*>.cast(): EventStream<E> {
+    @Suppress("UNCHECKED_CAST") return this as EventStream<E>
 }
 
 fun <E> EventStream<E>.hold(
