@@ -9,13 +9,9 @@ class EventStreamVerifier<E>(
     private val mutableReceivedEvents = mutableListOf<E>()
 
     init {
-        eventStream.subscribe(
-            listener = object : Listener<E> {
-                override fun handle(event: E) {
-                    mutableReceivedEvents.add(event)
-                }
-            },
-        )
+        eventStream.subscribe {
+            mutableReceivedEvents.add(it)
+        }
     }
 
     fun removeReceivedEvents(): List<E> {
@@ -28,11 +24,9 @@ class EventStreamVerifier<E>(
 }
 
 private fun <E> EventStream<E>.subscribe(
-    listener: Listener<E>,
+    listener: RawListener<E>,
 ) {
     (this as? ActiveEventStream<E>)?.let {
-        this.vertex.subscribeStrong(
-            listener = listener,
-        )
+        this.vertex.subscribeStrongRaw(listener = listener)
     }
 }
