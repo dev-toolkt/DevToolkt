@@ -2,7 +2,6 @@ package dev.toolkt.reactive.vertices
 
 import dev.toolkt.reactive.HybridSubscription
 import dev.toolkt.reactive.Listener
-import dev.toolkt.reactive.RawListener
 import dev.toolkt.reactive.Subscription
 
 /**
@@ -71,16 +70,6 @@ abstract class Vertex<T>() {
     }
 
     fun subscribeStrongRaw(
-        listener: RawListener<T>,
-    ): Subscription = subscribeStrong(
-        listener = object : Listener<T> {
-            override fun handle(event: T) {
-                listener(event)
-            }
-        },
-    )
-
-    private fun subscribeStrong(
         listener: Listener<T>,
     ): Subscription {
         addStrongListener(listener = listener)
@@ -96,26 +85,14 @@ abstract class Vertex<T>() {
         }
     }
 
-    fun subscribeHybridRaw(
-        initialStrength: ListenerStrength = ListenerStrength.Weak,
-        listener: RawListener<T>,
-    ): HybridSubscription = subscribeHybrid(
-        listener = object : Listener<T> {
-            override fun handle(event: T) {
-                listener(event)
-            }
-        },
-        initialStrength = initialStrength,
-    )
-
     /**
      * Subscribes a [listener] that can switch between strong and weak.
      *
      * @param initialStrength the initial strength of the listener
      */
-    private fun subscribeHybrid(
-        listener: Listener<T>,
+    fun subscribeHybridRaw(
         initialStrength: ListenerStrength = ListenerStrength.Weak,
+        listener: Listener<T>,
     ): HybridSubscription {
         val initialToken = initialStrength.addListener(
             vertex = this,
