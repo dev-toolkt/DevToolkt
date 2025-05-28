@@ -42,6 +42,5 @@ internal class DivertEventStreamVertex<E>(
             outerSubscription.cancel()
             innerSubscription.cancel()
         }
-
     }
 }
