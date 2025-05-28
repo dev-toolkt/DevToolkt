@@ -2,13 +2,13 @@ package dev.toolkt.dom.reactive.widget
 
 import dev.toolkt.dom.reactive.utils.createReactiveHtmlInputElement
 import dev.toolkt.dom.reactive.utils.getChangeEventStream
-import dev.toolkt.dom.reactive.utils.getClickEventStream
+import dev.toolkt.dom.reactive.utils.getCheckedCell
 import dev.toolkt.reactive.cell.Cell
 import dev.toolkt.reactive.event_stream.EventStream
-import dev.toolkt.reactive.event_stream.hold
 import kotlinx.browser.document
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.Node
+import org.w3c.dom.events.Event
 
 class Checkbox private constructor(
     private val inputElement: HTMLInputElement,
@@ -21,18 +21,14 @@ class Checkbox private constructor(
         )
     }
 
-    val onCheckStateChanged by lazy {
-        inputElement.getChangeEventStream().map {
-            val target = it.target as HTMLInputElement
-            target.checked
-        }
-    }
+    val onCheckStateChanged: EventStream<Event>
+        get() = inputElement.getChangeEventStream()
 
     val isCheckedNow: Boolean
         get() = inputElement.checked
 
     val isChecked: Cell<Boolean>
-        get() = onCheckStateChanged.hold(initialValue = inputElement.checked)
+        get() = inputElement.getCheckedCell()
 
     override val rawNode: Node
         get() = inputElement
