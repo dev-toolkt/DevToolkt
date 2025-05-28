@@ -5,37 +5,37 @@ import java.util.WeakHashMap
 actual class PlatformWeakMap<K : Any, V : Any> : AbstractMutableMap<K, V>() {
     private val weakHashMap = WeakHashMap<K, V>()
 
-    override val keys: MutableSet<K>
+    actual override val keys: MutableSet<K>
         get() = weakHashMap.keys
 
-    override val values: MutableCollection<V>
+    actual override val values: MutableCollection<V>
         get() = weakHashMap.values
 
     actual override val entries: MutableSet<MutableMap.MutableEntry<K, V>>
         get() = weakHashMap.entries
 
-    override val size: Int
+    actual override val size: Int
         get() = weakHashMap.size
 
     actual override fun put(key: K, value: V): V? = weakHashMap.put(key, value)
 
-    override fun putAll(from: Map<out K, V>) {
+    actual override fun putAll(from: Map<out K, V>) {
         weakHashMap.putAll(from)
     }
 
-    override fun clear() {
+    actual override fun clear() {
         weakHashMap.clear()
     }
 
-    override fun remove(key: K): V? = weakHashMap.remove(key)
+    actual override fun remove(key: K): V? = weakHashMap.remove(key)
 
     override fun remove(key: K, value: V): Boolean = weakHashMap.remove(key, value)
 
-    override fun containsKey(key: K): Boolean = weakHashMap.containsKey(key)
+    actual override fun containsKey(key: K): Boolean = weakHashMap.containsKey(key)
 
-    override fun containsValue(value: V): Boolean = weakHashMap.containsValue(value)
+    actual override fun containsValue(value: V): Boolean = weakHashMap.containsValue(value)
 
-    override fun get(key: K): V? = weakHashMap[key]
+    actual override fun get(key: K): V? = weakHashMap[key]
 
     override fun getOrDefault(key: K, defaultValue: V): V = weakHashMap.getOrDefault(key, defaultValue)
 

@@ -24,13 +24,13 @@ actual class PlatformWeakMap<K : Any, V : Any> : AbstractMutableMap<K, V>() {
 
     internal fun weakEntryIterator(): MutableIterator<WeakEntry<K, V>> = weakEntrySet.iterator()
 
-    override fun get(key: K): V? {
+    actual override fun get(key: K): V? {
         val bucket = weakEntryMap.get(key) ?: return null
 
         return bucket.value
     }
 
-    override fun put(
+    actual override fun put(
         key: K,
         value: V,
     ): V? {
@@ -55,7 +55,7 @@ actual class PlatformWeakMap<K : Any, V : Any> : AbstractMutableMap<K, V>() {
         }
     }
 
-    override fun remove(key: K): V? {
+    actual override fun remove(key: K): V? {
         // If the weak entry map doesn't contain the key anymore, it doesn't
         // mean that the weak entry set doesn't contain a leftover entry. It
         // just means we have no way of finding it.
@@ -76,10 +76,13 @@ actual class PlatformWeakMap<K : Any, V : Any> : AbstractMutableMap<K, V>() {
         return bucket.value
     }
 
-    override val entries: MutableSet<MutableMap.MutableEntry<K, V>>
+    actual override val entries: MutableSet<MutableMap.MutableEntry<K, V>>
         get() = PlatformWeakMapEntries(platformWeakMap = this)
 
-    override val size: Int
+    actual override val values: MutableCollection<V>
+        get() = super.values
+
+    actual override val size: Int
         get() = weakEntrySet.size
 }
 

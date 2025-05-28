@@ -13,6 +13,7 @@ rootProject.name = "DevToolkt"
 
 include(
     "core",
+    "coreSystemTests",
     "math",
     "geometry",
     "pureDom",
