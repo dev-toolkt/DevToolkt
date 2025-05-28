@@ -12,20 +12,30 @@ import dev.toolkt.reactive.Subscription
  * the public interface perspective these entities are strongly distinct.
  */
 abstract class Vertex<T>() {
+    interface ListenerToken
+
+    data class IdentityListenerToken<T>(
+        val listener: Listener<T>,
+    ) : ListenerToken
+
     sealed class ListenerStrength {
         data object Strong : ListenerStrength() {
             override fun <T> addListener(
                 vertex: Vertex<T>,
                 listener: Listener<T>,
-            ) {
+            ): ListenerToken {
                 vertex.addStrongListener(listener = listener)
+
+                return IdentityListenerToken(listener = listener)
             }
 
             override fun <T> removeListener(
                 vertex: Vertex<T>,
-                listener: Listener<T>,
+                token: ListenerToken,
             ) {
-                vertex.removeStrongListener(listener = listener)
+                @Suppress("UNCHECKED_CAST") (token as IdentityListenerToken<T>)
+
+                vertex.removeStrongListener(listener = token.listener)
             }
         }
 
@@ -33,26 +43,30 @@ abstract class Vertex<T>() {
             override fun <T> addListener(
                 vertex: Vertex<T>,
                 listener: Listener<T>,
-            ) {
+            ): ListenerToken {
                 vertex.addWeakListener(listener = listener)
+
+                return IdentityListenerToken(listener = listener)
             }
 
             override fun <T> removeListener(
                 vertex: Vertex<T>,
-                listener: Listener<T>,
+                token: ListenerToken,
             ) {
-                vertex.removeWeakListener(listener = listener)
+                @Suppress("UNCHECKED_CAST") (token as IdentityListenerToken<T>)
+
+                vertex.removeWeakListener(listener = token.listener)
             }
         }
 
         abstract fun <T> addListener(
             vertex: Vertex<T>,
             listener: Listener<T>,
-        )
+        ): ListenerToken
 
         abstract fun <T> removeListener(
             vertex: Vertex<T>,
-            listener: Listener<T>,
+            token: ListenerToken,
         )
     }
 
@@ -103,7 +117,7 @@ abstract class Vertex<T>() {
         listener: Listener<T>,
         initialStrength: ListenerStrength = ListenerStrength.Weak,
     ): HybridSubscription {
-        initialStrength.addListener(
+        val initialToken = initialStrength.addListener(
             vertex = this,
             listener = listener,
         )
@@ -111,12 +125,14 @@ abstract class Vertex<T>() {
         onSubscribed()
 
         return object : HybridSubscription {
+            private var token: ListenerToken = initialToken
+
             private var currentStrength = initialStrength
 
             override fun cancel() {
                 currentStrength.removeListener(
                     vertex = this@Vertex,
-                    listener = listener,
+                    token = token,
                 )
 
                 onUnsubscribed()
@@ -131,10 +147,10 @@ abstract class Vertex<T>() {
 
                 currentStrength.removeListener(
                     vertex = this@Vertex,
-                    listener = listener,
+                    token = token,
                 )
 
-                newStrength.addListener(
+                token = newStrength.addListener(
                     vertex = this@Vertex,
                     listener = listener,
                 )
