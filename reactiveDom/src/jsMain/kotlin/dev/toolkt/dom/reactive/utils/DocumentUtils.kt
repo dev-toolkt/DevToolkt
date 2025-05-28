@@ -54,22 +54,6 @@ fun Document.createReactiveHtmlElement(
     return element
 }
 
-fun Document.createReactiveHtmlInputElement(
-    type: String,
-    style: ReactiveStyle? = null,
-    children: ReactiveList<Node>? = null,
-): HTMLInputElement {
-    val inputElement = createReactiveHtmlElement(
-        localName = "input",
-        style = style,
-        children = children,
-    ) as HTMLInputElement
-
-    inputElement.type = type
-
-    return inputElement
-}
-
 fun Document.createReactiveHtmlButtonElement(
     style: ReactiveStyle? = null,
     children: ReactiveList<Node>? = null,
