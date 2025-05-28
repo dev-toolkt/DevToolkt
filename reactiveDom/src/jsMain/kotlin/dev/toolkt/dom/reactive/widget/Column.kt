@@ -3,7 +3,7 @@ package dev.toolkt.dom.reactive.widget
 import dev.toolkt.dom.pure.style.PureFlexDirection
 import dev.toolkt.dom.reactive.style.ReactiveFlexStyle
 import dev.toolkt.dom.reactive.style.ReactiveStyle
-import dev.toolkt.dom.reactive.utils.createReactiveHtmlDivElement
+import dev.toolkt.dom.reactive.utils.html.createReactiveHtmlDivElement
 import dev.toolkt.reactive.cell.Cell
 import dev.toolkt.reactive.reactive_list.ReactiveList
 import kotlinx.browser.document

@@ -1,10 +1,10 @@
 package dev.toolkt.dom.reactive.widget
 
 import dev.toolkt.dom.pure.input.PureInputType
-import dev.toolkt.dom.reactive.utils.HTMLCheckboxElement
-import dev.toolkt.dom.reactive.utils.createReactiveHtmlInputElement
-import dev.toolkt.dom.reactive.utils.getChangeEventStream
-import dev.toolkt.dom.reactive.utils.getCheckedCell
+import dev.toolkt.dom.reactive.utils.html.HTMLCheckboxElement
+import dev.toolkt.dom.reactive.utils.html.createReactiveHtmlInputElement
+import dev.toolkt.dom.reactive.utils.html.getChangeEventStream
+import dev.toolkt.dom.reactive.utils.html.getCheckedCell
 import dev.toolkt.reactive.cell.Cell
 import dev.toolkt.reactive.event_stream.EventStream
 import kotlinx.browser.document
