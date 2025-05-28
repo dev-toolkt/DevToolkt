@@ -102,3 +102,21 @@ val Double.percent: PureDimension<PureUnit.Percent>
 
 val Int.percent: PureDimension<PureUnit.Percent>
     get() = this.toDouble().percent
+
+val Double.vw: PureDimension<PureUnit.Vw>
+    get() = PureDimension(
+        value = this,
+        unit = PureUnit.Vw,
+    )
+
+val Int.vw: PureDimension<PureUnit.Vw>
+    get() = this.toDouble().vw
+
+val Double.vh: PureDimension<PureUnit.Vh>
+    get() = PureDimension(
+        value = this,
+        unit = PureUnit.Vh,
+    )
+
+val Int.vh: PureDimension<PureUnit.Vh>
+    get() = this.toDouble().vh
