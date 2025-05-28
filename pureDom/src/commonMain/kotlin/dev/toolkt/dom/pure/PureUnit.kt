@@ -5,7 +5,7 @@ sealed class PureUnit {
         companion object {
             fun parse(
                 unitString: String,
-            ): PureUnit = when (unitString) {
+            ): Absolute = when (unitString) {
                 Mm.string -> Mm
                 Pt.string -> Pt
                 Px.string -> Px
@@ -38,9 +38,9 @@ sealed class PureUnit {
 
         override val perInch = 25.4
 
-        override val perPt = Mm.perInch / Pt.perInch
+        override val perPt = perInch / Pt.perInch
 
-        override val perPx = Mm.perInch / Px.perInch
+        override val perPx = perInch / Px.perInch
 
         override val string: String = "mm"
     }
@@ -67,9 +67,9 @@ sealed class PureUnit {
         // 1 inch equals 72 pt per Web standards
         override val perInch = 72.0
 
-        override val perPx = Pt.perInch / Px.perInch
+        override val perPx = perInch / Px.perInch
 
-        override val perMm = Pt.perInch / Mm.perInch
+        override val perMm = perInch / Mm.perInch
 
         override val string: String = "pt"
     }
@@ -82,11 +82,35 @@ sealed class PureUnit {
         // 1 inch _typically_ equals 96 px, but this is much less obvious
         override val perInch = 96.0
 
-        override val perMm = Px.perInch / Mm.perInch
+        override val perMm = perInch / Mm.perInch
 
-        override val perPt = Px.perInch / Pt.perInch
+        override val perPt = perInch / Pt.perInch
 
         override val string: String = "px"
+    }
+
+    sealed class Relative : PureUnit() {
+        companion object {
+            fun parse(
+                unitString: String,
+            ): Relative = when (unitString) {
+                Vw.string -> Vw
+                Vh.string -> Vh
+                else -> throw UnsupportedOperationException("Unsupported unit: $unitString")
+            }
+        }
+    }
+
+    data object Vw : Relative() {
+        val full: PureDimension<Vw> = 100.vw
+
+        override val string: String = "vw"
+    }
+
+    data object Vh : Relative() {
+        val full: PureDimension<Vh> = 100.vh
+
+        override val string: String = "vh"
     }
 
     data object Percent : PureUnit() {

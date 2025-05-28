@@ -19,4 +19,7 @@ data class PureColor(
         require(green in 0..255) { "Green value must be between 0 and 255" }
         require(blue in 0..255) { "Blue value must be between 0 and 255" }
     }
+
+    val cssString: String
+        get() = "rgb($red, $green, $blue)"
 }
