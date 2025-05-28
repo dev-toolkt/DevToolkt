@@ -4,13 +4,33 @@ import dev.toolkt.reactive.HybridSubscription
 import dev.toolkt.reactive.Listener
 import dev.toolkt.reactive.Subscription
 
+interface StrongEventSource<out T> {
+    fun addStrongListener(
+        listener: Listener<T>,
+    )
+
+    fun removeStrongListener(
+        listener: Listener<T>,
+    )
+}
+
+interface WeakEventSource<out T> {
+    fun addWeakListener(
+        listener: Listener<T>,
+    )
+
+    fun removeWeakListener(
+        listener: Listener<T>,
+    )
+}
+
 /**
  * A vertex in the functional-reactive dependency graph. Allows abstracting the
  * implementation details from the public interface and sharing common behavior
  * between cells, event stream and dynamic collections internals, though from
  * the public interface perspective these entities are strongly distinct.
  */
-abstract class Vertex<T>() {
+abstract class Vertex<out T>() : StrongEventSource<T>, WeakEventSource<T> {
     interface ListenerToken
 
     data class IdentityListenerToken<T>(
@@ -136,22 +156,6 @@ abstract class Vertex<T>() {
             }
         }
     }
-
-    abstract fun addStrongListener(
-        listener: Listener<T>,
-    )
-
-    abstract fun removeStrongListener(
-        listener: Listener<T>,
-    )
-
-    abstract fun addWeakListener(
-        listener: Listener<T>,
-    )
-
-    abstract fun removeWeakListener(
-        listener: Listener<T>,
-    )
 
     protected abstract fun onSubscribed()
 
