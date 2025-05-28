@@ -74,7 +74,7 @@ class EventTargetEventStream(
 
 fun EventTarget.getEventStream(
     type: String,
-) = EventTargetEventStream(
+): EventStream<Event> = EventTargetEventStream(
     eventTarget = this,
     type = type,
 )
