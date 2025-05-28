@@ -2,17 +2,34 @@ package dev.toolkt.dom.reactive.utils
 
 import dev.toolkt.dom.reactive.node.element.createReactiveHtmlElement
 import dev.toolkt.dom.reactive.style.ReactiveStyle
+import dev.toolkt.reactive.cell.Cell
 import dev.toolkt.reactive.event_stream.EventStream
 import dev.toolkt.reactive.event_stream.cast
 import dev.toolkt.reactive.event_stream.getEventStream
 import dev.toolkt.reactive.reactive_list.ReactiveList
+import kotlinx.browser.document
 import org.w3c.dom.Document
 import org.w3c.dom.HTMLButtonElement
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLInputElement
+import org.w3c.dom.HTMLSpanElement
 import org.w3c.dom.Node
+import org.w3c.dom.Text
 import org.w3c.dom.events.MouseEvent
+
+fun Document.createReactiveTextNode(
+    data: Cell<String>,
+): Text = data.formAndForget(
+    create = { initialValue: String ->
+        document.createTextNode(
+            data = initialValue,
+        )
+    },
+    update = { textNode: Text, newValue: String ->
+        textNode.data = newValue
+    },
+)
 
 fun Document.createReactiveHtmlInputElement(
     type: String,
@@ -29,7 +46,6 @@ fun Document.createReactiveHtmlInputElement(
 
     return inputElement
 }
-
 fun Document.createReactiveHtmlButtonElement(
     style: ReactiveStyle? = null,
     children: ReactiveList<Node>? = null,
@@ -47,3 +63,12 @@ fun Document.createReactiveHtmlDivElement(
     style = style,
     children = children,
 ) as HTMLDivElement
+
+fun Document.createReactiveHtmlSpanElement(
+    style: ReactiveStyle? = null,
+    children: ReactiveList<Node>? = null,
+): HTMLSpanElement = createReactiveHtmlElement(
+    localName = "span",
+    style = style,
+    children = children,
+) as HTMLSpanElement
