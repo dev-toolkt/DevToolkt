@@ -21,7 +21,7 @@ abstract class ManagedEventStreamNg<E> : ActiveEventStreamNg<E>() {
 
         return object : Subscription {
             override fun cancel() {
-                val wasRemoved = listeners.add(listener)
+                val wasRemoved = listeners.remove(listener)
 
                 if (!wasRemoved) throw AssertionError("Listener wasn't registered")
 
@@ -35,12 +35,12 @@ abstract class ManagedEventStreamNg<E> : ActiveEventStreamNg<E>() {
         listener: WeakListener<T, E>,
     ): Subscription {
         @Suppress("UNCHECKED_CAST")
-        val oldValue = weakListeners.put(
+        val previousListener = weakListeners.put(
             key = target,
             value = listener as WeakListener<Any, E>,
         )
 
-        if (oldValue != null) {
+        if (previousListener != null) {
             throw AssertionError("Weak listener for target $target is already registered")
         }
 
@@ -52,10 +52,10 @@ abstract class ManagedEventStreamNg<E> : ActiveEventStreamNg<E>() {
             override fun cancel() {
                 val target = weakTargetReference.get() ?: return
 
-                val previousValue = weakListeners.remove(target)
+                val previousListener = weakListeners.remove(target)
 
-                if (previousValue != listener) {
-                    throw AssertionError("Unexpected removed value")
+                if (previousListener != listener) {
+                    throw AssertionError("Unexpected removed weak listener")
                 }
 
                 potentiallyPause()
@@ -93,7 +93,8 @@ abstract class ManagedEventStreamNg<E> : ActiveEventStreamNg<E>() {
             weakListener(target, event)
         }
 
-        // Iterating over the weak map may trigger unreachable entry purging
+        // Iterating over the weak map may trigger unreachable entry purging,
+        // the listener count may have reached zero
         potentiallyPause()
     }
 

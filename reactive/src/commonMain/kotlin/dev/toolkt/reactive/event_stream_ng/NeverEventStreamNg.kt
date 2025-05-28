@@ -21,8 +21,8 @@ object NeverEventStreamNg : EventStreamNg<Nothing>() {
         listener: Listener<Nothing>,
     ): Subscription = Subscription.Noop
 
-    override fun <T> listenWeak(
+    override fun <T : Any> listenWeak(
         target: T,
-        listener: WeakListener<T, Nothing>,
+        listener: WeakListener<T, Nothing>
     ): Subscription = Subscription.Noop
 }
