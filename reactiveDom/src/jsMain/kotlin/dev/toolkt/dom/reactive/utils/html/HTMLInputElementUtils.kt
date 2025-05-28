@@ -1,4 +1,4 @@
-package dev.toolkt.dom.reactive.utils
+package dev.toolkt.dom.reactive.utils.html
 
 import dev.toolkt.dom.pure.input.PureInputType
 import dev.toolkt.dom.reactive.style.ReactiveStyle

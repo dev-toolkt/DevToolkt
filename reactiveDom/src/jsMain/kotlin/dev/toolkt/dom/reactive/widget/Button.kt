@@ -1,7 +1,7 @@
 package dev.toolkt.dom.reactive.widget
 
-import dev.toolkt.dom.reactive.utils.createReactiveHtmlButtonElement
-import dev.toolkt.dom.reactive.utils.getClickEventStream
+import dev.toolkt.dom.reactive.utils.html.createReactiveHtmlButtonElement
+import dev.toolkt.dom.reactive.utils.html.getClickEventStream
 import dev.toolkt.reactive.cell.Cell
 import dev.toolkt.reactive.event_stream.EventStream
 import kotlinx.browser.document
