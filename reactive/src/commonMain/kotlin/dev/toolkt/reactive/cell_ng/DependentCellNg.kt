@@ -5,7 +5,7 @@ abstract class DependentCellNg<V>(
 ) : ActiveCellNg<V>() {
     internal var cachedValue: V = initialValue
 
-    init {
+    private fun init() {
         newValues.listenWeak(
             target = this,
         ) { self, newValue ->
@@ -15,4 +15,9 @@ abstract class DependentCellNg<V>(
 
     override val currentValue: V
         get() = cachedValue
+
+    // TODO: Move to subclasses?
+    init {
+        init()
+    }
 }
