@@ -1,9 +1,18 @@
 package dev.toolkt.reactive.cell
 
-import dev.toolkt.reactive.vertices.cell.DependentCellVertex
-
-internal class DependentCell<V>(
-    override val vertex: DependentCellVertex<V>,
+abstract class DependentCell<V>(
+    initialValue: V,
 ) : ActiveCell<V>() {
+    internal var cachedValue: V = initialValue
 
+    override val currentValue: V
+        get() = cachedValue
+
+    protected fun init() {
+        newValues.listenWeak(
+            target = this,
+        ) { self, newValue ->
+            self.cachedValue = newValue
+        }
+    }
 }

@@ -1,38 +1,23 @@
 package dev.toolkt.reactive.reactive_list
 
-import dev.toolkt.reactive.event_stream.DependentEventStream
-import dev.toolkt.reactive.event_stream.EventStream
-import dev.toolkt.reactive.vertices.reactive_list.ReactiveListVertex
-import dev.toolkt.reactive.vertices.reactive_list.MapReactiveListVertex
-
 abstract class ActiveReactiveList<E>() : ReactiveList<E>() {
-    final override val currentElements: List<E>
-        get() = vertex.currentElements
-
-    final override val changes: EventStream<Change<E>>
-        get() = DependentEventStream(vertex = vertex)
-
     final override fun <Er> map(
         transform: (E) -> Er,
-    ): ReactiveList<Er> = DependentReactiveList(
-        vertex = MapReactiveListVertex(
-            source = this.vertex,
-            transform = transform,
-        ),
+    ): ReactiveList<Er> = MapReactiveList(
+        source = this,
+        transform = transform,
     )
 
     final override fun <T : Any> bind(
         target: T,
-        mutableList: MutableList<in E>,
+        extract: (T) -> MutableList<in E>,
     ) {
-        copyNow(mutableList = mutableList)
+        copyNow(mutableList = extract(target))
 
         changes.pipe(
             target = target,
-        ) { change ->
-            change.applyTo(mutableList = mutableList)
+        ) { target, change ->
+            change.applyTo(mutableList = extract(target))
         }
     }
-
-    internal abstract val vertex: ReactiveListVertex<E>
 }

@@ -1,8 +1,9 @@
 package dev.toolkt.reactive.event_stream
 
+import dev.toolkt.reactive.Listener
 import dev.toolkt.reactive.Subscription
 
-internal object NeverEventStream : EventStream<Nothing>() {
+object NeverEventStream : EventStream<Nothing>() {
     override fun <Er> map(
         transform: (Nothing) -> Er,
     ): EventStream<Er> = NeverEventStream
@@ -13,6 +14,15 @@ internal object NeverEventStream : EventStream<Nothing>() {
 
     override fun <T : Any> pipe(
         target: T,
-        consume: (Nothing) -> Unit,
-    ): Subscription.Noop = Subscription.Noop
+        forward: (T, Nothing) -> Unit,
+    ): Subscription = Subscription.Noop
+
+    override fun listen(
+        listener: Listener<Nothing>,
+    ): Subscription = Subscription.Noop
+
+    override fun <T : Any> listenWeak(
+        target: T,
+        listener: WeakListener<T, Nothing>
+    ): Subscription = Subscription.Noop
 }

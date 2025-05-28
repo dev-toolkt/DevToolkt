@@ -1,15 +1,25 @@
 package dev.toolkt.reactive.cell
 
-import dev.toolkt.reactive.vertices.cell.MutableCellVertex
+import dev.toolkt.reactive.event_stream.EventEmitter
+import dev.toolkt.reactive.event_stream.EventStream
 
 class MutableCell<V>(
     initialValue: V,
 ) : ActiveCell<V>() {
-    override val vertex = MutableCellVertex(
-        initialValue = initialValue,
-    )
+    private val newValueEmitter = EventEmitter<V>()
 
-    fun set(newValue: V) {
-        vertex.set(newValue)
+    private var mutableValue: V = initialValue
+
+    override val newValues: EventStream<V>
+        get() = newValueEmitter
+
+    override val currentValue: V
+        get() = mutableValue
+
+    fun set(
+        newValue: V,
+    ) {
+        newValueEmitter.emit(newValue)
+        mutableValue = newValue
     }
 }

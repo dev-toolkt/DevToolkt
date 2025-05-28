@@ -1,53 +1,27 @@
 package dev.toolkt.reactive.event_stream
 
-import dev.toolkt.reactive.Listener
-import dev.toolkt.core.platform.PlatformFinalizationRegistry
 import dev.toolkt.reactive.Subscription
-import dev.toolkt.reactive.vertices.ManagedVertex
-import dev.toolkt.reactive.vertices.event_stream.FilterEventStreamVertex
-import dev.toolkt.reactive.vertices.event_stream.MapEventStreamVertex
 
-private val finalizationRegistry = PlatformFinalizationRegistry()
-
-abstract class ActiveEventStream<E>() : EventStream<E>() {
+abstract class ActiveEventStream<out E> : EventStream<E>() {
     final override fun <Er> map(
         transform: (E) -> Er,
-    ): EventStream<Er> = DependentEventStream(
-        vertex = MapEventStreamVertex(
-            source = this.vertex,
-            transform = transform,
-        ),
+    ): EventStream<Er> = MapEventStream(
+        source = this,
+        transform = transform,
     )
 
     final override fun filter(
         predicate: (E) -> Boolean,
-    ): EventStream<E> = DependentEventStream(
-        vertex = FilterEventStreamVertex(
-            source = this.vertex,
-            predicate = predicate,
-        ),
+    ): EventStream<E> = FilterEventStream(
+        source = this,
+        predicate = predicate,
     )
 
     final override fun <T : Any> pipe(
         target: T,
-        consume: (E) -> Unit,
-    ): Subscription {
-        val innerSubscription = vertex.subscribeStrongRaw(consume)
-
-        val cleanable = finalizationRegistry.register(
-            target = target,
-        ) {
-            innerSubscription.cancel()
-        }
-
-        return object : Subscription {
-            override fun cancel() {
-                // Remove the registered finalization entry and cancel the inner
-                // subscription
-                cleanable.clean()
-            }
-        }
-    }
-
-    internal abstract val vertex: ManagedVertex<E>
+        forward: (T, E) -> Unit,
+    ): Subscription = listenWeak(
+        target = target,
+        listener = forward,
+    )
 }

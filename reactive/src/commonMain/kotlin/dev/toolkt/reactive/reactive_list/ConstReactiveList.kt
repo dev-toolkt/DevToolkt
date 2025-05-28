@@ -18,8 +18,8 @@ data class ConstReactiveList<out E>(
 
     override fun <T : Any> bind(
         target: T,
-        mutableList: MutableList<in E>,
+        extract: (T) -> MutableList<in E>,
     ) {
-        copyNow(mutableList = mutableList)
+        copyNow(mutableList = extract(target))
     }
 }

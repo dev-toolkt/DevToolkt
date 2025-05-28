@@ -1,4 +1,4 @@
-package dev.toolkt.reactive.event_stream_ng
+package dev.toolkt.reactive.event_stream
 
 import dev.toolkt.core.platform.WeakRef
 import dev.toolkt.reactive.Listener
@@ -7,10 +7,10 @@ import org.w3c.dom.AddEventListenerOptions
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.EventTarget
 
-class EventTargetEventStreamNg(
+class EventTargetEventStream(
     private val eventTarget: EventTarget,
     private val type: String,
-) : ForeignEventStreamNg<Event>() {
+) : ForeignEventStream<Event>() {
     override fun listen(
         listener: Listener<Event>,
     ): Subscription {
@@ -74,7 +74,7 @@ class EventTargetEventStreamNg(
 
 fun EventTarget.getEventStream(
     type: String,
-) = EventTargetEventStreamNg(
+) = EventTargetEventStream(
     eventTarget = this,
     type = type,
 )

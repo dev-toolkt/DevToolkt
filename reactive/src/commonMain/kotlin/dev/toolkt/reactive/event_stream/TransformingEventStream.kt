@@ -1,10 +1,10 @@
-package dev.toolkt.reactive.event_stream_ng
+package dev.toolkt.reactive.event_stream
 
 import dev.toolkt.reactive.Subscription
 
-abstract class TransformingEventStreamNg<E, Er>(
-    private val source: EventStreamNg<E>,
-) : DependentEventStreamNg<Er>() {
+abstract class TransformingEventStream<E, Er>(
+    private val source: EventStream<E>,
+) : DependentEventStream<Er>() {
     final override fun observe(): Subscription = source.listen { event ->
         transformEvent(event = event)
     }

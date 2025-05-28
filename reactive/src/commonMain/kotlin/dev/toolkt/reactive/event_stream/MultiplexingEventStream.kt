@@ -1,9 +1,9 @@
-package dev.toolkt.reactive.event_stream_ng
+package dev.toolkt.reactive.event_stream
 
 import dev.toolkt.reactive.Subscription
-import dev.toolkt.reactive.cell_ng.CellNg
+import dev.toolkt.reactive.cell.Cell
 
-abstract class MultiplexingEventStreamNg<N, E> : DependentEventStreamNg<E>() {
+abstract class MultiplexingEventStream<N, E> : DependentEventStream<E>() {
     override fun observe(): Subscription = object : Subscription {
         private val outerSubscription = nestedObject.newValues.listen { newInnerObject ->
             processNewInnerObject(
@@ -20,13 +20,13 @@ abstract class MultiplexingEventStreamNg<N, E> : DependentEventStreamNg<E>() {
         )
 
         private fun subscribeToInner(
-            innerStream: EventStreamNg<E>,
+            innerStream: EventStream<E>,
         ): Subscription = innerStream.listen { event ->
             notify(event)
         }
 
         private fun resubscribeToInner(
-            newInnerStream: EventStreamNg<E>,
+            newInnerStream: EventStream<E>,
         ) {
             innerSubscription.cancel()
             innerSubscription = subscribeToInner(innerStream = newInnerStream)
@@ -38,7 +38,7 @@ abstract class MultiplexingEventStreamNg<N, E> : DependentEventStreamNg<E>() {
         }
     }
 
-    protected abstract val nestedObject: CellNg<N>
+    protected abstract val nestedObject: Cell<N>
 
     open fun processNewInnerObject(
         newInnerObject: N,
@@ -47,5 +47,5 @@ abstract class MultiplexingEventStreamNg<N, E> : DependentEventStreamNg<E>() {
 
     protected abstract fun extractInnerStream(
         innerObject: N,
-    ): EventStreamNg<E>
+    ): EventStream<E>
 }

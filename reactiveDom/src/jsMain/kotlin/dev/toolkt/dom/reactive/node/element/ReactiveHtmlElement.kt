@@ -31,7 +31,7 @@ abstract class ReactiveHtmlElement(
                 it.rawNode
             }.bind(
                 target = target,
-                mutableList = ChildNodesDomList(node = target),
+                extract = ::ChildNodesDomList,
             )
         }
     }
@@ -89,7 +89,7 @@ fun Document.createReactiveHtmlElement(
 
     children?.bind(
         target = element,
-        mutableList = element.childNodesList,
+        extract = Node::childNodesList,
     )
 
     return element
