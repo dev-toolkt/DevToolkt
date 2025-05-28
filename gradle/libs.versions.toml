@@ -1,11 +1,14 @@
 [versions]
 kotlinx-benchmark = "0.4.13"
-kotlin = "2.1.21"
+kotlinx-coroutines = "1.10.2"
+kotlin = "2.2.0-RC"
 batik = "1.19"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlinx-benchmark-runtime = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-runtime", version.ref = "kotlinx-benchmark" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 batik-anim = { module = "org.apache.xmlgraphics:batik-anim", version.ref = "batik" }
 batik-svg-dom = { module = "org.apache.xmlgraphics:batik-svg-dom", version.ref = "batik" }
 batik-css = { module = "org.apache.xmlgraphics:batik-css", version.ref = "batik" }
