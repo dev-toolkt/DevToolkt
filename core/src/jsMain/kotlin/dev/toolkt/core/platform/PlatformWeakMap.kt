@@ -3,6 +3,10 @@ package dev.toolkt.core.platform
 import dev.toolkt.core.iterator.nextOrNull
 
 actual class PlatformWeakMap<K : Any, V : Any> : AbstractMutableMap<K, V>() {
+    actual data class Handle<K : Any, V : Any> internal constructor(
+        internal val weakEntry: WeakEntry<K, V>,
+    )
+
     internal class WeakEntry<K, V>(
         val key: WeakRef<K>,
         var value: V,
@@ -34,26 +38,22 @@ actual class PlatformWeakMap<K : Any, V : Any> : AbstractMutableMap<K, V>() {
         key: K,
         value: V,
     ): V? {
-        val bucket = weakEntryMap.get(key)
-
-        when {
-            bucket == null -> {
-                val newEntry = WeakEntry(
-                    key = WeakRef(key),
-                    value = value,
-                )
-
-                weakEntryMap.set(key, newEntry)
-                weakEntrySet.add(newEntry)
+        when (val weakEntry = weakEntryMap.get(key)) {
+            null -> {
+                addWeakEntry(key, value)
 
                 return null
             }
 
             else -> {
-                return bucket.value
+                return weakEntry.value
             }
         }
     }
+
+    actual override fun containsKey(
+        key: K,
+    ): Boolean = weakEntryMap.has(key)
 
     actual override fun remove(key: K): V? {
         // If the weak entry map doesn't contain the key anymore, it doesn't
@@ -84,6 +84,66 @@ actual class PlatformWeakMap<K : Any, V : Any> : AbstractMutableMap<K, V>() {
 
     actual override val size: Int
         get() = weakEntrySet.size
+
+    actual fun add(
+        key: K,
+        value: V,
+    ): Handle<K, V>? = when {
+        containsKey(key) -> null
+
+        else -> Handle(
+            weakEntry = addWeakEntry(
+                key = key,
+                value = value
+            ),
+        )
+    }
+
+    actual fun remove(
+        handle: Handle<K, V>,
+    ): Boolean {
+        val weakEntry = handle.weakEntry
+
+        val wasEntryRemoved = weakEntrySet.remove(weakEntry)
+
+        if (!wasEntryRemoved) {
+            return false
+        }
+
+        val key = weakEntry.key.deref()
+
+        // The key may have been collected
+        if (key != null) {
+            val wasDeleted = weakEntryMap.delete(key)
+
+            if (!wasDeleted) {
+                throw AssertionError("Weak entry map doesn't contain the key $key")
+            }
+        }
+
+        return true
+    }
+
+    /**
+     * Add the key-value pair to the map, assuming that an entry with the given
+     * key is not present.
+     *
+     * @return the just added weak entry
+     */
+    private fun addWeakEntry(
+        key: K,
+        value: V,
+    ): WeakEntry<K, V> {
+        val newEntry = WeakEntry(
+            key = WeakRef(key),
+            value = value,
+        )
+
+        weakEntryMap.set(key, newEntry)
+        weakEntrySet.add(newEntry)
+
+        return newEntry
+    }
 }
 
 private class PlatformWeakMapEntries<K : Any, V : Any>(

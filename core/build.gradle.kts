@@ -20,6 +20,7 @@ kotlin {
         freeCompilerArgs.addAll(
             listOf(
                 "-Xexpect-actual-classes",
+                "-Xconsistent-data-class-copy-visibility",
             ),
         )
     }
