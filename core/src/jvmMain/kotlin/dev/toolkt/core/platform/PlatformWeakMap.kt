@@ -1,8 +1,13 @@
 package dev.toolkt.core.platform
 
+import java.lang.ref.WeakReference
 import java.util.WeakHashMap
 
 actual class PlatformWeakMap<K : Any, V : Any> : AbstractMutableMap<K, V>() {
+    actual data class Handle<K : Any, V : Any> internal constructor(
+        internal val keyWeakReference: WeakReference<K>,
+    )
+
     private val weakHashMap = WeakHashMap<K, V>()
 
     actual override val keys: MutableSet<K>
@@ -50,5 +55,30 @@ actual class PlatformWeakMap<K : Any, V : Any> : AbstractMutableMap<K, V>() {
 
     override fun clone(): Any? {
         throw UnsupportedOperationException()
+    }
+
+    actual fun add(
+        key: K,
+        value: V,
+    ): Handle<K, V>? {
+        val previousValue = weakHashMap.put(key, value)
+        
+        return when {
+            previousValue == null -> Handle(
+                keyWeakReference = WeakReference(key),
+            )
+
+            else -> null
+        }
+    }
+
+    actual fun remove(
+        handle: Handle<K, V>,
+    ): Boolean {
+        val key = handle.keyWeakReference.get() ?: return false
+
+        val previousValue = weakHashMap.remove(key)
+
+        return previousValue != null
     }
 }

@@ -1,6 +1,5 @@
 package dev.toolkt.reactive.event_stream
 
-import dev.toolkt.core.platform.PlatformWeakReference
 import dev.toolkt.core.platform.mutableWeakMapOf
 import dev.toolkt.reactive.Listener
 import dev.toolkt.reactive.Subscription
@@ -40,30 +39,22 @@ abstract class ManagedEventStream<E> : ActiveEventStream<E>() {
         listener: WeakListener<T, E>,
     ): Subscription {
         @Suppress("UNCHECKED_CAST")
-        val previousListener = weakListeners.put(
+        val handle = weakListeners.add(
             key = target,
             value = listener as WeakListener<Any, E>,
         )
 
-        if (previousListener != null) {
+        if (handle == null) {
             throw AssertionError("Weak listener for target $target is already registered")
         }
-
-        val weakTargetReference = PlatformWeakReference(target)
 
         potentiallyResume()
 
         return object : Subscription {
             override fun cancel() {
-                val target = weakTargetReference.get() ?: return
-
-                val previousListener = weakListeners.remove(target)
-
-                if (previousListener != listener) {
-                    throw AssertionError("Unexpected removed weak listener")
-                }
-
-                potentiallyPause()
+                // We don't check whether the handle was successfully removed,
+                // as the entry might've been purged if the target was collected
+                weakListeners.remove(handle)
             }
         }
     }
