@@ -8,3 +8,9 @@ val MouseEvent.clientPoint: Point
         x = clientX.toDouble(),
         y = clientY.toDouble(),
     )
+
+val MouseEvent.offsetPoint: Point
+    get() = Point(
+        x = offsetX,
+        y = offsetY,
+    )
