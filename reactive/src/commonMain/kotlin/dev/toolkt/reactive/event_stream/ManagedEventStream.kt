@@ -6,6 +6,11 @@ import dev.toolkt.reactive.Listener
 import dev.toolkt.reactive.Subscription
 
 abstract class ManagedEventStream<E> : ActiveEventStream<E>() {
+    enum class State {
+        Paused,
+        Resumed,
+    }
+
     private val listeners = mutableSetOf<Listener<E>>()
 
     private val weakListeners = mutableWeakMapOf<Any, WeakListener<Any, E>>()
@@ -65,6 +70,12 @@ abstract class ManagedEventStream<E> : ActiveEventStream<E>() {
 
     private val listenerCount: Int
         get() = listeners.size + weakListeners.size
+
+    protected val state: State
+        get() = when {
+            listenerCount > 0 -> State.Resumed
+            else -> State.Paused
+        }
 
     private fun potentiallyResume() {
         if (listenerCount == 1) {
