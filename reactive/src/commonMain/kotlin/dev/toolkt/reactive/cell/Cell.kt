@@ -2,6 +2,7 @@ package dev.toolkt.reactive.cell
 
 import dev.toolkt.reactive.Subscription
 import dev.toolkt.reactive.event_stream.EventStream
+import dev.toolkt.reactive.reactive_list.LoopedCell
 
 sealed class Cell<out V> {
     data class Change<out V>(
@@ -10,6 +11,19 @@ sealed class Cell<out V> {
     )
 
     companion object {
+        fun <V, R> looped(
+            placeholderValue: V,
+            block: (Cell<V>) -> Pair<R, Cell<V>>,
+        ): R {
+            val loopedCell = LoopedCell(placeholderValue = placeholderValue)
+
+            val (result, eventStream) = block(loopedCell)
+
+            loopedCell.loop(eventStream)
+
+            return result
+        }
+
         fun <V> switch(
             nestedCell: Cell<Cell<V>>,
         ): Cell<V> = SwitchCell(
