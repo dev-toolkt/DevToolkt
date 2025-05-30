@@ -41,9 +41,12 @@ fun Document.createReactiveHtmlSpanElement(
     children = children,
 ) as HTMLSpanElement
 
-
 fun HTMLElement.getMouseDownEventStream(): EventStream<MouseEvent> = this.getEventStream(
     type = "mouseDown"
+).cast()
+
+fun HTMLElement.getMouseMoveEventStream(): EventStream<MouseEvent> = this.getEventStream(
+    type = "mouseMove"
 ).cast()
 
 fun HTMLElement.getClickEventStream(): EventStream<MouseEvent> = this.getEventStream(
