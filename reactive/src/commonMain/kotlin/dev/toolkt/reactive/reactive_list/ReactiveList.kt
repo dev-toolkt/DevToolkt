@@ -62,6 +62,15 @@ abstract class ReactiveList<out E> {
             ): Change<E> = Change(
                 updates = setOf(update),
             )
+
+            fun <E> fill(
+                elements: List<E>,
+            ): Change<E> = Change.single(
+                update = Update.insert(
+                    index = 0,
+                    newElements = elements,
+                ),
+            )
         }
 
         val updatesInOrder: List<Update<E>>
@@ -105,6 +114,18 @@ abstract class ReactiveList<out E> {
         ): ReactiveList<E> = ConstReactiveList(
             constElements = children.toList(),
         )
+
+        fun <E, R> looped(
+            block: (ReactiveList<E>) -> Pair<R, ReactiveList<E>>,
+        ): R {
+            val loopedReactiveList = LoopedReactiveList<E>()
+
+            val (result, reactiveList) = block(loopedReactiveList)
+
+            loopedReactiveList.loop(reactiveList)
+
+            return result
+        }
     }
 
     abstract val currentElements: List<E>

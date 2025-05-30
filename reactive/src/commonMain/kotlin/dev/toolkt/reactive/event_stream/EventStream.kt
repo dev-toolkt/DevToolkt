@@ -3,12 +3,26 @@ package dev.toolkt.reactive.event_stream
 import dev.toolkt.reactive.Subscription
 import dev.toolkt.reactive.cell.Cell
 import dev.toolkt.reactive.cell.HoldCell
+import dev.toolkt.reactive.reactive_list.LoopedReactiveList
+import dev.toolkt.reactive.reactive_list.ReactiveList
 
 typealias WeakListener<T, E> = (T, E) -> Unit
 
 abstract class EventStream<out E> : EventSourceNg<E> {
     companion object {
         val Never: EventStream<Nothing> = NeverEventStream
+
+        fun <E, R> looped(
+            block: (EventStream<E>) -> Pair<R, EventStream<E>>,
+        ): R {
+            val loopedEventStream = LoopedEventStream<E>()
+
+            val (result, eventStream) = block(loopedEventStream)
+
+            loopedEventStream.loop(eventStream)
+
+            return result
+        }
 
         fun <V> divert(
             nestedEventStream: Cell<EventStream<V>>,
