@@ -3,7 +3,7 @@ package dev.toolkt.reactive.cell
 import dev.toolkt.reactive.Subscription
 import dev.toolkt.reactive.event_stream.EventStream
 
-abstract class ActiveCell<out V> : Cell<V>() {
+abstract class ProperCell<out V> : Cell<V>() {
     final override val changes: EventStream<Change<V>>
         get() = newValues.map { newValue ->
             Change(
