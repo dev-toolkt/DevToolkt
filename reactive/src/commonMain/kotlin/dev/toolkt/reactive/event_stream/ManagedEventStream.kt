@@ -4,7 +4,7 @@ import dev.toolkt.core.platform.mutableWeakMapOf
 import dev.toolkt.reactive.Listener
 import dev.toolkt.reactive.Subscription
 
-abstract class ManagedEventStream<E> : ActiveEventStream<E>() {
+abstract class ManagedEventStream<E> : ProperEventStream<E>() {
     enum class State {
         Paused,
         Resumed,
