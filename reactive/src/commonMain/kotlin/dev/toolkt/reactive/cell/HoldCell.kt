@@ -5,7 +5,7 @@ import dev.toolkt.reactive.event_stream.EventStream
 class HoldCell<V>(
     override val newValues: EventStream<V>,
     initialValue: V,
-) : DependentCell<V>(
+) : CachingCell<V>(
     initialValue = initialValue,
 ) {
     init {

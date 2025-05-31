@@ -5,7 +5,7 @@ import dev.toolkt.reactive.event_stream.SwitchEventStream
 
 class SwitchCell<V>(
     nestedCell: Cell<Cell<V>>,
-) : DependentCell<V>(
+) : CachingCell<V>(
     initialValue = nestedCell.currentValue.currentValue,
 ) {
     override val newValues: EventStream<V> = SwitchEventStream(
