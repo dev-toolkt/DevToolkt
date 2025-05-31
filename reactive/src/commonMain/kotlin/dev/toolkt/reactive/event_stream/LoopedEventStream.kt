@@ -4,7 +4,7 @@ import dev.toolkt.reactive.Listener
 import dev.toolkt.reactive.Subscription
 import dev.toolkt.reactive.event_stream.EventSource.TargetedWeakListener
 
-class LoopedEventStream<E>() : ActiveEventStream<E>() {
+class LoopedEventStream<E>() : ProperEventStream<E>() {
     sealed class PlaceholderSubscription<E> : Subscription {
         abstract fun loop(
             eventStream: EventStream<E>,
@@ -120,7 +120,7 @@ class LoopedEventStream<E>() : ActiveEventStream<E>() {
         }
     }
 
-    class PlaceholderEventStream<E> : ActiveEventStream<E>() {
+    class PlaceholderEventStream<E> : ProperEventStream<E>() {
         private val placeholderSubscriptions = mutableSetOf<PlaceholderSubscription<E>>()
 
         override fun listen(listener: Listener<E>): Subscription {

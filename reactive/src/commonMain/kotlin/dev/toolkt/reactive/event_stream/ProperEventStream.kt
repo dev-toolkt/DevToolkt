@@ -2,7 +2,7 @@ package dev.toolkt.reactive.event_stream
 
 import dev.toolkt.reactive.Subscription
 
-abstract class ActiveEventStream<out E> : EventStream<E>() {
+abstract class ProperEventStream<out E> : EventStream<E>() {
     final override fun <Er> map(
         transform: (E) -> Er,
     ): EventStream<Er> = MapEventStream(

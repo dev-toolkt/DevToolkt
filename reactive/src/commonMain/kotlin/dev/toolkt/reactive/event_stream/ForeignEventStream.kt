@@ -1,3 +1,3 @@
 package dev.toolkt.reactive.event_stream
 
-abstract class ForeignEventStream<E> : ActiveEventStream<E>()
+abstract class ForeignEventStream<E> : ProperEventStream<E>()
