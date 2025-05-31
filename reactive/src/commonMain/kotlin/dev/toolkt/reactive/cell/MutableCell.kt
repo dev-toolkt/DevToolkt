@@ -5,7 +5,7 @@ import dev.toolkt.reactive.event_stream.EventStream
 
 class MutableCell<V>(
     initialValue: V,
-) : ActiveCell<V>() {
+) : ProperCell<V>() {
     private val newValueEmitter = EventEmitter<V>()
 
     private var mutableValue: V = initialValue

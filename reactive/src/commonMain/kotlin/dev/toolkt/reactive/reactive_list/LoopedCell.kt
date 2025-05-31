@@ -1,13 +1,13 @@
 package dev.toolkt.reactive.reactive_list
 
-import dev.toolkt.reactive.cell.ActiveCell
+import dev.toolkt.reactive.cell.ProperCell
 import dev.toolkt.reactive.cell.Cell
 import dev.toolkt.reactive.event_stream.EventStream
 import dev.toolkt.reactive.event_stream.LoopedEventStream
 
 class LoopedCell<V>(
     private val placeholderValue: V,
-) : ActiveCell<V>() {
+) : ProperCell<V>() {
     private var loopedCell: Cell<V>? = null
 
     private val newValuesLooped = LoopedEventStream<V>()

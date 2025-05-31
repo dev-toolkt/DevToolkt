@@ -2,7 +2,7 @@ package dev.toolkt.reactive.cell
 
 abstract class DependentCell<V>(
     initialValue: V,
-) : ActiveCell<V>() {
+) : ProperCell<V>() {
     internal var cachedValue: V = initialValue
 
     override val currentValue: V
