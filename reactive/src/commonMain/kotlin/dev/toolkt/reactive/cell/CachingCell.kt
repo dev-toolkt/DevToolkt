@@ -1,7 +1,10 @@
 package dev.toolkt.reactive.cell
 
+import dev.toolkt.reactive.event_stream.EventStream
+
 abstract class CachingCell<V>(
     initialValue: V,
+    final override val newValues: EventStream<V>,
 ) : ProperCell<V>() {
     internal var cachedValue: V = initialValue
 

@@ -42,6 +42,10 @@ abstract class EventStream<out E> : EventSource<E> {
         forward: (T, E) -> Unit,
     ): Subscription
 
+    abstract fun <E> mergeWith(
+        other: EventStream<E>,
+    ): EventStream<E>
+
     fun <T : Any> pipeAndForget(
         target: T,
         forward: (T, E) -> Unit,
@@ -63,6 +67,6 @@ fun <E> EventStream<*>.cast(): EventStream<E> {
 fun <E> EventStream<E>.hold(
     initialValue: E,
 ): Cell<E> = HoldCell(
-    newValues = this,
     initialValue = initialValue,
+    newValues = this,
 )

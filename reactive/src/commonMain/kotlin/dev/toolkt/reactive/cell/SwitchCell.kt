@@ -1,18 +1,16 @@
 package dev.toolkt.reactive.cell
 
 import dev.toolkt.reactive.event_stream.EventStream
-import dev.toolkt.reactive.event_stream.SwitchEventStream
 
 class SwitchCell<V>(
-    nestedCell: Cell<Cell<V>>,
-) : CachingCell<V>(
-    initialValue = nestedCell.currentValue.currentValue,
-) {
-    override val newValues: EventStream<V> = SwitchEventStream(
-        nestedCell = nestedCell,
-    )
+    private val nestedCell: Cell<Cell<V>>,
+) : LightCell<V>() {
+    override val currentValue: V
+        get() = nestedCell.currentValue.currentValue
 
-    init {
-        init()
-    }
+    override fun buildNewValues(): EventStream<V> = nestedCell.newValues.map { newInnerCell ->
+        newInnerCell.currentValue
+    }.mergeWith(
+        nestedCell.divertOf { it.newValues },
+    )
 }

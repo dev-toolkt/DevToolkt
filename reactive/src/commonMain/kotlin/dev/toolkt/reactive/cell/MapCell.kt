@@ -1,15 +1,12 @@
 package dev.toolkt.reactive.cell
 
-import dev.toolkt.reactive.event_stream.EventStream
-
 class MapCell<V, Vr>(
     source: Cell<V>,
     transform: (V) -> Vr,
 ) : CachingCell<Vr>(
     initialValue = transform(source.currentValue),
+    newValues = source.newValues.map(transform),
 ) {
-    override val newValues: EventStream<Vr> = source.newValues.map(transform)
-
     init {
         init()
     }
