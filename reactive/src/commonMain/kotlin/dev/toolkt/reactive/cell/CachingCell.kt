@@ -1,6 +1,6 @@
 package dev.toolkt.reactive.cell
 
-abstract class DependentCell<V>(
+abstract class CachingCell<V>(
     initialValue: V,
 ) : ProperCell<V>() {
     internal var cachedValue: V = initialValue
