@@ -39,8 +39,4 @@ abstract class ProperEventStream<out E> : EventStream<E>() {
         target = target,
         listener = forward,
     )
-
-    override fun <E> mergeWith(other: EventStream<E>): EventStream<E> {
-        TODO("Not yet implemented")
-    }
 }

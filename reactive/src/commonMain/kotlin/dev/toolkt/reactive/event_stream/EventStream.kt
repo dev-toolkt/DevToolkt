@@ -58,9 +58,6 @@ abstract class EventStream<out E> : EventSource<E> {
         forward: (T, E) -> Unit,
     ): Subscription
 
-    abstract fun <E> mergeWith(
-        other: EventStream<E>,
-    ): EventStream<E>
 
     fun <T : Any> pipeAndForget(
         target: T,
@@ -75,6 +72,13 @@ abstract class EventStream<out E> : EventSource<E> {
 
     fun units(): EventStream<Unit> = map { }
 }
+
+fun <E> EventStream<E>.mergeWith(
+    other: EventStream<E>,
+): EventStream<E> = EventStream.merge(
+    source1 = this,
+    source2 = other,
+)
 
 fun <E> EventStream<*>.cast(): EventStream<E> {
     @Suppress("UNCHECKED_CAST") return this as EventStream<E>
