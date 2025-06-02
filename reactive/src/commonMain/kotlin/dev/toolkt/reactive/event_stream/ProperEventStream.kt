@@ -17,6 +17,21 @@ abstract class ProperEventStream<out E> : EventStream<E>() {
         predicate = predicate,
     )
 
+    override fun take(
+        count: Int,
+    ): EventStream<E> {
+        require(count >= 0)
+
+        return when (count) {
+            0 -> NeverEventStream
+
+            else -> TakeEventStream(
+                source = this,
+                count = count,
+            )
+        }
+    }
+
     final override fun <T : Any> pipe(
         target: T,
         forward: (T, E) -> Unit,

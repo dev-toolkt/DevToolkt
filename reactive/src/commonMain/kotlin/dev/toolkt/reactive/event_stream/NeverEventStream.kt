@@ -12,10 +12,19 @@ object NeverEventStream : EventStream<Nothing>() {
         predicate: (Nothing) -> Boolean,
     ): EventStream<Nothing> = NeverEventStream
 
+    override fun take(count: Int): EventStream<Nothing> {
+        require(count >= 0)
+        return NeverEventStream
+    }
+
     override fun <T : Any> pipe(
         target: T,
         forward: (T, Nothing) -> Unit,
     ): Subscription = Subscription.Noop
+
+    override fun <E> mergeWith(other: EventStream<E>): EventStream<E> {
+        TODO("Not yet implemented")
+    }
 
     override fun listen(
         listener: Listener<Nothing>,

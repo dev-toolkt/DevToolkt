@@ -37,6 +37,10 @@ abstract class EventStream<out E> : EventSource<E> {
         predicate: (E) -> Boolean,
     ): EventStream<E>
 
+    abstract fun take(
+        count: Int,
+    ): EventStream<E>
+
     abstract fun <T : Any> pipe(
         target: T,
         forward: (T, E) -> Unit,
