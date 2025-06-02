@@ -9,7 +9,6 @@ import kotlin.test.assertEquals
 
 class LoopedReactiveListTests {
     @Test
-    @Ignore // FIXME
     fun testLoop_empty() {
         val originalContent = emptyList<Int>()
 

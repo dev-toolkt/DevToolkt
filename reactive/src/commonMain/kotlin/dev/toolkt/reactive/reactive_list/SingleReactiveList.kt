@@ -14,7 +14,7 @@ class SingleReactiveList<E>(
                 index = 0,
                 newValue = newValue,
             ),
-        )
+        ) ?: throw AssertionError("The change is not effective")
     }
 
     init {

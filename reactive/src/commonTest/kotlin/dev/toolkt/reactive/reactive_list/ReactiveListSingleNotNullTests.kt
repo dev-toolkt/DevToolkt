@@ -61,7 +61,7 @@ class ReactiveListSingleNotNullTests {
                     update = ReactiveList.Change.Update.remove(
                         index = 0,
                     ),
-                ),
+                )!!,
             ),
             actual = changesVerifier.removeReceivedEvents(),
         )

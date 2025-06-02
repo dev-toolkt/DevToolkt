@@ -70,27 +70,24 @@ abstract class ReactiveList<out E> {
                 updatedElements = updatedElements.map(transform),
             )
 
-            fun toChange(): Change<E> = Change(
-                updates = setOf(this),
-            )
-
-            init {
-                require(!indexRange.isEmpty() || updatedElements.isNotEmpty()) {
-                    "Index range cannot be empty unless there are updated elements."
-                }
-            }
+            val isEffective: Boolean
+                get() = !indexRange.isEmpty() || updatedElements.isNotEmpty()
         }
 
         companion object {
             fun <E> single(
                 update: Update<E>,
-            ): Change<E> = Change(
-                updates = setOf(update),
-            )
+            ): Change<E>? {
+                val effectiveUpdate = update.takeIf { it.isEffective } ?: return null
+
+                return Change(
+                    updates = setOf(effectiveUpdate),
+                )
+            }
 
             fun <E> fill(
                 elements: List<E>,
-            ): Change<E> = Change.single(
+            ): Change<E>? = single(
                 update = Update.insert(
                     index = 0,
                     newElements = elements,
@@ -110,9 +107,15 @@ abstract class ReactiveList<out E> {
         )
 
         init {
-            updates.allUniquePairs().none { (updateA, updateB) ->
-                updateA.indexRange.overlaps(updateB.indexRange)
-            }
+            require(updates.isNotEmpty()) { "The change has no updates" }
+
+            require(updates.all { it.isEffective }) { "Some of the updates are ineffective" }
+
+            require(
+                updates.allUniquePairs().none { (updateA, updateB) ->
+                    updateA.indexRange.overlaps(updateB.indexRange)
+                },
+            ) { "Some of the updates overlap" }
         }
     }
 

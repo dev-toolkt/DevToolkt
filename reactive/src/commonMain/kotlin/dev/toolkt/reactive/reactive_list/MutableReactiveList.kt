@@ -33,7 +33,7 @@ class MutableReactiveList<E>(
         changeEmitter.emit(
             Change.single(
                 update = update,
-            ),
+            ) ?: throw AssertionError("The change is not effective"),
         )
 
         mutableContent[index] = newValue
@@ -52,11 +52,11 @@ class MutableReactiveList<E>(
             newElements = elements,
         )
 
-        changeEmitter.emit(
-            Change.single(
-                update = update,
-            ),
-        )
+        val change = Change.single(
+            update = update,
+        ) ?: return
+
+        changeEmitter.emit(change)
 
         mutableContent.addAll(
             index = index,
@@ -76,7 +76,7 @@ class MutableReactiveList<E>(
         changeEmitter.emit(
             Change.single(
                 update = update,
-            ),
+            ) ?: throw AssertionError("The change is not effective"),
         )
 
         mutableContent.removeAt(index = index)
