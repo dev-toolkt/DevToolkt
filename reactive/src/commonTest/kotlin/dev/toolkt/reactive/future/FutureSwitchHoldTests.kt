@@ -8,7 +8,7 @@ import kotlin.test.assertEquals
 
 class FutureSwitchHoldTests {
     @Test
-    fun testHold() {
+    fun testSwitchHold() {
         val mutableCell1 = MutableCell(initialValue = -10)
         val mutableCell2 = MutableCell(initialValue = 10)
 
