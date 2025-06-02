@@ -75,7 +75,9 @@ abstract class ReactiveList<out E> {
             )
 
             init {
-                require(!indexRange.isEmpty() || updatedElements.isNotEmpty())
+                require(!indexRange.isEmpty() || updatedElements.isNotEmpty()) {
+                    "Index range cannot be empty unless there are updated elements."
+                }
             }
         }
 

@@ -43,7 +43,7 @@ class MutableReactiveList<E>(
         index: Int,
         elements: List<E>,
     ) {
-        if (index !in mutableContent.indices) {
+        if (index !in 0..mutableContent.size) {
             throw IndexOutOfBoundsException("Index $index is out of bounds for list of size ${mutableContent.size}.")
         }
 
