@@ -28,7 +28,7 @@ class EventStreamTakeTests {
 
         val takeStream = eventEmitter.take(0)
 
-        val changesVerifier = EventStreamVerifier(
+        val streamVerifier = EventStreamVerifier(
             eventStream = takeStream,
         )
 
@@ -36,14 +36,14 @@ class EventStreamTakeTests {
 
         assertEquals(
             expected = emptyList(),
-            actual = changesVerifier.removeReceivedEvents(),
+            actual = streamVerifier.removeReceivedEvents(),
         )
 
         eventEmitter.emit(2)
 
         assertEquals(
             expected = emptyList(),
-            actual = changesVerifier.removeReceivedEvents(),
+            actual = streamVerifier.removeReceivedEvents(),
         )
     }
 

@@ -11,7 +11,7 @@ class EventStreamMapTests {
 
         val mappedStream = eventEmitter.map { "$it" }
 
-        val changesVerifier = EventStreamVerifier(
+        val streamVerifier = EventStreamVerifier(
             eventStream = mappedStream,
         )
 
@@ -19,14 +19,14 @@ class EventStreamMapTests {
 
         assertEquals(
             expected = listOf("1"),
-            actual = changesVerifier.removeReceivedEvents(),
+            actual = streamVerifier.removeReceivedEvents(),
         )
 
         eventEmitter.emit(2)
 
         assertEquals(
             expected = listOf("2"),
-            actual = changesVerifier.removeReceivedEvents(),
+            actual = streamVerifier.removeReceivedEvents(),
         )
     }
 }

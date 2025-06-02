@@ -12,13 +12,13 @@ class EventStreamMergeTests {
             source2 = NeverEventStream,
         )
 
-        val changesVerifier = EventStreamVerifier(
+        val streamVerifier = EventStreamVerifier(
             eventStream = mergeStream,
         )
 
         assertEquals(
             expected = emptyList(),
-            actual = changesVerifier.removeReceivedEvents(),
+            actual = streamVerifier.removeReceivedEvents(),
         )
     }
 

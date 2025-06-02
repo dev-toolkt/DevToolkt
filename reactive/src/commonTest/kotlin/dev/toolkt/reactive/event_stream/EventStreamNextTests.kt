@@ -12,7 +12,7 @@ class EventStreamNextTests {
 
         val nextFuture = eventEmitter.next()
 
-        val changesVerifier = EventStreamVerifier(
+        val onResultVerifier = EventStreamVerifier(
             eventStream = nextFuture.onResult,
         )
 
@@ -25,7 +25,7 @@ class EventStreamNextTests {
 
         assertEquals(
             expected = listOf(10),
-            actual = changesVerifier.removeReceivedEvents(),
+            actual = onResultVerifier.removeReceivedEvents(),
         )
 
         assertEquals(
@@ -39,7 +39,7 @@ class EventStreamNextTests {
 
         assertEquals(
             expected = emptyList(),
-            actual = changesVerifier.removeReceivedEvents(),
+            actual = onResultVerifier.removeReceivedEvents(),
         )
 
         assertEquals(
