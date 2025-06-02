@@ -25,4 +25,12 @@ kotlin {
             implementation(libs.kotlin.test)
         }
     }
+
+    compilerOptions {
+        freeCompilerArgs.addAll(
+            listOf(
+                "-Xconsistent-data-class-copy-visibility",
+            ),
+        )
+    }
 }

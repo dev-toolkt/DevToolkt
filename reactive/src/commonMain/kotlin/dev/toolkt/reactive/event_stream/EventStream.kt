@@ -2,6 +2,7 @@ package dev.toolkt.reactive.event_stream
 
 import dev.toolkt.reactive.Subscription
 import dev.toolkt.reactive.cell.Cell
+import dev.toolkt.reactive.future.Future
 import dev.toolkt.reactive.cell.HoldCell
 
 typealias WeakListener<T, E> = (T, E) -> Unit
@@ -52,6 +53,8 @@ abstract class EventStream<out E> : EventSource<E> {
     abstract fun take(
         count: Int,
     ): EventStream<E>
+
+    abstract fun next(): Future<E>
 
     abstract fun <T : Any> pipe(
         target: T,
