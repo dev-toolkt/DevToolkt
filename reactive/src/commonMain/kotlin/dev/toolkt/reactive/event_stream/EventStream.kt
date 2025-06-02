@@ -27,6 +27,18 @@ abstract class EventStream<out E> : EventSource<E> {
         ): EventStream<V> = DivertEventStream(
             nestedEventStream = nestedEventStream,
         )
+
+        fun <E> merge(
+            source1: EventStream<E>,
+            source2: EventStream<E>,
+        ): EventStream<E> = when {
+            source1 == NeverEventStream -> source2
+            source2 == NeverEventStream -> source1
+            else -> MergeEventStream(
+                source1 = source1,
+                source2 = source2,
+            )
+        }
     }
 
     abstract fun <Er> map(
