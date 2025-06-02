@@ -48,6 +48,14 @@ abstract class ReactiveList<out E> {
 
                 fun <E> insert(
                     index: Int,
+                    newElement: E,
+                ): Update<E> = insert(
+                    index = index,
+                    newElements = listOf(newElement),
+                )
+
+                fun <E> insert(
+                    index: Int,
                     newElements: List<E>,
                 ): Update<E> = Update(
                     indexRange = IntRange.empty(index),
@@ -133,6 +141,12 @@ abstract class ReactiveList<out E> {
         fun <E> single(
             element: Cell<E>,
         ): ReactiveList<E> = SingleReactiveList(
+            element = element,
+        )
+
+        fun <E : Any> singleNotNull(
+            element: Cell<E?>,
+        ): ReactiveList<E> = SingleNotNullReactiveList(
             element = element,
         )
 

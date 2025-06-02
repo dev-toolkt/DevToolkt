@@ -129,6 +129,20 @@ class MutableListUtilsTests {
     }
 
     @Test
+    fun testUpdateRangeRange_insertSingleToEmpty() {
+        val originalList = emptyList<Int>()
+
+        val mutableList = originalList.toMutableList()
+
+        mutableList.updateRange(0 until 0, listOf(10))
+
+        assertEquals(
+            expected = listOf(10),
+            actual = mutableList,
+        )
+    }
+
+    @Test
     fun testUpdateRangeRange_insertMultiple() {
         val originalList = listOf(0, 1, 2, 3, 4, 5)
 
@@ -138,6 +152,20 @@ class MutableListUtilsTests {
 
         assertEquals(
             expected = listOf(0, 1, 21, 22, 23, 2, 3, 4, 5),
+            actual = mutableList,
+        )
+    }
+
+    @Test
+    fun testUpdateRangeRange_appendSingle() {
+        val originalList = listOf(0, 1, 2)
+
+        val mutableList = originalList.toMutableList()
+
+        mutableList.updateRange(3 until 3, listOf(30))
+
+        assertEquals(
+            expected = listOf(0, 1, 2, 30),
             actual = mutableList,
         )
     }
