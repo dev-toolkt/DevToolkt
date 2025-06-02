@@ -1,22 +1,17 @@
 package dev.toolkt.reactive.event_stream
 
 import dev.toolkt.reactive.Subscription
+import dev.toolkt.reactive.future.ManagedFuture
 
-class SingleEventStream<out E>(
+class NextFuture<E>(
     source: EventStream<E>,
-) : StatefulEventStream<E>() {
-    private var wasEmitted = false
-
+) : ManagedFuture<E>() {
     private var sourceSubscription: Subscription? = source.listenWeak(
         target = this,
     ) { self, sourceEvent ->
-        if (wasEmitted) {
-            throw IllegalStateException("The single event was already emitted")
-        }
-
-        notify(event = sourceEvent)
-
-        wasEmitted = true
+        self.completeInternally(
+            result = sourceEvent,
+        )
 
         val sourceSubscription = this.sourceSubscription ?: throw IllegalStateException("No active source subscription")
 

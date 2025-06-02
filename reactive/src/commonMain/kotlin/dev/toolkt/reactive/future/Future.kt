@@ -21,6 +21,8 @@ sealed class Future<out V> {
 
         override val onFulfilled: EventStream<Fulfilled<Nothing>> = EventStream.Never
 
+        override val onResult: EventStream<Nothing> = NeverEventStream
+
         override fun <Vr> map(transform: (Nothing) -> Vr): Future<Vr> = Hang
     }
 
@@ -35,6 +37,8 @@ sealed class Future<out V> {
         override val currentState: State<V> = fulfilledState
 
         override val onFulfilled: EventStream<Fulfilled<V>> = NeverEventStream
+
+        override val onResult: EventStream<V> = NeverEventStream
 
         override fun <Vr> map(transform: (V) -> Vr): Future<Vr> = Prefilled(
             constResult = transform(constResult),
@@ -88,8 +92,7 @@ sealed class Future<out V> {
     @Suppress("FunctionName")
     fun null_(): Future<Nothing?> = map { null }
 
-    val onResult: EventStream<V>
-        get() = onFulfilled.map { it.result }
+    abstract val onResult: EventStream<V>
 
     abstract val state: Cell<State<V>>
 

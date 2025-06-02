@@ -1,6 +1,6 @@
 package dev.toolkt.reactive.event_stream
 
-abstract class StatefulEventStream<E>() : ManagedEventStream<E>() {
+abstract class StatefulEventStream<out E>() : ManagedEventStream<E>() {
     final override fun onResumed() {
     }
 

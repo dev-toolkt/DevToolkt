@@ -7,7 +7,6 @@ import kotlin.test.assertEquals
 
 class FutureMapTests {
     @Test
-    @Ignore
     fun testMap() {
         val futureCompleter = FutureCompleter<Int>()
 
@@ -31,7 +30,7 @@ class FutureMapTests {
 
         assertEquals(
             expected = Future.Fulfilled(
-                result = "1"
+                result = "1",
             ),
             actual = mapFuture.currentState,
         )
