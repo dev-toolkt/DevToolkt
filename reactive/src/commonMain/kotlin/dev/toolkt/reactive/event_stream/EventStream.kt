@@ -54,6 +54,8 @@ abstract class EventStream<out E> : EventSource<E> {
         count: Int,
     ): EventStream<E>
 
+    abstract fun single(): EventStream<E>
+
     abstract fun next(): Future<E>
 
     abstract fun <T : Any> pipe(
