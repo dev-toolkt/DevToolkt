@@ -2,6 +2,7 @@ package dev.toolkt.reactive.event_stream
 
 import dev.toolkt.reactive.Listener
 import dev.toolkt.reactive.Subscription
+import dev.toolkt.reactive.future.Future
 
 object NeverEventStream : EventStream<Nothing>() {
     override fun <Er> map(
@@ -16,6 +17,8 @@ object NeverEventStream : EventStream<Nothing>() {
         require(count >= 0)
         return NeverEventStream
     }
+
+    override fun next(): Future<Nothing> = Future.Hang
 
     override fun <T : Any> pipe(
         target: T,

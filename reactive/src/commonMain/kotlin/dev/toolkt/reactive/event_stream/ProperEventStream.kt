@@ -1,6 +1,7 @@
 package dev.toolkt.reactive.event_stream
 
 import dev.toolkt.reactive.Subscription
+import dev.toolkt.reactive.future.Future
 
 abstract class ProperEventStream<out E> : EventStream<E>() {
     final override fun <Er> map(
@@ -17,7 +18,7 @@ abstract class ProperEventStream<out E> : EventStream<E>() {
         predicate = predicate,
     )
 
-    override fun take(
+    final override fun take(
         count: Int,
     ): EventStream<E> {
         require(count >= 0)
@@ -30,6 +31,10 @@ abstract class ProperEventStream<out E> : EventStream<E>() {
                 count = count,
             )
         }
+    }
+
+    final override fun next(): Future<E> {
+        TODO("Not yet implemented")
     }
 
     final override fun <T : Any> pipe(

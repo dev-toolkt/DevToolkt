@@ -46,12 +46,21 @@ fun Document.createReactiveHtmlSpanElement(
     children = children,
 ) as HTMLSpanElement
 
+fun Element.getMouseEnterEventStream(): EventStream<MouseEvent> = this.getEventStream(
+    type = "mouseenter",
+).cast()
+
+
 fun Element.getMouseDownEventStream(): EventStream<MouseEvent> = this.getEventStream(
     type = "mousedown",
 ).cast()
 
 fun Element.getMouseMoveEventStream(): EventStream<MouseEvent> = this.getEventStream(
     type = "mousemove",
+).cast()
+
+fun Element.getMouseLeaveEventStream(): EventStream<MouseEvent> = this.getEventStream(
+    type = "mouseleave",
 ).cast()
 
 fun Element.getMouseOffsetCell(): Cell<Point?> = getMouseMoveEventStream().map { it.offsetPoint }.hold(null)
