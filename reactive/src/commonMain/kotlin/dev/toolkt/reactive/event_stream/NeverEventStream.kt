@@ -18,6 +18,8 @@ object NeverEventStream : EventStream<Nothing>() {
         return NeverEventStream
     }
 
+    override fun single(): EventStream<Nothing> = NeverEventStream
+
     override fun next(): Future<Nothing> = Future.Hang
 
     override fun <T : Any> pipe(
