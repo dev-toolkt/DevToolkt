@@ -27,7 +27,7 @@ fun Element.onMouseOverGestureStarted(): EventStream<MouseOverGesture> =
         )
     }
 
-fun Element.trackMouseOver(): Cell<MouseOverGesture?> = Future.oscillate(
+fun Element.trackMouseOverGesture(): Cell<MouseOverGesture?> = Future.oscillate(
     initialValue = null,
     switchPhase1 = { this.onMouseOverGestureStarted().next() },
     switchPhase2 = { gesture -> gesture.onFinished.null_() },
