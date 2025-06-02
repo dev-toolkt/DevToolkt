@@ -130,6 +130,12 @@ abstract class ReactiveList<out E> {
             constElements = children.toList(),
         )
 
+        fun <E> single(
+            element: Cell<E>,
+        ): ReactiveList<E> = SingleReactiveList(
+            element = element,
+        )
+
         fun <E, R> looped(
             block: (ReactiveList<E>) -> Pair<R, ReactiveList<E>>,
         ): R {
