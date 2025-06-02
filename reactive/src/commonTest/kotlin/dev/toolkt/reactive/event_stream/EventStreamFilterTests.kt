@@ -1,6 +1,6 @@
-package dev.toolkt.reactive
+package dev.toolkt.reactive.event_stream
 
-import dev.toolkt.reactive.event_stream.EventEmitter
+import dev.toolkt.reactive.EventStreamVerifier
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
