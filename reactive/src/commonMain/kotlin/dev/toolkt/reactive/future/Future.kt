@@ -129,10 +129,10 @@ fun <V> Future<Cell<V>>.switchHold(
     initialCell = Cell.of(initialValue),
 )
 
-fun <V> Future<EventStream<V>>.divertHold(
-    initialEventStream: EventStream<V>,
-): EventStream<V> = when (val foundState = currentState) {
-    is Future.Fulfilled<EventStream<V>> -> foundState.result
+fun <E> Future<EventStream<E>>.divertHold(
+    initialEventStream: EventStream<E>,
+): EventStream<E> = when (val foundState = currentState) {
+    is Future.Fulfilled<EventStream<E>> -> foundState.result
 
     Future.Pending -> EventStream.divert(
         onResult.hold(initialEventStream),
