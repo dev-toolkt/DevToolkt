@@ -56,4 +56,27 @@ class ReactiveListChangeTests {
             actual = mutableList,
         )
     }
+
+    @Test
+    fun testChangeApply_fillEmpty() {
+        val originalList = emptyList<Int>()
+
+        val mutableList = originalList.toMutableList()
+
+        val change = ReactiveList.Change(
+            updates = setOf(
+                ReactiveList.Change.Update.change(
+                    indexRange = 0 until 0,
+                    changedElements = listOf(10, 20),
+                ),
+            ),
+        )
+
+        change.applyTo(mutableList)
+
+        assertEquals(
+            expected = listOf(10, 20),
+            actual = mutableList,
+        )
+    }
 }
