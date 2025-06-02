@@ -1,7 +1,6 @@
 package dev.toolkt.reactive.future
 
 import dev.toolkt.reactive.EventStreamVerifier
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -12,7 +11,7 @@ class FutureMapTests {
 
         val mapFuture = futureCompleter.map { "$it" }
 
-        val changesVerifier = EventStreamVerifier(
+        val onResultVerifier = EventStreamVerifier(
             eventStream = mapFuture.onResult,
         )
 
@@ -25,7 +24,7 @@ class FutureMapTests {
 
         assertEquals(
             expected = listOf("1"),
-            actual = changesVerifier.removeReceivedEvents(),
+            actual = onResultVerifier.removeReceivedEvents(),
         )
 
         assertEquals(

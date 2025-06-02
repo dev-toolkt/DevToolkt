@@ -9,7 +9,7 @@ class EventEmitterTests {
     fun testEventEmitter() {
         val eventEmitter = EventEmitter<String>()
 
-        val changesVerifier = EventStreamVerifier(
+        val streamVerifier = EventStreamVerifier(
             eventStream = eventEmitter,
         )
 
@@ -21,7 +21,7 @@ class EventEmitterTests {
                 "Hello",
                 "World",
             ),
-            actual = changesVerifier.removeReceivedEvents(),
+            actual = streamVerifier.removeReceivedEvents(),
         )
 
         eventEmitter.emit("Bye")
@@ -30,7 +30,7 @@ class EventEmitterTests {
             expected = listOf(
                 "Bye",
             ),
-            actual = changesVerifier.removeReceivedEvents(),
+            actual = streamVerifier.removeReceivedEvents(),
         )
     }
 }

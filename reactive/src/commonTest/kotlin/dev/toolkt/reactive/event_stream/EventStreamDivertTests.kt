@@ -19,7 +19,7 @@ class EventStreamDivertTests {
             nestedEventStream = mutableStreamCell,
         )
 
-        val changesVerifier = EventStreamVerifier(
+        val streamVerifier = EventStreamVerifier(
             eventStream = divertedStream,
         )
 
@@ -33,7 +33,7 @@ class EventStreamDivertTests {
 
         assertEquals(
             expected = listOf(2, 5),
-            actual = changesVerifier.removeReceivedEvents(),
+            actual = streamVerifier.removeReceivedEvents(),
         )
 
         mutableStreamCell.set(eventEmitter2)
@@ -48,7 +48,7 @@ class EventStreamDivertTests {
 
         assertEquals(
             expected = listOf(-2, -9),
-            actual = changesVerifier.removeReceivedEvents(),
+            actual = streamVerifier.removeReceivedEvents(),
         )
 
         mutableStreamCell.set(eventEmitter1)
@@ -63,7 +63,7 @@ class EventStreamDivertTests {
 
         assertEquals(
             expected = listOf(4, 11),
-            actual = changesVerifier.removeReceivedEvents(),
+            actual = streamVerifier.removeReceivedEvents(),
         )
     }
 }

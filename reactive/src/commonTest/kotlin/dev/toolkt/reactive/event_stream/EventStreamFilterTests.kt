@@ -11,7 +11,7 @@ class EventStreamFilterTests {
 
         val mappedStream = eventEmitter.filter { it % 2 == 0 }
 
-        val changesVerifier = EventStreamVerifier(
+        val streamVerifier = EventStreamVerifier(
             eventStream = mappedStream,
         )
 
@@ -25,7 +25,7 @@ class EventStreamFilterTests {
 
         assertEquals(
             expected = listOf(2, 4),
-            actual = changesVerifier.removeReceivedEvents(),
+            actual = streamVerifier.removeReceivedEvents(),
         )
 
         eventEmitter.emit(3)
@@ -35,7 +35,7 @@ class EventStreamFilterTests {
 
         assertEquals(
             expected = emptyList(),
-            actual = changesVerifier.removeReceivedEvents(),
+            actual = streamVerifier.removeReceivedEvents(),
         )
     }
 }
