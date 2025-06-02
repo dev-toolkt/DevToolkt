@@ -136,7 +136,7 @@ class MutableReactiveListTests {
                     update = ReactiveList.Change.Update.remove(
                         index = 3,
                     ),
-                ),
+                )!!,
             ),
             actual = changesVerifier.removeReceivedEvents(),
         )
@@ -160,7 +160,7 @@ class MutableReactiveListTests {
                     update = ReactiveList.Change.Update.remove(
                         index = 2,
                     ),
-                ),
+                )!!,
             ),
             actual = changesVerifier.removeReceivedEvents(),
         )
