@@ -4,6 +4,7 @@ import dev.toolkt.core.iterable.allUniquePairs
 import dev.toolkt.core.iterable.updateRange
 import dev.toolkt.core.range.empty
 import dev.toolkt.core.range.overlaps
+import dev.toolkt.core.range.single
 import dev.toolkt.reactive.cell.Cell
 import dev.toolkt.reactive.event_stream.EventStream
 
@@ -24,9 +25,23 @@ abstract class ReactiveList<out E> {
                     updatedElements = changedElements,
                 )
 
-                fun <E> remove(
-                    indexRange: IntRange,
+                fun <E> set(
+                    index: Int,
+                    newValue: E,
                 ): Update<E> = Update(
+                    indexRange = IntRange.single(index),
+                    updatedElements = listOf(newValue),
+                )
+
+                fun remove(
+                    index: Int,
+                ): Update<Nothing> = remove(
+                    indexRange = IntRange.single(index),
+                )
+
+                fun remove(
+                    indexRange: IntRange,
+                ): Update<Nothing> = Update(
                     indexRange = indexRange,
                     updatedElements = emptyList(),
                 )
