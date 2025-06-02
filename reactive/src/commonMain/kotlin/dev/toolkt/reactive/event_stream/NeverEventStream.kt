@@ -9,6 +9,10 @@ object NeverEventStream : EventStream<Nothing>() {
         transform: (Nothing) -> Er,
     ): EventStream<Er> = NeverEventStream
 
+    override fun <Er : Any> mapNotNull(
+        transform: (Nothing) -> Er?,
+    ): EventStream<Er> = NeverEventStream
+
     override fun filter(
         predicate: (Nothing) -> Boolean,
     ): EventStream<Nothing> = NeverEventStream
@@ -33,6 +37,6 @@ object NeverEventStream : EventStream<Nothing>() {
 
     override fun <T : Any> listenWeak(
         target: T,
-        listener: WeakListener<T, Nothing>
+        listener: WeakListener<T, Nothing>,
     ): Subscription = Subscription.Noop
 }

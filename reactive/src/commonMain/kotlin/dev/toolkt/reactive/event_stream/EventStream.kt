@@ -46,6 +46,10 @@ abstract class EventStream<out E> : EventSource<E> {
         transform: (E) -> Er,
     ): EventStream<Er>
 
+    abstract fun <Er: Any> mapNotNull(
+        transform: (E) -> Er?,
+    ): EventStream<Er>
+
     abstract fun filter(
         predicate: (E) -> Boolean,
     ): EventStream<E>

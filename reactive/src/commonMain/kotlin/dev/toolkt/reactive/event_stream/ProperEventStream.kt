@@ -18,6 +18,13 @@ abstract class ProperEventStream<out E> : EventStream<E>() {
         predicate = predicate,
     )
 
+    override fun <Er : Any> mapNotNull(
+        transform: (E) -> Er?,
+    ): EventStream<Er> = MapNotNullEventStream(
+        source = this,
+        transform = transform,
+    )
+
     final override fun take(
         count: Int,
     ): EventStream<E> {
