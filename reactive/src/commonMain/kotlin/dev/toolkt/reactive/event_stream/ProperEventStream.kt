@@ -35,9 +35,7 @@ abstract class ProperEventStream<out E> : EventStream<E>() {
 
     final override fun single(): EventStream<E> = SingleEventStream(source = this)
 
-    final override fun next(): Future<E> {
-        TODO("Not yet implemented")
-    }
+    final override fun next(): Future<E> = NextFuture(source = this)
 
     final override fun <T : Any> pipe(
         target: T,

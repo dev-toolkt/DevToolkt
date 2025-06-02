@@ -4,7 +4,7 @@ import dev.toolkt.core.platform.mutableWeakMapOf
 import dev.toolkt.reactive.Listener
 import dev.toolkt.reactive.Subscription
 
-abstract class ManagedEventStream<E> : ProperEventStream<E>() {
+abstract class ManagedEventStream<out E> : ProperEventStream<E>() {
     enum class State {
         Paused,
         Resumed,
@@ -81,7 +81,7 @@ abstract class ManagedEventStream<E> : ProperEventStream<E>() {
     }
 
     protected fun notify(
-        event: E,
+        event: @UnsafeVariance E,
     ) {
         listeners.forEach {
             it(event)
