@@ -6,8 +6,7 @@ import dev.toolkt.reactive.Subscription
 
 abstract class ManagedEventStream<out E> : ProperEventStream<E>() {
     enum class State {
-        Paused,
-        Resumed,
+        Paused, Resumed,
     }
 
     private val listeners = mutableSetOf<Listener<E>>()
@@ -19,7 +18,7 @@ abstract class ManagedEventStream<out E> : ProperEventStream<E>() {
     ): Subscription {
         val wasAdded = listeners.add(listener)
 
-        if (!wasAdded) throw AssertionError("Listener is already registered")
+        if (!wasAdded) throw IllegalStateException("Listener is already registered")
 
         potentiallyResume()
 
@@ -27,7 +26,7 @@ abstract class ManagedEventStream<out E> : ProperEventStream<E>() {
             override fun cancel() {
                 val wasRemoved = listeners.remove(listener)
 
-                if (!wasRemoved) throw AssertionError("Listener wasn't registered")
+                if (!wasRemoved) throw IllegalStateException("The subscription was already cancelled")
 
                 potentiallyPause()
             }
@@ -38,14 +37,13 @@ abstract class ManagedEventStream<out E> : ProperEventStream<E>() {
         target: T,
         listener: WeakListener<T, E>,
     ): Subscription {
-        @Suppress("UNCHECKED_CAST")
-        val handle = weakListeners.add(
+        @Suppress("UNCHECKED_CAST") val handle = weakListeners.add(
             key = target,
             value = listener as WeakListener<Any, E>,
         )
 
         if (handle == null) {
-            throw AssertionError("Weak listener for target $target is already registered")
+            throw IllegalStateException("Weak listener for target $target is already registered")
         }
 
         potentiallyResume()
@@ -54,7 +52,8 @@ abstract class ManagedEventStream<out E> : ProperEventStream<E>() {
             override fun cancel() {
                 // We don't check whether the handle was successfully removed,
                 // as the entry might've been purged if the target was collected
-                weakListeners.remove(handle)
+                val wasRemoved = weakListeners.removeHandled(handle)
+                println(wasRemoved)
             }
         }
     }

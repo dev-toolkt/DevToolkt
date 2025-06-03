@@ -33,7 +33,7 @@ expect class PlatformWeakMap<K : Any, V : Any>() : MutableMap<K, V> {
      * @return `true` if the entry has been successfully removed; `false` if it
      * was not present in the collection.
      */
-    fun remove(handle: Handle<K, V>): Boolean
+    fun removeHandled(handle: Handle<K, V>): Boolean
 }
 
 @Suppress("NOTHING_TO_INLINE")
