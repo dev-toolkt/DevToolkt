@@ -62,7 +62,7 @@ actual class PlatformWeakMap<K : Any, V : Any> : AbstractMutableMap<K, V>() {
         value: V,
     ): Handle<K, V>? {
         val previousValue = weakHashMap.put(key, value)
-        
+
         return when {
             previousValue == null -> Handle(
                 keyWeakReference = WeakReference(key),
@@ -72,10 +72,21 @@ actual class PlatformWeakMap<K : Any, V : Any> : AbstractMutableMap<K, V>() {
         }
     }
 
-    actual fun remove(
+    actual fun removeHandled(
         handle: Handle<K, V>,
     ): Boolean {
         val key = handle.keyWeakReference.get() ?: return false
+
+        val firstKey = weakHashMap.keys.first()
+
+        val firstKeyHash = firstKey.hashCode()
+        val keyHash = key.hashCode()
+
+        val containsKey = weakHashMap.containsKey(key)
+        val getResult = weakHashMap.get(key)
+
+        val keysEqual = firstKey.equals(key)
+        val keysEqual2 = firstKey == key
 
         val previousValue = weakHashMap.remove(key)
 

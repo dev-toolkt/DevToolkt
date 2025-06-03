@@ -99,7 +99,7 @@ actual class PlatformWeakMap<K : Any, V : Any> : AbstractMutableMap<K, V>() {
         )
     }
 
-    actual fun remove(
+    actual fun removeHandled(
         handle: Handle<K, V>,
     ): Boolean {
         val weakEntry = handle.weakEntry
