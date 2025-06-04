@@ -73,12 +73,35 @@ class ElementRemoverTests {
     }
 
     @Test
+    fun testInsertEffectivelyWeak_newElement() {
+        val mutableSet = mutableSetOf(1, 2, 3)
+
+        val elementRemover = mutableSet.insertEffectivelyWeak(4)
+
+        assertNotNull(elementRemover)
+
+        assertTrue(mutableSet.contains(4))
+    }
+
+
+    @Test
     fun testInsertEffectively_duplicate() {
         val mutableSet = mutableSetOf(1, 2, 3)
 
         assertIs<IllegalStateException>(
             assertFails {
                 mutableSet.insertEffectively(3)
+            },
+        )
+    }
+
+    @Test
+    fun testInsertEffectivelyWeak_duplicate() {
+        val mutableSet = mutableSetOf(1, 2, 3)
+
+        assertIs<IllegalStateException>(
+            assertFails {
+                mutableSet.insertEffectivelyWeak(3)
             },
         )
     }
