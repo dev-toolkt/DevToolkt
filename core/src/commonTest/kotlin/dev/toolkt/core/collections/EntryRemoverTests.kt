@@ -21,7 +21,36 @@ class EntryRemoverTests {
     }
 
     @Test
+    fun testInsertEffectivelyWeak_newElement() {
+        val mutableMap = mutableMapOf(1 to "A", 2 to "B", 3 to "C")
+
+        mutableMap.insertEffectivelyWeak(4, "D")
+
+        assertEquals(
+            expected = "D",
+            actual = mutableMap[4],
+        )
+    }
+
+    @Test
     fun testInsertEffectively_duplicate() {
+        val mutableMap = mutableMapOf(1 to "A", 2 to "B", 3 to "C")
+
+        assertIs<IllegalStateException>(
+            assertFails {
+                mutableMap.insertEffectively(2, "B")
+            },
+        )
+
+        assertIs<IllegalStateException>(
+            assertFails {
+                mutableMap.insertEffectively(2, "X")
+            },
+        )
+    }
+
+    @Test
+    fun testInsertEffectivelyWeak_duplicate() {
         val mutableMap = mutableMapOf(1 to "A", 2 to "B", 3 to "C")
 
         assertIs<IllegalStateException>(
