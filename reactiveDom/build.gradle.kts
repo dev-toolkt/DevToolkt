@@ -17,7 +17,9 @@ kotlin {
     }
 
     sourceSets {
-        commonMain.dependencies {
+        jsMain.dependencies {
+            implementation(npm("path-data-polyfill", "1.0.10"))
+
             implementation(project(":core"))
             implementation(project(":geometry"))
             implementation(project(":pureDom"))
