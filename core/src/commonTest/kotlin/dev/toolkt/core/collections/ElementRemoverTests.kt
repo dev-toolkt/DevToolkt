@@ -222,13 +222,17 @@ class ElementRemoverTests {
 
     @Test
     fun testInsertEffectivelyWeak_newElement() {
-        val mutableSet = mutableSetOf(1, 2, 3)
+        val object1 = object {}
+        val object2 = object {}
+        val object3 = object {}
 
-        val elementRemover = mutableSet.insertEffectivelyWeak(4)
+        val mutableSet = mutableSetOf(object1, object2)
+
+        val elementRemover = mutableSet.insertEffectivelyWeak(object3)
 
         assertNotNull(elementRemover)
 
-        assertTrue(mutableSet.contains(4))
+        assertTrue(mutableSet.contains(object3))
     }
 
     @Test
