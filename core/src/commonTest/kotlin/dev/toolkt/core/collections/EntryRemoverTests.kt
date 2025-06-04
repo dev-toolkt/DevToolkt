@@ -22,13 +22,20 @@ class EntryRemoverTests {
 
     @Test
     fun testInsertEffectivelyWeak_newElement() {
-        val mutableMap = mutableMapOf(1 to "A", 2 to "B", 3 to "C")
+        val object1 = object {}
+        val object2 = object {}
+        val object3 = object {}
 
-        mutableMap.insertEffectivelyWeak(4, "D")
+        val mutableMap = mutableMapOf(
+            object1 to "A",
+            object2 to "B",
+        )
+
+        mutableMap.insertEffectivelyWeak(object3, "D")
 
         assertEquals(
             expected = "D",
-            actual = mutableMap[4],
+            actual = mutableMap[object3],
         )
     }
 
