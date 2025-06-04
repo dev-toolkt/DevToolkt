@@ -175,13 +175,9 @@ class EventStreamTests {
             listener = ::handle1,
         )
 
-        assertIs<IllegalStateException>(
-            assertFails {
-                dependentStream.listenWeak(
-                    target = target,
-                    listener = ::handle2,
-                )
-            },
+        dependentStream.listenWeak(
+            target = target,
+            listener = ::handle2,
         )
     }
 

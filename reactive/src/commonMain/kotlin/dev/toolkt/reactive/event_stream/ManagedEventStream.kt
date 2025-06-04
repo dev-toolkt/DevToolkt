@@ -1,9 +1,10 @@
 package dev.toolkt.reactive.event_stream
 
+import dev.toolkt.core.collections.forEach
 import dev.toolkt.core.collections.insertEffectively
 import dev.toolkt.core.collections.insertEffectivelyWeak
+import dev.toolkt.core.collections.mutableWeakMultiValuedMapOf
 import dev.toolkt.core.collections.removeEffectively
-import dev.toolkt.core.platform.mutableWeakMapOf
 import dev.toolkt.reactive.Listener
 import dev.toolkt.reactive.Subscription
 
@@ -14,7 +15,7 @@ abstract class ManagedEventStream<out E> : ProperEventStream<E>() {
 
     private val listeners = mutableSetOf<Listener<E>>()
 
-    private val weakListeners = mutableWeakMapOf<Any, WeakListener<Any, E>>()
+    private val weakListeners = mutableWeakMultiValuedMapOf<Any, WeakListener<Any, E>>()
 
     final override fun listen(
         listener: Listener<E>,

@@ -1,5 +1,7 @@
 package dev.toolkt.core.collections
 
+import dev.toolkt.core.platform.mutableWeakMapOf
+
 interface MutableMultiValuedMap<K, V> : MultiValuedMap<K, V> {
     companion object {
         fun <K, V> newFromMap(
@@ -44,3 +46,9 @@ inline fun <K, V> mutableMultiValuedMapOf(
         keyPairs.map { (_, value) -> value }.toMutableSet()
     }.toMutableMap(),
 )
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun <K : Any, V : Any> mutableWeakMultiValuedMapOf(): MutableMultiValuedMap<K, V> =
+    MutableMultiValuedMap.newFromMap(
+        backingMap = mutableWeakMapOf(),
+    )

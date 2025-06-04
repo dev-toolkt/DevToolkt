@@ -51,3 +51,9 @@ interface MultiValuedMap<K, out V> {
      */
     val values: Collection<V>
 }
+
+inline fun <K, V> MultiValuedMap<K, V>.forEach(
+    action: (Map.Entry<K, V>) -> Unit
+) {
+    this.entries.forEach(action)
+}
