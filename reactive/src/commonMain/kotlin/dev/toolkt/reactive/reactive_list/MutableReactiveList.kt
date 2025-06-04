@@ -1,5 +1,6 @@
 package dev.toolkt.reactive.reactive_list
 
+import dev.toolkt.core.iterable.append
 import dev.toolkt.core.iterable.removeRange
 import dev.toolkt.reactive.event_stream.EventEmitter
 import dev.toolkt.reactive.event_stream.EventStream
@@ -62,6 +63,23 @@ class MutableReactiveList<E>(
             index = index,
             elements = elements,
         )
+    }
+
+    fun append(
+        element: E,
+    ) {
+        val update = Change.Update.insert(
+            index = currentElements.size,
+            newElements = listOf(element),
+        )
+
+        val change = Change.single(
+            update = update,
+        ) ?: return
+
+        changeEmitter.emit(change)
+
+        mutableContent.append(element)
     }
 
     fun removeAt(index: Int) {
