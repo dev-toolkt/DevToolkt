@@ -1,5 +1,6 @@
 package dev.toolkt.reactive.event_stream
 
+import dev.toolkt.reactive.Listener
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
@@ -55,23 +56,29 @@ class EventStreamTests {
 
     @Test
     fun testListenTwice() {
-        val eventEmitter = EventEmitter<Int>()
+        fun test(
+            listener: Listener<Any>,
+        ) {
+            val eventEmitter = EventEmitter<Int>()
 
-        // Create a dependent stream to make the system non-trivial
-        val dependentStream = eventEmitter.map { it.toString() }
+            // Create a dependent stream to make the system non-trivial
+            val dependentStream = eventEmitter.map { it.toString() }
 
-        @Suppress("unused")
-        fun handle(element: String) {
+            dependentStream.listen(listener)
+
+            assertIs<IllegalStateException>(
+                assertFails {
+                    dependentStream.listen(listener)
+                },
+            )
         }
 
-        dependentStream.listen(::handle)
-
-        assertIs<IllegalStateException>(
-            assertFails {
-                dependentStream.listen(::handle)
-            },
-        )
+        // As the ::function operator doesn't return stable references on
+        // JavaScript, we ensure that the listener is bound to a function
+        // argument
+        test {}
     }
+
 
     private class Buffer {
         val list = mutableListOf<String>()
@@ -128,30 +135,38 @@ class EventStreamTests {
 
     @Test
     fun testListenWeak_sameListener_sameTarget() {
-        val eventEmitter = EventEmitter<Int>()
+        fun test(
+            weakListener: WeakListener<Any, String>,
+        ) {
+            val eventEmitter = EventEmitter<Int>()
 
-        val target = object {}
+            val target = object {}
 
-        // Create a dependent stream to make the system non-trivial
-        val dependentStream = eventEmitter.map { it.toString() }
+            // Create a dependent stream to make the system non-trivial
+            val dependentStream = eventEmitter.map { it.toString() }
 
-        fun handle(target: Any, element: String) {
+            dependentStream.listenWeak(
+                target = target,
+                listener = weakListener,
+            )
+
+            assertIs<IllegalStateException>(
+                assertFails {
+                    dependentStream.listenWeak(
+                        target = target,
+                        listener = weakListener,
+                    )
+                },
+            )
         }
 
-        dependentStream.listenWeak(
-            target = target,
-            listener = ::handle,
-        )
-
-        assertIs<IllegalStateException>(
-            assertFails {
-                dependentStream.listenWeak(
-                    target = target,
-                    listener = ::handle,
-                )
-            },
-        )
+        // As the ::function operator doesn't return stable references on
+        // JavaScript, we ensure that the weak listener is bound to a function
+        // argument
+        test { target, value ->
+        }
     }
+
 
     @Test
     fun testListenWeak_differentListeners_sameTarget() {
