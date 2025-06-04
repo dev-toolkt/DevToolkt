@@ -1,6 +1,6 @@
 package dev.toolkt.reactive.reactive_list
 
-abstract class DependentReactiveList<E>(
+abstract class CachingReactiveList<E>(
     initialContent: List<E>,
 ) : ActiveReactiveList<E>() {
     internal val cachedContent = initialContent.toMutableList()

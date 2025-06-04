@@ -176,10 +176,6 @@ abstract class ReactiveList<out E> {
         transform: (E) -> Er,
     ): ReactiveList<Er>
 
-    fun get(inex: Int): Cell<E?> {
-        TODO()
-    }
-
     abstract fun <T : Any> bind(
         target: T,
         extract: (T) -> MutableList<in E>,

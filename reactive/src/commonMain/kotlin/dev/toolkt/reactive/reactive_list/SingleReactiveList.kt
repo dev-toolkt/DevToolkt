@@ -5,7 +5,7 @@ import dev.toolkt.reactive.event_stream.EventStream
 
 class SingleReactiveList<E>(
     element: Cell<E>,
-) : DependentReactiveList<E>(
+) : CachingReactiveList<E>(
     initialContent = listOf(element.currentValue),
 ) {
     override val changes: EventStream<Change<E>> = element.newValues.map { newValue ->
