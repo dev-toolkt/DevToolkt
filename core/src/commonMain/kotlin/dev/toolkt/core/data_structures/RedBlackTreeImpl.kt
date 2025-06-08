@@ -58,20 +58,20 @@ internal object RedBlackTreeImpl {
         abstract val parent: ParentNode<T>
 
         fun clearChild(): NullNode<T> {
-            setChild(newChild = null)
+            linkChild(newChild = null)
 
             return NullNode(parentLink = this)
         }
 
         fun replaceChild(
-            newChild: ProperNode<T>?,
+            newChild: ProperNode<T>,
         ): ChildNode<T> {
-            setChild(newChild)
+            linkChild(newChild)
 
-            return newChild ?: NullNode(parentLink = this)
+            return newChild
         }
 
-        abstract fun setChild(
+        abstract fun linkChild(
             newChild: ProperNode<T>?,
         )
     }
@@ -82,11 +82,15 @@ internal object RedBlackTreeImpl {
         override val parent: ParentNode<T>
             get() = origin
 
-        override fun setChild(
+        override fun linkChild(
             newChild: ProperNode<T>?,
         ) {
             origin.setRoot(
                 newRoot = newChild
+            )
+
+            newChild?.setParent(
+                newParent = origin,
             )
         }
     }
@@ -95,35 +99,47 @@ internal object RedBlackTreeImpl {
         override val parent: ProperNode<T>,
         val childSide: RedBlackTree.Side,
     ) : ParentLink<T>() {
-        override fun setChild(
+        override fun linkChild(
             newChild: ProperNode<T>?,
         ) {
-            parent.setChild(
+            ProperNode.linkChild(
+                parent = parent,
                 child = newChild,
                 side = childSide,
             )
         }
 
+        /**
+         * The younger family of the node linked by this parent link, or null if
+         * that node has no proper sibling
+         */
         val youngerFamily: YoungerFamily<T>?
             get() {
                 val properSibling = this.properSibling ?: return null
 
                 return YoungerFamily(
-                    filiation = this,
+                    properParentLink = this,
                     properSibling = properSibling,
                 )
             }
 
+        /**
+         * The older family of the node linked by this parent link, or null if
+         * that node has no proper grandparent
+         */
         val olderFamily: OlderFamily<T>?
-            get() = parent.youngerFamily?.let {
+            get() = parent.properParentLink?.let {
                 OlderFamily(
                     parentLink = this,
-                    parentYoungerFamily = it,
+                    grandparentLink = it,
                 )
             }
 
-        private val siblingSide: RedBlackTree.Side
+        val siblingSide: RedBlackTree.Side
             get() = childSide.opposite
+
+        val sibling: ChildNode<T>
+            get() = parent.getChild(side = siblingSide)
 
         private val properSibling: ProperNode<T>?
             get() = parent.getProperChild(side = siblingSide)
@@ -135,14 +151,14 @@ internal object RedBlackTreeImpl {
      * proper). This part of the tree is crucial during removal fixups.
      */
     class YoungerFamily<T>(
-        val filiation: ProperParentLink<T>,
+        val properParentLink: ProperParentLink<T>,
         val properSibling: ProperNode<T>,
     ) {
         val parent: ProperNode<T>
-            get() = filiation.parent
+            get() = properParentLink.parent
 
         val childSide: RedBlackTree.Side
-            get() = filiation.childSide
+            get() = properParentLink.childSide
 
         val closeNephew: ChildNode<T>
             get() = properSibling.getChild(childSide)
@@ -154,12 +170,12 @@ internal object RedBlackTreeImpl {
     /**
      * The "older" family is the node's its proper parent (which it must have),
      * its proper grandparent (which it must have) and the parent's sibling called
-     * "the uncle" (which it must have). This part of the tree is crucial during
+     * "the uncle" (not necessarily proper). This part of the tree is crucial during
      * insert fixups.
      */
     class OlderFamily<T>(
         private val parentLink: ProperParentLink<T>,
-        private val parentYoungerFamily: YoungerFamily<T>,
+        private val grandparentLink: ProperParentLink<T>,
     ) {
         val parent: ProperNode<T>
             get() = parentLink.parent
@@ -168,22 +184,28 @@ internal object RedBlackTreeImpl {
             get() = parentLink.childSide
 
         val grandparent: ProperNode<T>
-            get() = parentYoungerFamily.parent
+            get() = grandparentLink.parent
 
-        val uncle: ProperNode<T>
-            get() = parentYoungerFamily.properSibling
+        val uncle: ChildNode<T>
+            get() = grandparentLink.sibling
 
         val uncleSide: RedBlackTree.Side
-            get() = parentYoungerFamily.childSide.opposite
+            get() = grandparentLink.siblingSide
     }
 
     sealed interface ParentNode<T> {
-        fun link(child: ChildNode<T>): ParentLink<T>
+        fun link(child: ProperNode<T>): ParentLink<T>
 
         fun addChildDescending(
             child: ProperNode<T>,
             side: RedBlackTree.Side,
         )
+
+        fun dump(): String
+
+        fun dumpNode(): RedBlackTree.DumpedNode<T>?
+
+        val inOrderTraversal: Sequence<T>
     }
 
     sealed class ChildNode<T> {
@@ -257,16 +279,24 @@ internal object RedBlackTreeImpl {
             finalParent.fixupInsertion()
         }
 
-        val youngerFamily: YoungerFamily<T>?
+        /**
+         * The younger family of this node, or null if this node has no proper
+         * parent or no proper sibling
+         */
+        private val youngerFamily: YoungerFamily<T>?
             get() = this.properParentLink?.youngerFamily
 
+        /**
+         * The older family of this node, or null if this node has no proper
+         * parent or no proper grandparent
+         */
         val olderFamily: OlderFamily<T>?
             get() = this.properParentLink?.olderFamily
 
         private val asProper: ProperNode<T>?
             get() = this as? ProperNode<T>
 
-        private val properParentLink: ProperParentLink<T>?
+        val properParentLink: ProperParentLink<T>?
             get() = parentLink as? ProperParentLink<T>
 
         /**
@@ -286,8 +316,10 @@ internal object RedBlackTreeImpl {
             require(family.closeNephew.effectiveColor == Color.Black)
             require(family.distantNephew.effectiveColor == Color.Black)
 
+            val direction = family.childSide.directionTo
+
             parent.rotate(
-                direction = family.childSide.directionTo,
+                direction = direction,
             )
 
             ProperNode.swapColors(
@@ -393,15 +425,25 @@ internal object RedBlackTreeImpl {
             )
         }
 
+        override fun dump(): String = currentRoot.dumpOrNullString()
+
+        override fun dumpNode(): RedBlackTree.DumpedNode<T>? = currentRoot?.dumpNode()
+
         fun setRoot(newRoot: ProperNode<T>?) {
             currentRoot = newRoot
         }
 
         override fun link(
-            child: ChildNode<T>,
-        ): ParentLink<T> = OriginLink(
-            origin = this,
-        )
+            child: ProperNode<T>,
+        ): ParentLink<T> {
+            if (child != currentRoot) {
+                throw IllegalArgumentException("The child must be the current root of the tree")
+            }
+
+            return OriginLink(
+                origin = this,
+            )
+        }
 
         override fun addChildDescending(
             child: ProperNode<T>,
@@ -424,6 +466,10 @@ internal object RedBlackTreeImpl {
                 }
             }
         }
+
+
+        override val inOrderTraversal: Sequence<T>
+            get() = currentRoot?.inOrderTraversal ?: emptySequence()
     }
 
     /**
@@ -455,7 +501,26 @@ internal object RedBlackTreeImpl {
         private var currentColor: Color,
         private var currentValue: T,
     ) : ChildNode<T>(), ParentNode<T> {
+        private enum class State {
+            Valid, Invalid,
+        }
+
         companion object {
+            fun <T> linkChild(
+                parent: ProperNode<T>,
+                child: ProperNode<T>?,
+                side: RedBlackTree.Side,
+            ) {
+                parent.setChild(
+                    child = child,
+                    side = side,
+                )
+
+                child?.setParent(
+                    newParent = parent,
+                )
+            }
+
             fun <T> swapColors(
                 redNode: ProperNode<T>,
                 blackNode: ProperNode<T>,
@@ -472,6 +537,8 @@ internal object RedBlackTreeImpl {
                 blackNode.paintRed()
             }
         }
+
+        private var state = State.Valid
 
         override val effectiveColor: Color
             get() = currentColor
@@ -490,8 +557,10 @@ internal object RedBlackTreeImpl {
             currentColor = Color.Black
         }
 
-        override fun link(child: ChildNode<T>): ParentLink<T> {
-            val side = getChildSide(child = this)
+        override fun link(
+            child: ProperNode<T>,
+        ): ParentLink<T> {
+            val side = getChildSide(child = child)
 
             return ProperParentLink(
                 parent = this,
@@ -515,6 +584,12 @@ internal object RedBlackTreeImpl {
                 secondSide = side,
             )
         }
+
+        val asValid: ProperNode<T>?
+            get() = when (state) {
+                State.Valid -> this
+                State.Invalid -> null
+            }
 
         val properColor: Color
             get() = currentColor
@@ -557,7 +632,13 @@ internal object RedBlackTreeImpl {
 
         fun getInOrderSuccessor(): ProperNode<T>? = getInOrderNeighbour(side = RedBlackTree.Side.Right)
 
-        fun setChild(
+        fun setParent(
+            newParent: ParentNode<T>,
+        ) {
+            this.currentParent = newParent
+        }
+
+        private fun setChild(
             child: ProperNode<T>?,
             side: RedBlackTree.Side,
         ) {
@@ -609,19 +690,17 @@ internal object RedBlackTreeImpl {
 
             val originalInnerGrandchild = heir.getProperChild(direction.endSide)
 
-            setChild(
+            ProperNode.linkChild(
+                parent = this,
                 child = originalInnerGrandchild,
                 side = direction.startSide,
             )
 
-            originalInnerGrandchild?.setParent(this)
-
-            heir.setChild(
+            ProperNode.linkChild(
+                parent = heir,
                 child = this,
                 side = direction.endSide,
             )
-
-            setParent(heir)
 
             originalParentLink.replaceChild(newChild = heir)
 
@@ -640,19 +719,26 @@ internal object RedBlackTreeImpl {
             }
 
             val parent = this.parent as? ProperNode<T> ?: run {
+                // Case #3
                 // If this is the root, it can't be in a red violation with its
                 // parent, as it has no parent. There is no red violation.
 
                 return
             }
 
+            // The parent is red. This is a red violation, but we can fix it.
+
             if (parent.effectiveColor == Color.Black) {
+                // Case #1
                 // If the parent is black, there's no red violation between this
                 // node and its parent
                 return
             }
 
+            // From now
+
             val olderFamily = this.olderFamily ?: run {
+                // Case #4
                 // The parent is the root, so it can't get into a red
                 // violation with its parent (as it has no parent). We can fix the
                 // red violation by simply changing the root's color to black.
@@ -671,7 +757,6 @@ internal object RedBlackTreeImpl {
                 throw AssertionError("Unexpected grandparent color")
             }
 
-            // change to if + return?
             when (uncle.effectiveColor) {
                 Color.Black -> {
                     performInsertionFixup()
@@ -701,21 +786,76 @@ internal object RedBlackTreeImpl {
             currentColor = Color.Red
         }
 
+        fun invalidate() {
+            println("Invalidating node ${hashCode()}")
+
+            when (state) {
+                State.Invalid -> {
+                    throw IllegalStateException("The node is already invalidated")
+                }
+
+                State.Valid -> {
+                    state = State.Invalid
+                }
+            }
+        }
+
+        /**
+         * Verify the integrity of this node and its children, ensuring that:
+         *
+         * 1. The node is valid (not invalidated).
+         * 2. The parent is consistent with the expected parent.
+         * 3. The parent and this node do not violate the red-black tree properties
+         *
+         * @return the black height
+         */
         fun verifyIntegrity(
             expectedParent: ParentNode<T>,
-        ) {
-            if (this.parent != expectedParent) {
+        ): Int {
+            if (this.state != State.Valid) {
+                throw AssertionError("This note was invalidated")
+            }
+
+            val parent = this.parent
+
+            if (parent != expectedParent) {
                 throw AssertionError("Inconsistent parent, expected: $expectedParent, actual: ${this.parent}")
             }
 
-            leftChild?.verifyIntegrity(
+            val properParent = parent as? ProperNode<T>
+
+            if (properParent?.properColor == Color.Red && properColor == Color.Red) {
+                throw AssertionError("Red violation: both parent and this node are red")
+            }
+
+            val leftBlackHeight = leftChild.verifyIntegrityOrOne(
                 expectedParent = this,
             )
 
-            rightChild?.verifyIntegrity(
+            val rightBlackHeight = rightChild.verifyIntegrityOrOne(
                 expectedParent = this,
             )
+
+            if (leftBlackHeight != rightBlackHeight) {
+                throw AssertionError("Black violation: left and right children have different black heights: $leftBlackHeight != $rightBlackHeight")
+            }
+
+            val thisBlackHeight = when (properColor) {
+                Color.Black -> 1
+                Color.Red -> 0
+            }
+
+            return thisBlackHeight + leftBlackHeight // or rightBlackHeight, they are equal
         }
+
+        override fun dump(): String =
+            "(${leftChild.dumpOrNullString()} [$currentValue | ${currentColor.name}] ${rightChild.dumpOrNullString()})"
+
+        override fun dumpNode(): RedBlackTree.DumpedNode<T> = RedBlackTree.DumpedNode(
+            leftNode = leftChild?.dumpNode(),
+            value = currentValue,
+            rightNode = rightChild?.dumpNode(),
+        )
 
         private var leftChild: ProperNode<T>? = null
 
@@ -752,12 +892,9 @@ internal object RedBlackTreeImpl {
             return sideChild.getSideMostDescendant(side = side)
         }
 
-        private fun setParent(
-            newParent: ProperNode<T>,
-        ) {
-            this.currentParent = newParent
-        }
-
+        /**
+         * Cases #5/#6
+         */
         private fun performInsertionFixup() {
             if (properColor != Color.Red) {
                 throw IllegalArgumentException("The node color should be red")
@@ -768,6 +905,7 @@ internal object RedBlackTreeImpl {
 
             when (family.childSide) {
                 family.uncleSide -> {
+                    // Case #5
                     parent.rotate(direction = family.uncleSide.directionFrom)
 
                     parent.performProperInsertionFixup()
@@ -779,6 +917,9 @@ internal object RedBlackTreeImpl {
             }
         }
 
+        /**
+         * Case #6
+         */
         private fun performProperInsertionFixup() {
             val family = olderFamily ?: throw IllegalArgumentException("Could not construct the node's older family")
             val parent = family.parent
@@ -805,13 +946,10 @@ internal object RedBlackTreeImpl {
         ) {
             when (val sideChild = getProperChild(side = firstSide)) {
                 null -> {
-                    setChild(
+                    ProperNode.linkChild(
+                        parent = this,
                         child = child,
                         side = firstSide,
-                    )
-
-                    child.setParent(
-                        newParent = this,
                     )
                 }
 
@@ -821,5 +959,27 @@ internal object RedBlackTreeImpl {
                 )
             }
         }
+
+        override val inOrderTraversal: Sequence<T>
+            get() = leftChild.inOrderTraversalOrEmpty + sequenceOf(currentValue) + rightChild.inOrderTraversalOrEmpty
     }
+}
+
+internal val <T> RedBlackTreeImpl.ProperNode<T>?.inOrderTraversalOrEmpty: Sequence<T>
+    get() {
+        val self = this ?: return emptySequence()
+        return self.inOrderTraversal
+    }
+
+internal fun <T> RedBlackTreeImpl.ProperNode<T>?.verifyIntegrityOrOne(
+    expectedParent: RedBlackTreeImpl.ParentNode<T>,
+): Int = when (this) {
+    null -> 1
+    else -> this.verifyIntegrity(expectedParent = expectedParent)
+}
+
+
+internal fun <T> RedBlackTreeImpl.ProperNode<T>?.dumpOrNullString(): String = when (this) {
+    null -> "NULL"
+    else -> this.dump()
 }
