@@ -17,13 +17,13 @@ value class RedBlackTree<T> private constructor(
         data object Left : Side() {
             override val opposite: Side = Right
 
-            override val directionTo = RotationDirection.Clockwise
+            override val directionTo = RotationDirection.CounterClockwise
         }
 
         data object Right : Side() {
             override val opposite: Side = Left
 
-            override val directionTo = RotationDirection.CounterClockwise
+            override val directionTo = RotationDirection.Clockwise
         }
 
         internal abstract val opposite: Side
@@ -42,6 +42,12 @@ value class RedBlackTree<T> private constructor(
             get() = directionTo.opposite
     }
 
+    data class DumpedNode<T>(
+        val leftNode: DumpedNode<T>?,
+        val value: T,
+        val rightNode: DumpedNode<T>?,
+    )
+
     /**
      * A stable handle to the node inside the tree. Invalidates once the node is
      * removed through via this handle.
@@ -57,7 +63,9 @@ value class RedBlackTree<T> private constructor(
                     "The handle is invalid, the node has been removed from the tree"
                 }
 
-                return node
+                val validNode = node.asValid ?: throw IllegalStateException("The associated node is no loner valid")
+
+                return validNode
             }
 
         internal fun invalidate() {
@@ -93,6 +101,8 @@ value class RedBlackTree<T> private constructor(
             child = newNode,
             side = side,
         )
+
+        newNode.fixupInsertion()
 
         return Handle(node = newNode)
     }
@@ -159,9 +169,21 @@ value class RedBlackTree<T> private constructor(
         }
     }
 
-    internal fun verifyIntegrity() {
-        origin.verifyIntegrity()
+    val inOrderTraversal: Sequence<T>
+        get() = origin.inOrderTraversal
+
+    fun verifyIntegrity() {
+        try {
+            origin.verifyIntegrity()
+        } catch (e: AssertionError) {
+            println(dump())
+            throw e
+        }
     }
+
+    fun dumpNode(): DumpedNode<T>? = origin.dumpNode()
+
+    fun dump(): String = origin.dump()
 
     private fun createNode(
         value: T,
@@ -205,6 +227,8 @@ value class RedBlackTree<T> private constructor(
             newChild = singleChild,
         )
 
+        node.invalidate()
+
         singleChild.paintBlack()
     }
 
@@ -218,6 +242,8 @@ value class RedBlackTree<T> private constructor(
         val leafColor = leaf.effectiveColor
 
         val newNullNode = leaf.parentLink.clearChild()
+
+        leaf.invalidate()
 
         if (leafColor == Color.Black) {
             newNullNode.fixupRemoval()
