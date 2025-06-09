@@ -276,7 +276,7 @@ internal object RedBlackTreeImpl {
             // Case #2
             finalSibling.paintRed()
 
-            finalParent.fixupInsertion()
+            finalParent.fixupRemoval()
         }
 
         /**
@@ -728,7 +728,7 @@ internal object RedBlackTreeImpl {
 
             // The parent is red. This is a red violation, but we can fix it.
 
-            if (parent.effectiveColor == Color.Black) {
+            if (parent.properColor == Color.Black) {
                 // Case #1
                 // If the parent is black, there's no red violation between this
                 // node and its parent
