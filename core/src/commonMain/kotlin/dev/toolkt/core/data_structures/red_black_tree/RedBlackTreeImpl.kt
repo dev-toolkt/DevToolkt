@@ -1,4 +1,4 @@
-package dev.toolkt.core.data_structures
+package dev.toolkt.core.data_structures.red_black_tree
 
 /**
  * Red-black tree implementation
@@ -690,13 +690,13 @@ internal object RedBlackTreeImpl {
 
             val originalInnerGrandchild = heir.getProperChild(direction.endSide)
 
-            ProperNode.linkChild(
+            linkChild(
                 parent = this,
                 child = originalInnerGrandchild,
                 side = direction.startSide,
             )
 
-            ProperNode.linkChild(
+            linkChild(
                 parent = heir,
                 child = this,
                 side = direction.endSide,
@@ -929,7 +929,7 @@ internal object RedBlackTreeImpl {
                 direction = family.uncleSide.directionTo,
             )
 
-            ProperNode.swapColors(
+            swapColors(
                 redNode = parent,
                 blackNode = grandparent,
             )
@@ -946,7 +946,7 @@ internal object RedBlackTreeImpl {
         ) {
             when (val sideChild = getProperChild(side = firstSide)) {
                 null -> {
-                    ProperNode.linkChild(
+                    linkChild(
                         parent = this,
                         child = child,
                         side = firstSide,
