@@ -1,8 +1,8 @@
-package dev.toolkt.core.data_structures
+package dev.toolkt.core.data_structures.red_black_tree
 
-import dev.toolkt.core.data_structures.RedBlackTreeImpl.Color
-import dev.toolkt.core.data_structures.RedBlackTreeImpl.ProperNode
-import dev.toolkt.core.data_structures.RedBlackTreeImpl.RotationDirection
+import dev.toolkt.core.data_structures.red_black_tree.RedBlackTreeImpl.Color
+import dev.toolkt.core.data_structures.red_black_tree.RedBlackTreeImpl.ProperNode
+import dev.toolkt.core.data_structures.red_black_tree.RedBlackTreeImpl.RotationDirection
 import kotlin.jvm.JvmInline
 
 /**
