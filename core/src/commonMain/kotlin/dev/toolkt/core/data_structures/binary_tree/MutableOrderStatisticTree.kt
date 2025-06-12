@@ -73,7 +73,7 @@ class MutableOrderStatisticTree<DataT>(
         descendantHandle: RawOrderStatisticNodeHandle<DataT>,
         delta: Int,
     ) {
-        subjectTree.getAncestors(
+        subjectTree.getQuasiAncestors(
             nodeHandle = descendantHandle,
         ).forEach { ancestorHandle ->
             ancestorHandle.setSize(

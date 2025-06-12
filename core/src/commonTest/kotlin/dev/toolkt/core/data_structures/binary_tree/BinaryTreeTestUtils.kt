@@ -59,3 +59,17 @@ fun <PayloadT> BasicBinaryTree<PayloadT>.removeLeafVerified(
 
     return location
 }
+
+fun <PayloadT> BasicBinaryTree<PayloadT>.rotateVerified(
+    pivotNodeHandle: BinaryTree.NodeHandle<PayloadT>,
+    direction: BinaryTree.RotationDirection,
+): BinaryTree.NodeHandle<PayloadT> {
+    val rotatedNodeHandle = this.rotate(
+        pivotNodeHandle = pivotNodeHandle,
+        direction = direction,
+    )
+
+    verifyIntegrity()
+
+    return rotatedNodeHandle
+}
