@@ -321,7 +321,23 @@ class BasicBinaryTree<PayloadT> internal constructor(
     }
 
     override fun insert(
-        location: BinaryTree.Location<PayloadT>, payload: PayloadT
+        location: BinaryTree.Location<PayloadT>,
+        payload: PayloadT,
+    ): BinaryTree.NodeHandle<PayloadT> = insertDirectly(
+        location = location,
+        payload = payload,
+    )
+
+    /**
+     * Insert a new value at the given free [location] without performing any other
+     * tree-reshaping operations.
+     *
+     * @return A handle to the new inserted node
+     * @throws IllegalArgumentException if the location is taken
+     */
+    fun insertDirectly(
+        location: BinaryTree.Location<PayloadT>,
+        payload: PayloadT,
     ): BinaryTree.NodeHandle<PayloadT> {
         val newNode = BasicNode(
             mutableParent = origin,
@@ -366,6 +382,19 @@ class BasicBinaryTree<PayloadT> internal constructor(
     override fun removeLeaf(
         leafHandle: BinaryTree.NodeHandle<PayloadT>,
     ) {
+        removeLeafDirectly(
+            leafHandle = leafHandle,
+        )
+    }
+
+    /**
+     * Remove the leaf without performing any other tree-reshaping operations.
+     *
+     * @return The location from which the leaf was removed.
+     */
+    fun removeLeafDirectly(
+        leafHandle: BinaryTree.NodeHandle<PayloadT>,
+    ): BinaryTree.Location<PayloadT> {
         val node = leafHandle.unpack()
 
         if (!node.isLeaf()) {
@@ -381,12 +410,30 @@ class BasicBinaryTree<PayloadT> internal constructor(
         properParent?.updateSubtreeSizeRecursively(
             delta = -1,
         )
+
+        return parentLink.childLocation
     }
 
     override fun elevate(
         nodeHandle: BinaryTree.NodeHandle<PayloadT>,
     ) {
+        elevateDirectly(
+            nodeHandle = nodeHandle,
+        )
+    }
+
+    /**
+     * Elevate the node corresponding to the given [nodeHandle] without
+     * performing any other tree-reshaping operations.
+     */
+    fun elevateDirectly(
+        nodeHandle: BinaryTree.NodeHandle<PayloadT>,
+    ) {
         val node = nodeHandle.unpack()
+
+        if (node.properParent == null) {
+            throw IllegalArgumentException("Cannot elevate the root node")
+        }
 
         val parentLink = node.properParentLink ?: throw IllegalArgumentException("Cannot elevate the root node")
 
