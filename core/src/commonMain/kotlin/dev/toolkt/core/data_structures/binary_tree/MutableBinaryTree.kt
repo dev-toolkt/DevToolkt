@@ -1,18 +1,35 @@
 package dev.toolkt.core.data_structures.binary_tree
 
 interface MutableBinaryTree<PayloadT> : BinaryTree<PayloadT> {
+    /**
+     * Insert a new value at the given free [location]. May result in the tree
+     * re-balancing.
+     *
+     * @return A handle to the new inserted node
+     * @throws IllegalArgumentException if the location is taken
+     */
     fun insert(
         location: BinaryTree.Location<PayloadT>,
         payload: PayloadT,
     ): BinaryTree.NodeHandle<PayloadT>
 
     /**
-     * @return The location of the
+     * Remove the leaf corresponding to the given [leafHandle] from the tree.
+     * May result in the tree re-balancing.
+     *
+     * @throws IllegalArgumentException if the node is not a leaf
      */
     fun removeLeaf(
         leafHandle: BinaryTree.NodeHandle<PayloadT>,
     )
 
+    /**
+     * Elevate the node corresponding to the given [nodeHandle] (replace its
+     * parent with this node). Requires that this node is not the root and has
+     * no sibling. May result in the tree re-balancing.
+     *
+     * @throws IllegalArgumentException if the node is a root or has a sibling
+     */
     fun elevate(
         nodeHandle: BinaryTree.NodeHandle<PayloadT>,
     )
