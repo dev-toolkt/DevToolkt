@@ -9,7 +9,6 @@ class BasicBinaryTree<PayloadT> internal constructor(
         fun buildParentLink(
             child: BasicNode<PayloadT>,
         ): ParentLink<PayloadT>
-
     }
 
     internal class OriginNode<PayloadT>(
@@ -42,8 +41,13 @@ class BasicBinaryTree<PayloadT> internal constructor(
         private var mutableParent: ParentNode<PayloadT>,
         private var mutableLeftChild: BasicNode<PayloadT>? = null,
         private var mutableRightChild: BasicNode<PayloadT>? = null,
+        private var mutableSubtreeSize: Int = 1,
         val payload: PayloadT,
     ) : ParentNode<PayloadT> {
+        data class IntegrityVerificationResult(
+            val computedSubtreeSize: Int,
+        )
+
         companion object {
             fun <T> link(
                 parent: BasicNode<T>,
@@ -79,11 +83,15 @@ class BasicBinaryTree<PayloadT> internal constructor(
         val properParentLink: ProperParentLink<PayloadT>?
             get() = parentLink as? ProperParentLink<PayloadT>
 
+        val properParent: BasicNode<PayloadT>?
+            get() = properParentLink?.parent
+
         val leftChild: BasicNode<PayloadT>?
             get() = mutableLeftChild
 
         val rightChild: BasicNode<PayloadT>?
             get() = mutableRightChild
+
 
         val singleChildOrNull: BasicNode<PayloadT>?
             get() = when {
@@ -91,6 +99,9 @@ class BasicBinaryTree<PayloadT> internal constructor(
                 leftChild == null && rightChild != null -> rightChild
                 else -> null
             }
+
+        val subtreeSize: Int
+            get() = mutableSubtreeSize
 
         fun isLeaf(): Boolean = leftChild == null && rightChild == null
 
@@ -109,6 +120,16 @@ class BasicBinaryTree<PayloadT> internal constructor(
             else -> throw IllegalArgumentException("The given node is not a child of this node")
         }
 
+        fun getAncestors(): Sequence<BasicNode<PayloadT>> {
+            val parent = this.properParent ?: return emptySequence()
+
+            return generateSequence(
+                seed = parent,
+            ) { currentNodeHandle ->
+                currentNodeHandle.properParent
+            }
+        }
+
         fun setChild(
             child: BasicNode<PayloadT>?,
             side: BinaryTree.Side,
@@ -125,15 +146,52 @@ class BasicBinaryTree<PayloadT> internal constructor(
             mutableParent = parent
         }
 
+        fun setSubtreeSize(
+            size: Int,
+        ) {
+            require(size >= 0)
+
+            mutableSubtreeSize = size
+        }
+
         fun verifyIntegrity(
             expectedParent: ParentNode<PayloadT>,
-        ) {
+        ): IntegrityVerificationResult {
             if (parent != expectedParent) {
                 throw AssertionError("Inconsistent parent, expected: $expectedParent, actual: ${this.parent}")
             }
 
-            leftChild?.verifyIntegrity(expectedParent = this)
-            rightChild?.verifyIntegrity(expectedParent = this)
+            val computedLeftSubtreeSize = leftChild?.verifyIntegrity(
+                expectedParent = this,
+            )?.computedSubtreeSize ?: 0
+
+            val computedRightSubtreeSize = rightChild?.verifyIntegrity(
+                expectedParent = this,
+            )?.computedSubtreeSize ?: 0
+
+            val computedTotalSubtreeSize = computedLeftSubtreeSize + 1 + computedRightSubtreeSize
+
+            if (mutableSubtreeSize != computedTotalSubtreeSize) {
+                throw AssertionError("Inconsistent cached subtree size, true: $computedTotalSubtreeSize, cached: $mutableSubtreeSize")
+            }
+
+            return IntegrityVerificationResult(
+                computedSubtreeSize = computedTotalSubtreeSize,
+            )
+        }
+
+        fun updateSubtreeSizeRecursively(
+            /**
+             * The number of gained descendants. If negative, it means the node
+             * lost descendants.
+             */
+            delta: Int,
+        ) {
+            setSubtreeSize(subtreeSize + delta)
+
+            properParent?.updateSubtreeSizeRecursively(
+                delta = delta,
+            )
         }
     }
 
@@ -221,32 +279,45 @@ class BasicBinaryTree<PayloadT> internal constructor(
         direction: BinaryTree.RotationDirection,
     ): BinaryTree.NodeHandle<PayloadT> {
         val pivotNode = pivotNodeHandle.unpack()
+
         val parentLink = pivotNode.parentLink
 
-        val pushedUpNode = pivotNode.getChild(side = direction.startSide)
-            ?: throw IllegalStateException("The new root has to be a proper node")
+        val ascendingChild = pivotNode.getChild(side = direction.startSide)
+            ?: throw IllegalStateException("The pivot node has no child on the ${direction.startSide} side")
 
-        val centralNode = pushedUpNode.getChild(side = direction.endSide)
+        val closeGrandchild = ascendingChild.getChild(side = direction.endSide)
 
-        val pulledDownNode = pivotNode.getChild(side = direction.endSide)
+        val distantGrandchild = ascendingChild.getChild(side = direction.startSide)
 
         BasicNode.link(
             parent = pivotNode,
-            child = centralNode,
+            child = closeGrandchild,
             side = direction.startSide,
         )
 
         BasicNode.link(
-            parent = pushedUpNode,
+            parent = ascendingChild,
             child = pivotNode,
             side = direction.endSide,
         )
 
         parentLink.replaceChild(
-            newChild = pushedUpNode,
+            newChild = ascendingChild,
         )
 
-        return pushedUpNode.pack()
+        val originalPivotNodeSubtreeSize = pivotNode.subtreeSize
+        val originalDistantGrandchildSize = distantGrandchild.subtreeSizeOrZero
+
+        // The ascending node has exactly the same set of descendants as the pivot
+        // node had before (with the exception that the parent-child relation
+        // inverted, but that doesn't affect the subtree size)
+        ascendingChild.setSubtreeSize(originalPivotNodeSubtreeSize)
+
+        // The pivot node lost descendants in the subtree of its original
+        // distant grandchild. It also lost the ascending child.
+        pivotNode.setSubtreeSize(originalPivotNodeSubtreeSize - originalDistantGrandchildSize - 1)
+
+        return ascendingChild.pack()
     }
 
     override fun insert(
@@ -282,6 +353,10 @@ class BasicBinaryTree<PayloadT> internal constructor(
                     side = side,
                     child = newNode,
                 )
+
+                parent.updateSubtreeSizeRecursively(
+                    delta = +1,
+                )
             }
         }
 
@@ -299,7 +374,13 @@ class BasicBinaryTree<PayloadT> internal constructor(
 
         val parentLink = node.parentLink
 
+        val properParent = parentLink.parent.asProper
+
         parentLink.clearChild()
+
+        properParent?.updateSubtreeSizeRecursively(
+            delta = -1,
+        )
     }
 
     override fun elevate(
@@ -312,8 +393,13 @@ class BasicBinaryTree<PayloadT> internal constructor(
         if (parentLink.sibling != null) throw IllegalArgumentException("Cannot elevate a node with a sibling")
 
         val grandparentLink = parentLink.parent.parentLink
+        val properGrandparent = grandparentLink.parent.asProper
 
         grandparentLink.replaceChild(node)
+
+        properGrandparent?.updateSubtreeSizeRecursively(
+            delta = -1,
+        )
     }
 
     override fun swap(
@@ -326,10 +412,12 @@ class BasicBinaryTree<PayloadT> internal constructor(
         val firstParentLink = firstNode.parentLink
         val firstLeftChild = firstNode.leftChild
         val firstRightChild = firstNode.rightChild
+        val firstSubtreeSize = firstNode.subtreeSize
 
         val secondParentLink = secondNode.parentLink
         val secondLeftChild = secondNode.leftChild
         val secondRightChild = secondNode.rightChild
+        val secondSubtreeSize = secondNode.subtreeSize
 
         firstParentLink.replaceChild(secondNode)
 
@@ -345,6 +433,8 @@ class BasicBinaryTree<PayloadT> internal constructor(
             side = BinaryTree.Side.Right,
         )
 
+        secondNode.setSubtreeSize(firstSubtreeSize)
+
         secondParentLink.replaceChild(firstNode)
 
         BasicNode.link(
@@ -358,6 +448,8 @@ class BasicBinaryTree<PayloadT> internal constructor(
             child = secondRightChild,
             side = BinaryTree.Side.Right,
         )
+
+        firstNode.setSubtreeSize(secondSubtreeSize)
     }
 
     override fun getPayload(
@@ -389,10 +481,19 @@ class BasicBinaryTree<PayloadT> internal constructor(
             return root.pack()
         }
 
+    val size: Int
+        get() = origin.root.subtreeSizeOrZero
+
     fun verifyIntegrity() {
         origin.root?.verifyIntegrity(expectedParent = origin)
     }
 }
+
+internal val <PayloadT> BasicBinaryTree.ParentNode<PayloadT>.asProper: BasicBinaryTree.BasicNode<PayloadT>?
+    get() = this as? BasicBinaryTree.BasicNode<PayloadT>
+
+internal val <PayloadT> BasicBinaryTree.BasicNode<PayloadT>?.subtreeSizeOrZero: Int
+    get() = this?.subtreeSize ?: 0
 
 private fun <PayloadT> BinaryTree.NodeHandle<PayloadT>.unpack(): BasicBinaryTree.BasicNode<PayloadT> {
     @Suppress("UNCHECKED_CAST") val basicHandle =

@@ -333,12 +333,24 @@ interface Guide<in PayloadT> {
 /**
  * @return the set of the given node and its proper ancestors
  */
-fun <PayloadT> BinaryTree<PayloadT>.getAncestors(
+fun <PayloadT> BinaryTree<PayloadT>.getQuasiAncestors(
     nodeHandle: BinaryTree.NodeHandle<PayloadT>,
 ): Sequence<BinaryTree.NodeHandle<PayloadT>> = generateSequence(
     seed = nodeHandle,
 ) { currentNodeHandle ->
     getParent(nodeHandle = currentNodeHandle)
+}
+
+fun <PayloadT> BinaryTree<PayloadT>.getAncestors(
+    nodeHandle: BinaryTree.NodeHandle<PayloadT>,
+): Sequence<BinaryTree.NodeHandle<PayloadT>> {
+    val parent = this.getParent(nodeHandle = nodeHandle) ?: return emptySequence()
+
+    return generateSequence(
+        seed = parent,
+    ) { currentNodeHandle ->
+        getParent(nodeHandle = currentNodeHandle)
+    }
 }
 
 fun <PayloadT> BinaryTree<PayloadT>.getChildCount(
