@@ -177,7 +177,7 @@ fun <PayloadT> MutableBinaryTree<PayloadT>.insertAdjacent(
     )
 }
 
-fun <PayloadT> MutableBinaryTree<PayloadT>.remove(
+fun <PayloadT> MutableBinaryTree<PayloadT>.collapse(
     nodeHandle: BinaryTree.NodeHandle<PayloadT>,
 ) {
     val childCount = getChildCount(nodeHandle = nodeHandle)
