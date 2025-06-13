@@ -128,9 +128,14 @@ fun <PayloadT, MetadataT> BinaryTree.RelativeLocation<PayloadT, MetadataT>.getSi
     side = siblingSide,
 )
 
+fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.traverse(): Sequence<BinaryTree.NodeHandle<PayloadT, MetadataT>> =
+    this.traverseOrEmpty(
+        subtreeRootHandle = root,
+    )
+
 fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.traverse(
     rootHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
-): Sequence<PayloadT> {
+): Sequence<BinaryTree.NodeHandle<PayloadT, MetadataT>> {
     val leftChild = getChild(
         nodeHandle = rootHandle,
         side = BinaryTree.Side.Left,
@@ -146,19 +151,19 @@ fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.traverse(
     )
 
     return sequence {
-        yieldAll(traverseOrEmpty(rootHandle = leftChild))
-        yield(payload)
-        yieldAll(traverseOrEmpty(rootHandle = rightChild))
+        yieldAll(traverseOrEmpty(subtreeRootHandle = leftChild))
+        yield(rootHandle)
+        yieldAll(traverseOrEmpty(subtreeRootHandle = rightChild))
     }
 }
 
 private fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.traverseOrEmpty(
-    rootHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>?,
-): Sequence<PayloadT> {
-    if (rootHandle == null) return emptySequence()
+    subtreeRootHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>?,
+): Sequence<BinaryTree.NodeHandle<PayloadT, MetadataT>> {
+    if (subtreeRootHandle == null) return emptySequence()
 
     return this.traverse(
-        rootHandle = rootHandle,
+        rootHandle = subtreeRootHandle,
     )
 }
 

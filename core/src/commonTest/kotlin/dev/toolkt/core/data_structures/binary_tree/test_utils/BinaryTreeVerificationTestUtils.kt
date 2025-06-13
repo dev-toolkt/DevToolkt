@@ -24,7 +24,7 @@ interface ColorVerificator<ColorT> {
     )
 }
 
-fun <PayloadT, ColorT> BinaryTree<PayloadT, ColorT>.verifyIntegrity(
+fun <PayloadT: Comparable<PayloadT>, ColorT> BinaryTree<PayloadT, ColorT>.verifyIntegrity(
     heightVerificator: HeightVerificator?,
     colorVerificator: ColorVerificator<ColorT>?,
 ) {
@@ -38,7 +38,7 @@ fun <PayloadT, ColorT> BinaryTree<PayloadT, ColorT>.verifyIntegrity(
     )
 }
 
-fun <PayloadT, ColorT> BinaryTree<PayloadT, ColorT>.verifySubtreeIntegrity(
+fun <PayloadT: Comparable<PayloadT>, ColorT> BinaryTree<PayloadT, ColorT>.verifySubtreeIntegrity(
     nodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
     expectedParentHandle: BinaryTree.NodeHandle<PayloadT, ColorT>?,
     heightVerificator: HeightVerificator?,
@@ -50,10 +50,18 @@ fun <PayloadT, ColorT> BinaryTree<PayloadT, ColorT>.verifySubtreeIntegrity(
         throw AssertionError("Inconsistent parent")
     }
 
+    val payload = getPayload(nodeHandle = nodeHandle)
+
     val leftChildHandle = getLeftChild(nodeHandle = nodeHandle)
     val rightChildHandle = getRightChild(nodeHandle = nodeHandle)
 
     val leftSubtreeVerificationResult = leftChildHandle?.let {
+        val leftPayload = getPayload(nodeHandle = it)
+
+        if (leftPayload >= payload) {
+            throw AssertionError("Left child payload $leftPayload is not less than parent payload $payload")
+        }
+
         verifySubtreeIntegrity(
             nodeHandle = it,
             expectedParentHandle = nodeHandle,
@@ -63,6 +71,12 @@ fun <PayloadT, ColorT> BinaryTree<PayloadT, ColorT>.verifySubtreeIntegrity(
     }
 
     val rightSubtreeVerificationResult = rightChildHandle?.let {
+        val rightPayload = getPayload(nodeHandle = it)
+
+        if (rightPayload <= payload) {
+            throw AssertionError("Right child payload $rightPayload is not greater than parent payload $payload")
+        }
+
         verifySubtreeIntegrity(
             nodeHandle = it,
             expectedParentHandle = nodeHandle,

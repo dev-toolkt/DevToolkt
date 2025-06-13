@@ -3,7 +3,7 @@ package dev.toolkt.core.data_structures.binary_tree.test_utils
 import dev.toolkt.core.data_structures.binary_tree.BinaryTree
 import dev.toolkt.core.data_structures.binary_tree.MutableBalancedBinaryTree
 
-private data object BalanceVerificator : HeightVerificator {
+internal data object BalanceVerificator : HeightVerificator {
     override fun verifySubtreeHeight(
         leftSubtreeHeight: Int,
         rightSubtreeHeight: Int,
@@ -16,7 +16,7 @@ private data object BalanceVerificator : HeightVerificator {
     }
 }
 
-fun <PayloadT, ColorT> MutableBalancedBinaryTree<PayloadT, ColorT>.insertVerified(
+fun <PayloadT: Comparable<PayloadT>, ColorT> MutableBalancedBinaryTree<PayloadT, ColorT>.insertVerified(
     location: BinaryTree.Location<PayloadT, ColorT>,
     payload: PayloadT,
     colorVerificator: ColorVerificator<ColorT>,
@@ -34,7 +34,7 @@ fun <PayloadT, ColorT> MutableBalancedBinaryTree<PayloadT, ColorT>.insertVerifie
     return insertedNodeHandle
 }
 
-fun <PayloadT, ColorT> MutableBalancedBinaryTree<PayloadT, ColorT>.removeVerified(
+fun <PayloadT: Comparable<PayloadT>, ColorT> MutableBalancedBinaryTree<PayloadT, ColorT>.removeVerified(
     nodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
     colorVerificator: ColorVerificator<ColorT>,
 ) {
