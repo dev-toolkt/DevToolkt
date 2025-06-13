@@ -42,10 +42,10 @@ value class RedBlackTreeOg<T> private constructor(
             get() = directionTo.opposite
     }
 
-    data class DumpedNode<T>(
-        val leftNode: DumpedNode<T>?,
+    data class NodeDataOg<T>(
+        val leftNode: NodeDataOg<T>?,
         val value: T,
-        val rightNode: DumpedNode<T>?,
+        val rightNode: NodeDataOg<T>?,
     )
 
     /**
@@ -181,7 +181,7 @@ value class RedBlackTreeOg<T> private constructor(
         }
     }
 
-    fun dumpNode(): DumpedNode<T>? = origin.dumpNode()
+    fun dumpNode(): NodeDataOg<T>? = origin.dumpNode()
 
     fun dump(): String = origin.dump()
 

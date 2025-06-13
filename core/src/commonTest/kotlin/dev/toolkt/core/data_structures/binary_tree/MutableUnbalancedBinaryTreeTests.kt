@@ -1,6 +1,6 @@
 package dev.toolkt.core.data_structures.binary_tree
 
-import dev.toolkt.core.data_structures.binary_tree.test_utils.DumpedNode
+import dev.toolkt.core.data_structures.binary_tree.test_utils.NodeData
 import dev.toolkt.core.data_structures.binary_tree.test_utils.cutOffVerified
 import dev.toolkt.core.data_structures.binary_tree.test_utils.dump
 import dev.toolkt.core.data_structures.binary_tree.test_utils.putVerified
@@ -40,7 +40,7 @@ class MutableUnbalancedBinaryTreeTests {
 
         assertEquals(
             expected = tree.dump(),
-            actual = DumpedNode(
+            actual = NodeData(
                 payload = 100,
                 color = TestColor.Green,
             ),
@@ -98,14 +98,14 @@ class MutableUnbalancedBinaryTreeTests {
 
         assertEquals(
             expected = tree.dump(),
-            actual = DumpedNode(
+            actual = NodeData(
                 payload = 100,
                 color = TestColor.Green,
-                leftChild = DumpedNode(
+                leftChild = NodeData(
                     payload = 90,
                     color = TestColor.Blue,
                 ),
-                rightChild = DumpedNode(
+                rightChild = NodeData(
                     payload = 110,
                     color = TestColor.Green,
                 ),
@@ -162,10 +162,10 @@ class MutableUnbalancedBinaryTreeTests {
 
         assertEquals(
             expected = tree.dump(),
-            actual = DumpedNode(
+            actual = NodeData(
                 payload = 100,
                 color = TestColor.Green,
-                leftChild = DumpedNode(
+                leftChild = NodeData(
                     payload = 90,
                     color = TestColor.Blue,
                 ),
@@ -276,7 +276,7 @@ class MutableUnbalancedBinaryTreeTests {
         tree.collapse(nodeHandle = handle90)
 
         assertEquals(
-            expected = DumpedNode(
+            expected = NodeData(
                 payload = 90,
                 color = TestColor.Green,
             ),
@@ -315,14 +315,14 @@ class MutableUnbalancedBinaryTreeTests {
         tree.collapse(nodeHandle = handle105)
 
         assertEquals(
-            expected = DumpedNode(
+            expected = NodeData(
                 payload = 100,
                 color = TestColor.Green,
-                leftChild = DumpedNode(
+                leftChild = NodeData(
                     payload = 90,
                     color = TestColor.Green,
                 ),
-                rightChild = DumpedNode(
+                rightChild = NodeData(
                     payload = 105,
                     color = TestColor.Green,
                 ),
@@ -409,21 +409,21 @@ class MutableUnbalancedBinaryTreeTests {
         tree.swapVerified(handle100, handle115)
 
         assertEquals(
-            expected = DumpedNode(
+            expected = NodeData(
                 payload = 115,
                 color = TestColor.Yellow,
-                leftChild = DumpedNode(
+                leftChild = NodeData(
                     payload = 90,
                     color = TestColor.Green,
                 ),
-                rightChild = DumpedNode(
+                rightChild = NodeData(
                     payload = 110,
                     color = TestColor.Green,
-                    leftChild = DumpedNode(
+                    leftChild = NodeData(
                         payload = 105,
                         color = TestColor.Green,
                     ),
-                    rightChild = DumpedNode(
+                    rightChild = NodeData(
                         payload = 100,
                         color = TestColor.Blue,
                     ),
@@ -470,21 +470,21 @@ class MutableUnbalancedBinaryTreeTests {
         tree.swapVerified(handle90, handle110)
 
         assertEquals(
-            expected = DumpedNode(
+            expected = NodeData(
                 payload = 100,
                 color = TestColor.Green,
-                leftChild = DumpedNode(
+                leftChild = NodeData(
                     payload = 110,
                     color = TestColor.Blue,
                 ),
-                rightChild = DumpedNode(
+                rightChild = NodeData(
                     payload = 90,
                     color = TestColor.Yellow,
-                    leftChild = DumpedNode(
+                    leftChild = NodeData(
                         payload = 105,
                         color = TestColor.Green,
                     ),
-                    rightChild = DumpedNode(
+                    rightChild = NodeData(
                         payload = 115,
                         color = TestColor.Green,
                     ),
@@ -613,61 +613,61 @@ class MutableUnbalancedBinaryTreeTests {
 
         // FIXME: Preserve colors
         assertEquals(
-            expected = DumpedNode(
+            expected = NodeData(
                 payload = 100,
                 color = TestColor.Green,
-                leftChild = DumpedNode(
+                leftChild = NodeData(
                     payload = 50,
                     color = TestColor.Green,
-                    leftChild = DumpedNode(
+                    leftChild = NodeData(
                         payload = 25,
                         color = TestColor.Green,
-                        leftChild = DumpedNode(
+                        leftChild = NodeData(
                             payload = 10,
                             color = TestColor.Green,
                         ),
-                        rightChild = DumpedNode(
+                        rightChild = NodeData(
                             payload = 30,
                             color = TestColor.Green,
                         ),
                     ),
-                    rightChild = DumpedNode(
+                    rightChild = NodeData(
                         payload = 75,
                         color = TestColor.Green,
-                        leftChild = DumpedNode(
+                        leftChild = NodeData(
                             payload = 60,
                             color = TestColor.Green,
                         ),
-                        rightChild = DumpedNode(
+                        rightChild = NodeData(
                             payload = 80,
                             color = TestColor.Green,
                         ),
                     ),
                 ),
-                rightChild = DumpedNode(
+                rightChild = NodeData(
                     payload = 175,
                     color = TestColor.Green,
-                    leftChild = DumpedNode(
+                    leftChild = NodeData(
                         payload = 150,
                         color = TestColor.Green,
-                        leftChild = DumpedNode(
+                        leftChild = NodeData(
                             payload = 125,
                             color = TestColor.Green,
-                            leftChild = DumpedNode(
+                            leftChild = NodeData(
                                 payload = 110,
                                 color = TestColor.Green,
                             ),
-                            rightChild = DumpedNode(
+                            rightChild = NodeData(
                                 payload = 130,
                                 color = TestColor.Green,
                             ),
                         ),
-                        rightChild = DumpedNode(
+                        rightChild = NodeData(
                             payload = 160,
                             color = TestColor.Green,
                         ),
                     ),
-                    rightChild = DumpedNode(
+                    rightChild = NodeData(
                         payload = 180,
                         color = TestColor.Green,
                     ),
