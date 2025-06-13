@@ -1,5 +1,11 @@
 package dev.toolkt.core.data_structures.binary_tree
 
+import dev.toolkt.core.data_structures.binary_tree.test_utils.DumpedNode
+import dev.toolkt.core.data_structures.binary_tree.test_utils.cutOffVerified
+import dev.toolkt.core.data_structures.binary_tree.test_utils.dump
+import dev.toolkt.core.data_structures.binary_tree.test_utils.putVerified
+import dev.toolkt.core.data_structures.binary_tree.test_utils.rotateVerified
+import dev.toolkt.core.data_structures.binary_tree.test_utils.swapVerified
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -23,7 +29,7 @@ class MutableUnbalancedBinaryTreeTests {
     }
 
     @Test
-    fun testInsert_root() {
+    fun testPut_root() {
         val tree = MutableUnbalancedBinaryTree.create<Int, TestColor>()
 
         val handle100 = tree.putVerified(
@@ -51,7 +57,7 @@ class MutableUnbalancedBinaryTreeTests {
     }
 
     @Test
-    fun testInsert_ordinaryLeaf() {
+    fun testPut_ordinaryLeaf() {
         val tree = MutableUnbalancedBinaryTree.create<Int, TestColor>()
 
         val handle100 = tree.putVerified(
@@ -108,7 +114,7 @@ class MutableUnbalancedBinaryTreeTests {
     }
 
     @Test
-    fun testRemoveLeaf_root() {
+    fun testCutOff_root() {
         val tree = MutableUnbalancedBinaryTree.create<Int, TestColor>()
 
         val handle100 = tree.putVerified(
@@ -131,7 +137,7 @@ class MutableUnbalancedBinaryTreeTests {
     }
 
     @Test
-    fun testRemoveLeaf_ordinaryLeaf() {
+    fun testCutOff_ordinaryLeaf() {
         val tree = MutableUnbalancedBinaryTree.create<Int, TestColor>()
 
         val handle100 = tree.putVerified(
@@ -176,7 +182,7 @@ class MutableUnbalancedBinaryTreeTests {
     }
 
     @Test
-    fun testRemoveLeaf_nonLeaf() {
+    fun testCutOff_nonLeaf() {
         val tree = MutableUnbalancedBinaryTree.create<Int, TestColor>()
 
         val handle100 = tree.putVerified(
@@ -279,7 +285,7 @@ class MutableUnbalancedBinaryTreeTests {
     }
 
     @Test
-    fun testElevate_ordinarySingleChild() {
+    fun testCollapse_ordinarySingleChild() {
         val tree = MutableUnbalancedBinaryTree.create<Int, TestColor>()
 
         val handle100 = tree.putVerified(
@@ -326,7 +332,7 @@ class MutableUnbalancedBinaryTreeTests {
     }
 
     @Test
-    fun testElevate_nodeWithSibling() {
+    fun testCollapse_nodeWithSibling() {
         val tree = MutableUnbalancedBinaryTree.create<Int, TestColor>()
 
         val handle100 = tree.putVerified(
