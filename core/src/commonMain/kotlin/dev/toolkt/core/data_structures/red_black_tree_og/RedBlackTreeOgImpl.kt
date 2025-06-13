@@ -1,4 +1,4 @@
-package dev.toolkt.core.data_structures.red_black_tree
+package dev.toolkt.core.data_structures.red_black_tree_og
 
 /**
  * Red-black tree implementation
@@ -24,7 +24,7 @@ package dev.toolkt.core.data_structures.red_black_tree
  *   Proof I: If a proper non-root black node didn't have a proper sibling, the path to its (eventual) null descendants would be longer from the path to its null sibling (from Property 4)
  *   Proof II: A non-root node without a sibling is a single proper child of its parent, and such child must be red (from Conclusion 1)
  */
-internal object RedBlackTreeImpl {
+internal object RedBlackTreeOgImpl {
     enum class Color {
         Red, Black,
     }
@@ -33,20 +33,20 @@ internal object RedBlackTreeImpl {
         data object Clockwise : RotationDirection() {
             override val opposite = CounterClockwise
 
-            override val startSide = RedBlackTree.Side.Left
+            override val startSide = RedBlackTreeOg.Side.Left
         }
 
         data object CounterClockwise : RotationDirection() {
             override val opposite = Clockwise
 
-            override val startSide = RedBlackTree.Side.Right
+            override val startSide = RedBlackTreeOg.Side.Right
         }
 
         abstract val opposite: RotationDirection
 
-        abstract val startSide: RedBlackTree.Side
+        abstract val startSide: RedBlackTreeOg.Side
 
-        val endSide: RedBlackTree.Side
+        val endSide: RedBlackTreeOg.Side
             get() = startSide.opposite
     }
 
@@ -97,7 +97,7 @@ internal object RedBlackTreeImpl {
 
     class ProperParentLink<T>(
         override val parent: ProperNode<T>,
-        val childSide: RedBlackTree.Side,
+        val childSide: RedBlackTreeOg.Side,
     ) : ParentLink<T>() {
         override fun linkChild(
             newChild: ProperNode<T>?,
@@ -135,7 +135,7 @@ internal object RedBlackTreeImpl {
                 )
             }
 
-        val siblingSide: RedBlackTree.Side
+        val siblingSide: RedBlackTreeOg.Side
             get() = childSide.opposite
 
         val sibling: ChildNode<T>
@@ -157,7 +157,7 @@ internal object RedBlackTreeImpl {
         val parent: ProperNode<T>
             get() = properParentLink.parent
 
-        val childSide: RedBlackTree.Side
+        val childSide: RedBlackTreeOg.Side
             get() = properParentLink.childSide
 
         val closeNephew: ChildNode<T>
@@ -180,7 +180,7 @@ internal object RedBlackTreeImpl {
         val parent: ProperNode<T>
             get() = parentLink.parent
 
-        val childSide: RedBlackTree.Side
+        val childSide: RedBlackTreeOg.Side
             get() = parentLink.childSide
 
         val grandparent: ProperNode<T>
@@ -189,7 +189,7 @@ internal object RedBlackTreeImpl {
         val uncle: ChildNode<T>
             get() = grandparentLink.sibling
 
-        val uncleSide: RedBlackTree.Side
+        val uncleSide: RedBlackTreeOg.Side
             get() = grandparentLink.siblingSide
     }
 
@@ -198,12 +198,12 @@ internal object RedBlackTreeImpl {
 
         fun addChildDescending(
             child: ProperNode<T>,
-            side: RedBlackTree.Side,
+            side: RedBlackTreeOg.Side,
         )
 
         fun dump(): String
 
-        fun dumpNode(): RedBlackTree.DumpedNode<T>?
+        fun dumpNode(): RedBlackTreeOg.DumpedNode<T>?
 
         val inOrderTraversal: Sequence<T>
     }
@@ -427,7 +427,7 @@ internal object RedBlackTreeImpl {
 
         override fun dump(): String = currentRoot.dumpOrNullString()
 
-        override fun dumpNode(): RedBlackTree.DumpedNode<T>? = currentRoot?.dumpNode()
+        override fun dumpNode(): RedBlackTreeOg.DumpedNode<T>? = currentRoot?.dumpNode()
 
         fun setRoot(newRoot: ProperNode<T>?) {
             currentRoot = newRoot
@@ -447,7 +447,7 @@ internal object RedBlackTreeImpl {
 
         override fun addChildDescending(
             child: ProperNode<T>,
-            side: RedBlackTree.Side,
+            side: RedBlackTreeOg.Side,
         ) {
             when (val foundRoot = currentRoot) {
                 null -> {
@@ -509,7 +509,7 @@ internal object RedBlackTreeImpl {
             fun <T> linkChild(
                 parent: ProperNode<T>,
                 child: ProperNode<T>?,
-                side: RedBlackTree.Side,
+                side: RedBlackTreeOg.Side,
             ) {
                 parent.setChild(
                     child = child,
@@ -576,7 +576,7 @@ internal object RedBlackTreeImpl {
          */
         override fun addChildDescending(
             child: ProperNode<T>,
-            side: RedBlackTree.Side,
+            side: RedBlackTreeOg.Side,
         ) {
             addChildRecursive(
                 child = child,
@@ -613,7 +613,7 @@ internal object RedBlackTreeImpl {
             }
 
         fun getChild(
-            side: RedBlackTree.Side,
+            side: RedBlackTreeOg.Side,
         ): ChildNode<T> = getProperChild(
             side = side,
         ) ?: NullNode(
@@ -624,13 +624,13 @@ internal object RedBlackTreeImpl {
         )
 
         fun getProperChild(
-            side: RedBlackTree.Side,
+            side: RedBlackTreeOg.Side,
         ): ProperNode<T>? = when (side) {
-            RedBlackTree.Side.Left -> leftChild
-            RedBlackTree.Side.Right -> rightChild
+            RedBlackTreeOg.Side.Left -> leftChild
+            RedBlackTreeOg.Side.Right -> rightChild
         }
 
-        fun getInOrderSuccessor(): ProperNode<T>? = getInOrderNeighbour(side = RedBlackTree.Side.Right)
+        fun getInOrderSuccessor(): ProperNode<T>? = getInOrderNeighbour(side = RedBlackTreeOg.Side.Right)
 
         fun setParent(
             newParent: ParentNode<T>,
@@ -640,11 +640,11 @@ internal object RedBlackTreeImpl {
 
         private fun setChild(
             child: ProperNode<T>?,
-            side: RedBlackTree.Side,
+            side: RedBlackTreeOg.Side,
         ) {
             when (side) {
-                RedBlackTree.Side.Left -> leftChild = child
-                RedBlackTree.Side.Right -> rightChild = child
+                RedBlackTreeOg.Side.Left -> leftChild = child
+                RedBlackTreeOg.Side.Right -> rightChild = child
             }
         }
 
@@ -654,7 +654,7 @@ internal object RedBlackTreeImpl {
          */
         fun addChildAdjacent(
             child: ProperNode<T>,
-            side: RedBlackTree.Side,
+            side: RedBlackTreeOg.Side,
         ) {
             addChildRecursive(
                 child = child,
@@ -851,7 +851,7 @@ internal object RedBlackTreeImpl {
         override fun dump(): String =
             "(${leftChild.dumpOrNullString()} [$currentValue | ${currentColor.name}] ${rightChild.dumpOrNullString()})"
 
-        override fun dumpNode(): RedBlackTree.DumpedNode<T> = RedBlackTree.DumpedNode(
+        override fun dumpNode(): RedBlackTreeOg.DumpedNode<T> = RedBlackTreeOg.DumpedNode(
             leftNode = leftChild?.dumpNode(),
             value = currentValue,
             rightNode = rightChild?.dumpNode(),
@@ -863,9 +863,9 @@ internal object RedBlackTreeImpl {
 
         private fun getChildSide(
             child: ProperNode<T>,
-        ): RedBlackTree.Side = when {
-            leftChild === child -> RedBlackTree.Side.Left
-            rightChild === child -> RedBlackTree.Side.Right
+        ): RedBlackTreeOg.Side = when {
+            leftChild === child -> RedBlackTreeOg.Side.Left
+            rightChild === child -> RedBlackTreeOg.Side.Right
             else -> throw IllegalArgumentException("The given node is not a child of this node")
         }
 
@@ -874,7 +874,7 @@ internal object RedBlackTreeImpl {
          * for the right side), or null if there's no such neighbour.
          */
         private fun getInOrderNeighbour(
-            side: RedBlackTree.Side,
+            side: RedBlackTreeOg.Side,
         ): ProperNode<T>? {
             val sideChild = getProperChild(side = side) ?: return null
 
@@ -886,7 +886,7 @@ internal object RedBlackTreeImpl {
          * or this node if this node doesn't have a child on the given [side].
          */
         private fun getSideMostDescendant(
-            side: RedBlackTree.Side,
+            side: RedBlackTreeOg.Side,
         ): ProperNode<T> {
             val sideChild = getProperChild(side = side) ?: return this
             return sideChild.getSideMostDescendant(side = side)
@@ -941,8 +941,8 @@ internal object RedBlackTreeImpl {
          */
         private fun addChildRecursive(
             child: ProperNode<T>,
-            firstSide: RedBlackTree.Side,
-            secondSide: RedBlackTree.Side,
+            firstSide: RedBlackTreeOg.Side,
+            secondSide: RedBlackTreeOg.Side,
         ) {
             when (val sideChild = getProperChild(side = firstSide)) {
                 null -> {
@@ -965,21 +965,21 @@ internal object RedBlackTreeImpl {
     }
 }
 
-internal val <T> RedBlackTreeImpl.ProperNode<T>?.inOrderTraversalOrEmpty: Sequence<T>
+internal val <T> RedBlackTreeOgImpl.ProperNode<T>?.inOrderTraversalOrEmpty: Sequence<T>
     get() {
         val self = this ?: return emptySequence()
         return self.inOrderTraversal
     }
 
-internal fun <T> RedBlackTreeImpl.ProperNode<T>?.verifyIntegrityOrOne(
-    expectedParent: RedBlackTreeImpl.ParentNode<T>,
+internal fun <T> RedBlackTreeOgImpl.ProperNode<T>?.verifyIntegrityOrOne(
+    expectedParent: RedBlackTreeOgImpl.ParentNode<T>,
 ): Int = when (this) {
     null -> 1
     else -> this.verifyIntegrity(expectedParent = expectedParent)
 }
 
 
-internal fun <T> RedBlackTreeImpl.ProperNode<T>?.dumpOrNullString(): String = when (this) {
+internal fun <T> RedBlackTreeOgImpl.ProperNode<T>?.dumpOrNullString(): String = when (this) {
     null -> "NULL"
     else -> this.dump()
 }
