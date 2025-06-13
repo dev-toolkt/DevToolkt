@@ -203,7 +203,7 @@ internal object RedBlackTreeOgImpl {
 
         fun dump(): String
 
-        fun dumpNode(): RedBlackTreeOg.DumpedNode<T>?
+        fun dumpNode(): RedBlackTreeOg.NodeDataOg<T>?
 
         val inOrderTraversal: Sequence<T>
     }
@@ -427,7 +427,7 @@ internal object RedBlackTreeOgImpl {
 
         override fun dump(): String = currentRoot.dumpOrNullString()
 
-        override fun dumpNode(): RedBlackTreeOg.DumpedNode<T>? = currentRoot?.dumpNode()
+        override fun dumpNode(): RedBlackTreeOg.NodeDataOg<T>? = currentRoot?.dumpNode()
 
         fun setRoot(newRoot: ProperNode<T>?) {
             currentRoot = newRoot
@@ -851,7 +851,7 @@ internal object RedBlackTreeOgImpl {
         override fun dump(): String =
             "(${leftChild.dumpOrNullString()} [$currentValue | ${currentColor.name}] ${rightChild.dumpOrNullString()})"
 
-        override fun dumpNode(): RedBlackTreeOg.DumpedNode<T> = RedBlackTreeOg.DumpedNode(
+        override fun dumpNode(): RedBlackTreeOg.NodeDataOg<T> = RedBlackTreeOg.NodeDataOg(
             leftNode = leftChild?.dumpNode(),
             value = currentValue,
             rightNode = rightChild?.dumpNode(),

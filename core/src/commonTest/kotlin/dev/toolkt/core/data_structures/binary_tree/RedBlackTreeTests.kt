@@ -2,7 +2,7 @@ package dev.toolkt.core.data_structures.binary_tree
 
 import dev.toolkt.core.assertHolds
 import dev.toolkt.core.data_structures.binary_tree.RedBlackTree.Color
-import dev.toolkt.core.data_structures.binary_tree.test_utils.DumpedNode
+import dev.toolkt.core.data_structures.binary_tree.test_utils.NodeData
 import dev.toolkt.core.data_structures.binary_tree.test_utils.NodeMatcher
 import dev.toolkt.core.data_structures.binary_tree.test_utils.dump
 import dev.toolkt.core.data_structures.binary_tree.test_utils.insertVerified
@@ -36,7 +36,7 @@ class RedBlackTreeTests {
 
         assertEquals(
             expected = tree.dump(),
-            actual = DumpedNode(
+            actual = NodeData(
                 payload = 100,
                 color = Color.Red,
             ),
