@@ -1,4 +1,8 @@
-package dev.toolkt.core.data_structures.binary_tree
+package dev.toolkt.core.data_structures.binary_tree.test_utils
+
+import dev.toolkt.core.data_structures.binary_tree.BinaryTree
+import dev.toolkt.core.data_structures.binary_tree.getLeftChild
+import dev.toolkt.core.data_structures.binary_tree.getRightChild
 
 data class DumpedNode<PayloadT, ColorT>(
     val payload: PayloadT,

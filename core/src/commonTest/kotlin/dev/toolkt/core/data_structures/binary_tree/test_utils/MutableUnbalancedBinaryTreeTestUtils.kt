@@ -1,4 +1,7 @@
-package dev.toolkt.core.data_structures.binary_tree
+package dev.toolkt.core.data_structures.binary_tree.test_utils
+
+import dev.toolkt.core.data_structures.binary_tree.BinaryTree
+import dev.toolkt.core.data_structures.binary_tree.MutableUnbalancedBinaryTree
 
 fun <PayloadT, ColorT> MutableUnbalancedBinaryTree<PayloadT, ColorT>.putVerified(
     location: BinaryTree.Location<PayloadT, ColorT>,
@@ -11,7 +14,10 @@ fun <PayloadT, ColorT> MutableUnbalancedBinaryTree<PayloadT, ColorT>.putVerified
         color = color,
     )
 
-    verifyIntegrity()
+    verifyIntegrity(
+        heightVerificator = null,
+        colorVerificator = null,
+    )
 
     return insertedNodeHandle
 }
@@ -25,7 +31,10 @@ fun <PayloadT, ColorT> MutableUnbalancedBinaryTree<PayloadT, ColorT>.swapVerifie
         secondNodeHandle = secondNodeHandle,
     )
 
-    verifyIntegrity()
+    verifyIntegrity(
+        heightVerificator = null,
+        colorVerificator = null,
+    )
 }
 
 fun <PayloadT, ColorT> MutableUnbalancedBinaryTree<PayloadT, ColorT>.cutOffVerified(
@@ -35,7 +44,10 @@ fun <PayloadT, ColorT> MutableUnbalancedBinaryTree<PayloadT, ColorT>.cutOffVerif
         leafHandle = leafHandle,
     )
 
-    verifyIntegrity()
+    verifyIntegrity(
+        heightVerificator = null,
+        colorVerificator = null,
+    )
 
     return cutOffLeafLocation
 }
@@ -49,7 +61,10 @@ fun <PayloadT, ColorT> MutableUnbalancedBinaryTree<PayloadT, ColorT>.rotateVerif
         direction = direction,
     )
 
-    verifyIntegrity()
+    verifyIntegrity(
+        heightVerificator = null,
+        colorVerificator = null,
+    )
 
     return newSubtreeRootHandle
 }

@@ -382,12 +382,36 @@ fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getSideMostFreeLocatio
  * no child on the specified [side]. This neighbour node will have no children
  * on the side opposite to [side].
  */
+fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getNextInOrderFreeLocation(
+    nodeHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
+    side: BinaryTree.Side,
+): BinaryTree.RelativeLocation<PayloadT, MetadataT> {
+    val sideChildLocation = nodeHandle.getChildLocation(side = side)
+
+    val sideChildHandle = resolve(
+        location = sideChildLocation,
+    ) ?: return sideChildLocation
+
+    return getSideMostFreeLocation(
+        nodeHandle = sideChildHandle,
+        side = side.opposite,
+    )
+}
+
+/**
+ * Get the in-order neighbour (predecessor / successor) of the node associated with
+ * [nodeHandle] on the specified [side].
+ *
+ * @return A handle to the in-order neighbour node, or null if the given node has
+ * no child on the specified [side]. This neighbour node will have no children
+ * on the side opposite to [side].
+ */
 fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getInOrderNeighbour(
     nodeHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
     side: BinaryTree.Side,
-): BinaryTree.NodeHandle<PayloadT, MetadataT>? = getNextDeeperInOrderLocation(
-    nodeHandle, side,
-)?.parentHandle
+): BinaryTree.NodeHandle<PayloadT, MetadataT>? {
+    TODO() // Maybe getNextInOrderFreeLocation should be used directly to determine if a node has a successor
+}
 
 fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getNextInOrderLocation(
     nodeHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,

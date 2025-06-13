@@ -8,7 +8,8 @@ abstract class AbstractBalancedBinaryTree<PayloadT, ColorT> private constructor(
     )
 
     override fun insert(
-        location: BinaryTree.Location<PayloadT, ColorT>, payload: PayloadT
+        location: BinaryTree.Location<PayloadT, ColorT>,
+        payload: PayloadT,
     ): BinaryTree.NodeHandle<PayloadT, ColorT> {
         TODO("Not yet implemented")
     }
