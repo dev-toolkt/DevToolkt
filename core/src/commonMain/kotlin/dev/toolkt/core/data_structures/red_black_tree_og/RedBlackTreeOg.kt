@@ -1,8 +1,8 @@
-package dev.toolkt.core.data_structures.red_black_tree
+package dev.toolkt.core.data_structures.red_black_tree_og
 
-import dev.toolkt.core.data_structures.red_black_tree.RedBlackTreeImpl.Color
-import dev.toolkt.core.data_structures.red_black_tree.RedBlackTreeImpl.ProperNode
-import dev.toolkt.core.data_structures.red_black_tree.RedBlackTreeImpl.RotationDirection
+import dev.toolkt.core.data_structures.red_black_tree_og.RedBlackTreeOgImpl.Color
+import dev.toolkt.core.data_structures.red_black_tree_og.RedBlackTreeOgImpl.ProperNode
+import dev.toolkt.core.data_structures.red_black_tree_og.RedBlackTreeOgImpl.RotationDirection
 import kotlin.jvm.JvmInline
 
 /**
@@ -10,8 +10,8 @@ import kotlin.jvm.JvmInline
  * for fast storage and retrieval of ordered information.
  */
 @JvmInline
-value class RedBlackTree<T> private constructor(
-    private val origin: RedBlackTreeImpl.OriginNode<T>,
+value class RedBlackTreeOg<T> private constructor(
+    private val origin: RedBlackTreeOgImpl.OriginNode<T>,
 ) {
     sealed class Side {
         data object Left : Side() {
@@ -74,7 +74,7 @@ value class RedBlackTree<T> private constructor(
     }
 
     // This is a harmless micro-optimization (one less object allocation)
-    constructor() : this(origin = RedBlackTreeImpl.OriginNode())
+    constructor() : this(origin = RedBlackTreeOgImpl.OriginNode())
 
     /**
      * Insert a new minimal/maximal value to the tree.
