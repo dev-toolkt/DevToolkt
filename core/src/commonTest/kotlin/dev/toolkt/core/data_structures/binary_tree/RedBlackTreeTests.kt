@@ -3,6 +3,7 @@ package dev.toolkt.core.data_structures.binary_tree
 import dev.toolkt.core.assertHolds
 import dev.toolkt.core.data_structures.binary_tree.RedBlackTree.Color
 import dev.toolkt.core.data_structures.binary_tree.test_utils.DumpedNode
+import dev.toolkt.core.data_structures.binary_tree.test_utils.NodeMatcher
 import dev.toolkt.core.data_structures.binary_tree.test_utils.dump
 import dev.toolkt.core.data_structures.binary_tree.test_utils.insertVerified
 import dev.toolkt.core.data_structures.binary_tree.test_utils.removeVerified
@@ -59,14 +60,15 @@ class RedBlackTreeTests {
     fun testInsert_blackRootParent() {
         val tree = RedBlackTree<Int>()
 
-        val nodeHandle: BinaryTree.NodeHandle<Int, Color> = todo()
         val parentHandle: BinaryTree.NodeHandle<Int, Color> = todo()
-        val grandparentHandle: BinaryTree.NodeHandle<Int, Color>? = todo()
 
-        tree.verifyFamily(
-            nodeHandle = nodeHandle,
-            expectedParentHandle = parentHandle,
-            expectedGrandparentHandle = grandparentHandle,
+        NodeMatcher.Proper(
+            parentMatcher = NodeMatcher.Null(),
+            expectedPayload = 10,
+            expectedColor = Color.Black,
+        ).assertMatches(
+            tree = tree,
+            nodeHandle = parentHandle,
         )
 
         assertHolds(
@@ -89,6 +91,20 @@ class RedBlackTreeTests {
 
         val nodeHandle: BinaryTree.NodeHandle<Int, Color> = todo()
         val parentHandle: BinaryTree.NodeHandle<Int, Color> = todo()
+        val grandparentHandle: BinaryTree.NodeHandle<Int, Color> = todo()
+
+        NodeMatcher.Proper(
+            expectedPayload = 10,
+            expectedColor = Color.Black,
+            leftChildMatcher = NodeMatcher.Proper(
+                expectedHandle = parentHandle,
+                expectedPayload = 10,
+                expectedColor = Color.Black,
+            ),
+        ).assertMatches(
+            tree = tree,
+            nodeHandle = grandparentHandle,
+        )
 
         tree.verifyFamily(
             nodeHandle = nodeHandle,
@@ -107,17 +123,45 @@ class RedBlackTreeTests {
 
     /**
      * Insertion
-     * Case #2: Parent and uncle are red
+     * Case #2: Parent and uncle are red, great-grandparent is black
      * (leads to Case #1)
      */
     @Test
-    fun testInsert_redParentRedUncle_blackGrandParent() {
+    fun testInsert_redParentRedUncle_blackGreatGrandparent() {
         val tree = RedBlackTree<Int>()
 
         val nodeHandle: BinaryTree.NodeHandle<Int, Color> = todo()
         val parentHandle: BinaryTree.NodeHandle<Int, Color> = todo()
         val uncleHandle: BinaryTree.NodeHandle<Int, Color> = todo()
         val grandparentHandle: BinaryTree.NodeHandle<Int, Color> = todo()
+        val greatGrandparentHandle: BinaryTree.NodeHandle<Int, Color> = todo()
+
+        // Great-grandparent
+        NodeMatcher.Proper(
+            expectedPayload = 10,
+            expectedColor = Color.Black,
+            // Grandparent
+            rightChildMatcher = NodeMatcher.Proper(
+                expectedHandle = parentHandle,
+                expectedPayload = 10,
+                expectedColor = Color.Black,
+                // Parent
+                leftChildMatcher = NodeMatcher.Proper(
+                    expectedHandle = parentHandle,
+                    expectedPayload = 10,
+                    expectedColor = Color.Black,
+                ),
+                // Uncle
+                rightChildMatcher = NodeMatcher.Proper(
+                    expectedHandle = parentHandle,
+                    expectedPayload = 10,
+                    expectedColor = Color.Black,
+                ),
+            ),
+        ).assertMatches(
+            tree = tree,
+            nodeHandle = greatGrandparentHandle,
+        )
 
         tree.verifyFamily(
             nodeHandle = nodeHandle,
@@ -146,8 +190,13 @@ class RedBlackTreeTests {
 
     /**
      * Insertion
-     * Case #2: Parent and uncle are red, great-grandparent and great uncle are also red
-     * (leads to another Case #2)
+     * Case #2: Parent and uncle are red, grandparent's parent (great-grandparent)
+     * and grandparent's uncle are also red
+     *
+     * Leads to another Case #2
+     *
+     * First Case #2 from the left side, second Case #2 from the right side.
+     *
      */
     @Test
     fun testInsert_redParentRedUncle_redGreatGrandparentRedGreatUncle() {
@@ -158,6 +207,42 @@ class RedBlackTreeTests {
         val uncleHandle: BinaryTree.NodeHandle<Int, Color> = todo()
         val greatGrandparentHandle: BinaryTree.NodeHandle<Int, Color> = todo()
         val greatUncleHandle: BinaryTree.NodeHandle<Int, Color> = todo()
+        val greatGreatGrandparentHandle: BinaryTree.NodeHandle<Int, Color> = todo()
+
+        // Grandparent's grandparent
+        NodeMatcher.Proper(
+            expectedPayload = 10,
+            expectedColor = Color.Black,
+            // Grandparent's parent (great-grandparent)
+            leftChildMatcher = NodeMatcher.Proper(
+                expectedPayload = 10,
+                expectedColor = Color.Red,
+                // Grandparent
+                leftChildMatcher = NodeMatcher.Proper(
+                    expectedPayload = 10,
+                    expectedColor = Color.Black,
+                    // Uncle
+                    leftChildMatcher = NodeMatcher.Proper(
+                        expectedPayload = 10,
+                        expectedColor = Color.Red,
+                    ),
+                    // Parent
+                    rightChildMatcher = NodeMatcher.Proper(
+                        expectedHandle = parentHandle,
+                        expectedPayload = 10,
+                        expectedColor = Color.Red,
+                    ),
+                ),
+            ),
+            // Grandparent's uncle
+            rightChildMatcher = NodeMatcher.Proper(
+                expectedPayload = 10,
+                expectedColor = Color.Red,
+            ),
+        ).assertMatches(
+            tree = tree,
+            nodeHandle = greatGreatGrandparentHandle,
+        )
 
         tree.verifyFamily(
             nodeHandle = nodeHandle,
@@ -196,7 +281,10 @@ class RedBlackTreeTests {
     /**
      * Insertion
      * Case #2: Parent and uncle are red, the grandparent is a root
-     * (leads to Case #3, a red root)
+     *
+     * Leads to Case #3, a red root
+     *
+     * Case #2 from the left side
      */
     @Test
     fun testInsert_redParentRedUncle_rootGrandparent() {
@@ -206,6 +294,27 @@ class RedBlackTreeTests {
         val parentHandle: BinaryTree.NodeHandle<Int, Color> = todo()
         val uncleHandle: BinaryTree.NodeHandle<Int, Color> = todo()
         val grandparentHandle: BinaryTree.NodeHandle<Int, Color> = todo()
+
+        // Grandparent
+        NodeMatcher.Proper(
+            parentMatcher = NodeMatcher.Null(),
+            expectedPayload = 10,
+            expectedColor = Color.Black,
+            // Uncle
+            leftChildMatcher = NodeMatcher.Proper(
+                expectedPayload = 10,
+                expectedColor = Color.Red,
+            ),
+            // Parent
+            rightChildMatcher = NodeMatcher.Proper(
+                expectedHandle = parentHandle,
+                expectedPayload = 10,
+                expectedColor = Color.Red,
+            ),
+        ).assertMatches(
+            tree = tree,
+            nodeHandle = grandparentHandle,
+        )
 
         tree.verifyFamily(
             nodeHandle = nodeHandle,
@@ -235,7 +344,10 @@ class RedBlackTreeTests {
     /**
      * Insertion
      * Case #2: Parent and uncle are red, the great-grandparent is root and is red
-     * (leads to Case #4)
+     *
+     * Leads to Case #4
+     *
+     * Case #2 from the right side,
      */
     @Test
     fun testInsert_redParentRedUncle_redRootGreatGrandparent() {
@@ -245,6 +357,31 @@ class RedBlackTreeTests {
         val parentHandle: BinaryTree.NodeHandle<Int, Color> = todo()
         val uncleHandle: BinaryTree.NodeHandle<Int, Color> = todo()
         val greatGrandparentHandle: BinaryTree.NodeHandle<Int, Color> = todo()
+
+        // Grandparent's parent (great-grandparent)
+        NodeMatcher.Proper(
+            expectedPayload = 10,
+            expectedColor = Color.Red,
+            // Grandparent
+            leftChildMatcher = NodeMatcher.Proper(
+                expectedPayload = 10,
+                expectedColor = Color.Black,
+                // Uncle
+                leftChildMatcher = NodeMatcher.Proper(
+                    expectedPayload = 10,
+                    expectedColor = Color.Red,
+                ),
+                // Parent
+                rightChildMatcher = NodeMatcher.Proper(
+                    expectedHandle = parentHandle,
+                    expectedPayload = 10,
+                    expectedColor = Color.Red,
+                ),
+            ),
+        ).assertMatches(
+            tree = tree,
+            nodeHandle = greatGrandparentHandle,
+        )
 
         tree.verifyFamily(
             nodeHandle = nodeHandle,
@@ -281,10 +418,11 @@ class RedBlackTreeTests {
 
     /**
      * Insertion
-     * Case #2: Parent and uncle are red, the great-grandparent is red and the great
-     * uncle is black, the grandparent is the inner grandchild of its own grandparent
-     * (the great^3-grandparent)
-     * (leads to Case #5)
+     * Case #2: Parent and uncle are red, the grandparent's parent (great-grandparent)
+     * is red and the grandparent's uncle is black, the grandparent is the inner
+     * grandchild of its own grandparent.
+     *
+     * Leads to Case #5
      */
     @Test
     fun testInsert_redParentRedUncle_redGreatGrandparentBlackGreatUncle_inner() {
@@ -296,6 +434,42 @@ class RedBlackTreeTests {
         val uncleHandle: BinaryTree.NodeHandle<Int, Color> = todo()
         val greatGrandparentHandle: BinaryTree.NodeHandle<Int, Color> = todo()
         val greatUncleHandle: BinaryTree.NodeHandle<Int, Color> = todo()
+        val greatGreatGrandparentHandle: BinaryTree.NodeHandle<Int, Color> = todo()
+
+        // Grandparent's grandparent
+        NodeMatcher.Proper(
+            expectedPayload = 10,
+            expectedColor = Color.Black,
+            // Grandparent's parent (great-grandparent)
+            leftChildMatcher = NodeMatcher.Proper(
+                expectedPayload = 10,
+                expectedColor = Color.Red,
+                // Grandparent
+                leftChildMatcher = NodeMatcher.Proper(
+                    expectedPayload = 10,
+                    expectedColor = Color.Black,
+                    // Uncle
+                    leftChildMatcher = NodeMatcher.Proper(
+                        expectedPayload = 10,
+                        expectedColor = Color.Red,
+                    ),
+                    // Parent
+                    rightChildMatcher = NodeMatcher.Proper(
+                        expectedHandle = parentHandle,
+                        expectedPayload = 10,
+                        expectedColor = Color.Red,
+                    ),
+                ),
+            ),
+            // Grandparent's uncle
+            rightChildMatcher = NodeMatcher.Proper(
+                expectedPayload = 10,
+                expectedColor = Color.Black,
+            ),
+        ).assertMatches(
+            tree = tree,
+            nodeHandle = greatGreatGrandparentHandle,
+        )
 
         tree.verifyFamily(
             nodeHandle = nodeHandle,
@@ -345,9 +519,11 @@ class RedBlackTreeTests {
 
     /**
      * Insertion
-     * Case #2: Parent and uncle are red, the great-grandparent is red and the great
-     * uncle is black, the grandparent is the outer grandchild of its own grandparent
-     * (leads to Case #6)
+     * Case #2: Parent and uncle are red, the grandparent's parent (great-grandparent)
+     * is red and the grandparent's uncle is black, the grandparent is the outer
+     * grandchild of its own grandparent
+     *
+     * Leads to Case #6
      */
     @Test
     fun testInsert_redParentRedUncle_redGreatGrandparentBlackGreatUncle_outer() {
@@ -359,6 +535,42 @@ class RedBlackTreeTests {
         val uncleHandle: BinaryTree.NodeHandle<Int, Color> = todo()
         val greatGrandparentHandle: BinaryTree.NodeHandle<Int, Color> = todo()
         val greatUncleHandle: BinaryTree.NodeHandle<Int, Color> = todo()
+        val greatGreatGrandparentHandle: BinaryTree.NodeHandle<Int, Color> = todo()
+
+        // Grandparent's grandparent
+        NodeMatcher.Proper(
+            expectedPayload = 10,
+            expectedColor = Color.Black,
+            // Grandparent's parent (great-grandparent)
+            leftChildMatcher = NodeMatcher.Proper(
+                expectedPayload = 10,
+                expectedColor = Color.Red,
+                // Grandparent
+                leftChildMatcher = NodeMatcher.Proper(
+                    expectedPayload = 10,
+                    expectedColor = Color.Black,
+                    // Uncle
+                    leftChildMatcher = NodeMatcher.Proper(
+                        expectedPayload = 10,
+                        expectedColor = Color.Red,
+                    ),
+                    // Parent
+                    rightChildMatcher = NodeMatcher.Proper(
+                        expectedHandle = parentHandle,
+                        expectedPayload = 10,
+                        expectedColor = Color.Red,
+                    ),
+                ),
+            ),
+            // Grandparent's uncle
+            rightChildMatcher = NodeMatcher.Proper(
+                expectedPayload = 10,
+                expectedColor = Color.Black,
+            ),
+        ).assertMatches(
+            tree = tree,
+            nodeHandle = greatGreatGrandparentHandle,
+        )
 
         tree.verifyFamily(
             nodeHandle = nodeHandle,
