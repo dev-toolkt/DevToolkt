@@ -62,7 +62,8 @@ interface BinaryTree<out PayloadT, out ColorT> {
 
     /**
      * A stable handle to the node inside the tree. Invalidates once the node is
-     * removed through this handle.
+     * removed through this handle. If two handles correspond to the same node,
+     * they compare equal.
      */
     interface NodeHandle<out PayloadT, out MetadataT>
 
@@ -93,12 +94,6 @@ interface BinaryTree<out PayloadT, out ColorT> {
         val siblingSide: Side
             get() = side.opposite
 
-        fun getSibling(
-            tree: BinaryTree<@UnsafeVariance PayloadT, @UnsafeVariance MetadataT>,
-        ): NodeHandle<PayloadT, MetadataT>? = tree.getChild(
-            nodeHandle = parentHandle,
-            side = siblingSide,
-        )
     }
 
     val root: NodeHandle<PayloadT, ColorT>?
@@ -114,6 +109,10 @@ interface BinaryTree<out PayloadT, out ColorT> {
         nodeHandle: NodeHandle<@UnsafeVariance PayloadT, @UnsafeVariance ColorT>,
     ): PayloadT
 
+    fun getColor(
+        nodeHandle: NodeHandle<@UnsafeVariance PayloadT, @UnsafeVariance ColorT>,
+    ): ColorT
+
     /**
      * Get the handle to the parent of the node associated with the given [nodeHandle].
      */
@@ -122,27 +121,11 @@ interface BinaryTree<out PayloadT, out ColorT> {
     ): NodeHandle<PayloadT, ColorT>?
 }
 
-// TODO: Nuke? Not needed in the new design?
-/**
- * This is a very unsafe case, which works in practice only when used with care
- * be the binary trees wrapping other binary trees.
- */
-@Suppress("NOTHING_TO_INLINE")
-internal inline fun <PayloadT, MetadataT> BinaryTree.NodeHandle<*, *>.cast(): BinaryTree.NodeHandle<PayloadT, MetadataT> {
-    @Suppress("UNCHECKED_CAST") return this as BinaryTree.NodeHandle<PayloadT, MetadataT>
-}
-
-/**
- * This is a very unsafe case, which works in practice only when used with care
- * be the binary trees wrapping other binary trees.
- */
-@Suppress("NOTHING_TO_INLINE")
-internal inline fun <PayloadT, MetadataT> BinaryTree.Location<*, *>.cast(): BinaryTree.Location<PayloadT, MetadataT> {
-    @Suppress("UNCHECKED_CAST") return this as BinaryTree.Location<PayloadT, MetadataT>
-}
-
-fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.traverse(): Sequence<PayloadT> = traverseOrEmpty(
-    rootHandle = root,
+fun <PayloadT, MetadataT> BinaryTree.RelativeLocation<PayloadT, MetadataT>.getSibling(
+    tree: BinaryTree<PayloadT, MetadataT>,
+): BinaryTree.NodeHandle<PayloadT, MetadataT>? = tree.getChild(
+    nodeHandle = parentHandle,
+    side = siblingSide,
 )
 
 fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.traverse(
@@ -184,21 +167,21 @@ private fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.traverseOrEmpt
  * with the given [nodeHandle].
  */
 fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getChild(
-    nodeHandle: BinaryTree.NodeHandle<@UnsafeVariance PayloadT, @UnsafeVariance MetadataT>,
+    nodeHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
     side: BinaryTree.Side,
 ): BinaryTree.NodeHandle<PayloadT, MetadataT>? = resolve(
     location = nodeHandle.getChildLocation(side = side),
 )
 
 fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getLeftChild(
-    nodeHandle: BinaryTree.NodeHandle<@UnsafeVariance PayloadT, @UnsafeVariance MetadataT>,
+    nodeHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
 ): BinaryTree.NodeHandle<PayloadT, MetadataT>? = getChild(
     nodeHandle = nodeHandle,
     side = BinaryTree.Side.Left,
 )
 
 fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getRightChild(
-    nodeHandle: BinaryTree.NodeHandle<@UnsafeVariance PayloadT, @UnsafeVariance MetadataT>,
+    nodeHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
 ): BinaryTree.NodeHandle<PayloadT, MetadataT>? = getChild(
     nodeHandle = nodeHandle,
     side = BinaryTree.Side.Right,
@@ -207,22 +190,27 @@ fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getRightChild(
 fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getSubtreeSize(
     subtreeRootHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
 ): Int {
+    TODO()
+}
+
+fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.calculateSubtreeSize(
+    subtreeRootHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
+): Int {
     val leftChild = getLeftChild(nodeHandle = subtreeRootHandle)
     val rightChild = getRightChild(nodeHandle = subtreeRootHandle)
 
-    val leftSize = getSubtreeSizeOrZero(subtreeRootHandle = leftChild)
-    val rightSize = getSubtreeSizeOrZero(subtreeRootHandle = rightChild)
+    val leftSize = calculateSubtreeSizeOrZero(subtreeRootHandle = leftChild)
+    val rightSize = calculateSubtreeSizeOrZero(subtreeRootHandle = rightChild)
 
     return leftSize + 1 + rightSize
 }
 
-fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getSubtreeSizeOrZero(
+fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.calculateSubtreeSizeOrZero(
     subtreeRootHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>?,
 ): Int {
     if (subtreeRootHandle == null) return 0
-    return getSubtreeSize(subtreeRootHandle = subtreeRootHandle)
+    return calculateSubtreeSize(subtreeRootHandle = subtreeRootHandle)
 }
-
 
 /**
  * Get a relative location of the child on the given [side] of the node
@@ -296,21 +284,6 @@ fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.locateRelatively(
         side = side,
     )
 }
-
-fun <PayloadT, MetadataT, TransformedPayloadT> BinaryTree.Location<PayloadT, MetadataT>.map(
-    transform: (BinaryTree.NodeHandle<PayloadT, MetadataT>) -> BinaryTree.NodeHandle<TransformedPayloadT, MetadataT>,
-): BinaryTree.Location<TransformedPayloadT, MetadataT> = when (this) {
-    is BinaryTree.RelativeLocation<PayloadT, MetadataT> -> this.map(transform)
-    BinaryTree.RootLocation -> BinaryTree.RootLocation
-}
-
-// TODO: Nuke?
-fun <PayloadT, MetadataT, TransformedPayloadT> BinaryTree.RelativeLocation<PayloadT, MetadataT>.map(
-    transform: (BinaryTree.NodeHandle<PayloadT, MetadataT>) -> BinaryTree.NodeHandle<TransformedPayloadT, MetadataT>,
-): BinaryTree.RelativeLocation<TransformedPayloadT, MetadataT> = BinaryTree.RelativeLocation(
-    parentHandle = transform(parentHandle),
-    side = side,
-)
 
 interface Guide<in PayloadT, MetadataT> {
     interface Instruction

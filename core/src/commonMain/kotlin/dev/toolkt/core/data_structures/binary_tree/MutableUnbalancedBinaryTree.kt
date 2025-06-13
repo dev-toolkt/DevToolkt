@@ -27,7 +27,7 @@ interface MutableUnbalancedBinaryTree<PayloadT, ColorT> : BinaryTree<PayloadT, C
      */
     fun cutOff(
         leafHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
-    )
+    ): BinaryTree.Location<PayloadT, ColorT>
 
     /**
      * Elevate the node corresponding to the given [nodeHandle] (replace its
