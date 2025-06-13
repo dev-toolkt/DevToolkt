@@ -3,7 +3,7 @@ package dev.toolkt.core.data_structures.binary_tree.test_utils
 import dev.toolkt.core.data_structures.binary_tree.BinaryTree
 import dev.toolkt.core.data_structures.binary_tree.MutableUnbalancedBinaryTree
 
-fun <PayloadT, ColorT> MutableUnbalancedBinaryTree<PayloadT, ColorT>.putVerified(
+fun <PayloadT: Comparable<PayloadT>, ColorT> MutableUnbalancedBinaryTree<PayloadT, ColorT>.putVerified(
     location: BinaryTree.Location<PayloadT, ColorT>,
     payload: PayloadT,
     color: ColorT,
@@ -22,7 +22,7 @@ fun <PayloadT, ColorT> MutableUnbalancedBinaryTree<PayloadT, ColorT>.putVerified
     return insertedNodeHandle
 }
 
-fun <PayloadT, ColorT> MutableUnbalancedBinaryTree<PayloadT, ColorT>.swapVerified(
+fun <PayloadT: Comparable<PayloadT>, ColorT> MutableUnbalancedBinaryTree<PayloadT, ColorT>.swapVerified(
     firstNodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
     secondNodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
 ) {
@@ -37,7 +37,7 @@ fun <PayloadT, ColorT> MutableUnbalancedBinaryTree<PayloadT, ColorT>.swapVerifie
     )
 }
 
-fun <PayloadT, ColorT> MutableUnbalancedBinaryTree<PayloadT, ColorT>.cutOffVerified(
+fun <PayloadT: Comparable<PayloadT>, ColorT> MutableUnbalancedBinaryTree<PayloadT, ColorT>.cutOffVerified(
     leafHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
 ): BinaryTree.Location<PayloadT, ColorT> {
     val cutOffLeafLocation = this.cutOff(
@@ -52,7 +52,7 @@ fun <PayloadT, ColorT> MutableUnbalancedBinaryTree<PayloadT, ColorT>.cutOffVerif
     return cutOffLeafLocation
 }
 
-fun <PayloadT, ColorT> MutableUnbalancedBinaryTree<PayloadT, ColorT>.rotateVerified(
+fun <PayloadT: Comparable<PayloadT>, ColorT> MutableUnbalancedBinaryTree<PayloadT, ColorT>.rotateVerified(
     pivotNodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
     direction: BinaryTree.RotationDirection,
 ): BinaryTree.NodeHandle<PayloadT, ColorT> {

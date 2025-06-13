@@ -1,12 +1,8 @@
 package dev.toolkt.core.data_structures.binary_tree
 
-abstract class AbstractBalancedBinaryTree<PayloadT, ColorT> private constructor(
-    protected val unbalancedTree: MutableUnbalancedBinaryTree<PayloadT, ColorT>,
-) : MutableBalancedBinaryTree<PayloadT, ColorT>, BinaryTree<PayloadT, ColorT> by unbalancedTree {
-    constructor() : this(
-        unbalancedTree = MutableUnbalancedBinaryTree.create(),
-    )
-
+abstract class AbstractBalancedBinaryTree<PayloadT, ColorT>(
+    protected val internalTree: MutableUnbalancedBinaryTree<PayloadT, ColorT>,
+) : MutableBalancedBinaryTree<PayloadT, ColorT>, BinaryTree<PayloadT, ColorT> by internalTree {
     override fun insert(
         location: BinaryTree.Location<PayloadT, ColorT>,
         payload: PayloadT,
