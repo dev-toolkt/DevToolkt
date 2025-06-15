@@ -3,7 +3,6 @@ package dev.toolkt.core.data_structures.binary_tree.test_utils
 import dev.toolkt.core.data_structures.binary_tree.BinaryTree
 import dev.toolkt.core.data_structures.binary_tree.getLeftChild
 import dev.toolkt.core.data_structures.binary_tree.getRightChild
-import dev.toolkt.core.data_structures.binary_tree.getSubtreeSize
 
 data class IntegrityVerificationResult(
     val computedSubtreeSize: Int,
@@ -24,7 +23,7 @@ interface ColorVerificator<ColorT> {
     )
 }
 
-fun <PayloadT: Comparable<PayloadT>, ColorT> BinaryTree<PayloadT, ColorT>.verifyIntegrity(
+fun <PayloadT : Comparable<PayloadT>, ColorT> BinaryTree<PayloadT, ColorT>.verifyIntegrity(
     heightVerificator: HeightVerificator?,
     colorVerificator: ColorVerificator<ColorT>?,
 ) {
@@ -38,7 +37,7 @@ fun <PayloadT: Comparable<PayloadT>, ColorT> BinaryTree<PayloadT, ColorT>.verify
     )
 }
 
-fun <PayloadT: Comparable<PayloadT>, ColorT> BinaryTree<PayloadT, ColorT>.verifySubtreeIntegrity(
+fun <PayloadT : Comparable<PayloadT>, ColorT> BinaryTree<PayloadT, ColorT>.verifySubtreeIntegrity(
     nodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
     expectedParentHandle: BinaryTree.NodeHandle<PayloadT, ColorT>?,
     heightVerificator: HeightVerificator?,

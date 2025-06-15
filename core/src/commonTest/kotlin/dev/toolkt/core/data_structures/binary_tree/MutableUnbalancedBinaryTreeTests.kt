@@ -6,7 +6,7 @@ import dev.toolkt.core.data_structures.binary_tree.test_utils.dump
 import dev.toolkt.core.data_structures.binary_tree.test_utils.putVerified
 import dev.toolkt.core.data_structures.binary_tree.test_utils.rotateVerified
 import dev.toolkt.core.data_structures.binary_tree.test_utils.swapVerified
-import kotlin.test.Ignore
+import dev.toolkt.core.data_structures.binary_tree.test_utils.verifyIntegrity
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
@@ -17,7 +17,6 @@ enum class TestColor {
     Green, Blue, Yellow,
 }
 
-@Ignore
 class MutableUnbalancedBinaryTreeTests {
     @Test
     fun testInitial() {
@@ -273,12 +272,22 @@ class MutableUnbalancedBinaryTreeTests {
             color = TestColor.Green,
         )
 
+        tree.putVerified(
+            location = handle90.getRightChildLocation(),
+            payload = 95,
+            color = TestColor.Blue,
+        )
+
         tree.collapse(nodeHandle = handle90)
 
         assertEquals(
             expected = NodeData(
-                payload = 90,
+                payload = 100,
                 color = TestColor.Green,
+                leftChild = NodeData(
+                    payload = 95,
+                    color = TestColor.Blue,
+                ),
             ),
             actual = tree.dump(),
         )
@@ -291,13 +300,13 @@ class MutableUnbalancedBinaryTreeTests {
         val handle100 = tree.putVerified(
             location = BinaryTree.RootLocation,
             payload = 100,
-            color = TestColor.Green,
+            color = TestColor.Blue,
         )
 
         tree.putVerified(
             location = handle100.getLeftChildLocation(),
             payload = 90,
-            color = TestColor.Green,
+            color = TestColor.Yellow,
         )
 
         val handle110 = tree.putVerified(
@@ -306,21 +315,21 @@ class MutableUnbalancedBinaryTreeTests {
             color = TestColor.Green,
         )
 
-        val handle105 = tree.putVerified(
+        tree.putVerified(
             location = handle110.getLeftChildLocation(),
             payload = 105,
             color = TestColor.Green,
         )
 
-        tree.collapse(nodeHandle = handle105)
+        tree.collapse(nodeHandle = handle110)
 
         assertEquals(
             expected = NodeData(
                 payload = 100,
-                color = TestColor.Green,
+                color = TestColor.Blue,
                 leftChild = NodeData(
                     payload = 90,
-                    color = TestColor.Green,
+                    color = TestColor.Yellow,
                 ),
                 rightChild = NodeData(
                     payload = 105,
@@ -406,7 +415,38 @@ class MutableUnbalancedBinaryTreeTests {
             color = TestColor.Blue,
         )
 
-        tree.swapVerified(handle100, handle115)
+        tree.swap(handle100, handle115)
+
+        // Assert that swapped nodes preserved their payloads but inherited the
+        // other node's color
+
+        assertEquals(
+            expected = 100,
+            actual = tree.getPayload(
+                nodeHandle = handle100,
+            ),
+        )
+
+        assertEquals(
+            expected = TestColor.Blue,
+            actual = tree.getColor(
+                nodeHandle = handle100,
+            ),
+        )
+
+        assertEquals(
+            expected = 115,
+            actual = tree.getPayload(
+                nodeHandle = handle115,
+            ),
+        )
+
+        assertEquals(
+            expected = TestColor.Yellow,
+            actual = tree.getColor(
+                nodeHandle = handle115,
+            ),
+        )
 
         assertEquals(
             expected = NodeData(
@@ -467,7 +507,38 @@ class MutableUnbalancedBinaryTreeTests {
             color = TestColor.Green,
         )
 
-        tree.swapVerified(handle90, handle110)
+        tree.swap(handle90, handle110)
+
+        // Assert that swapped nodes preserved their payloads but inherited the
+        // other node's color
+
+        assertEquals(
+            expected = 90,
+            actual = tree.getPayload(
+                nodeHandle = handle90,
+            ),
+        )
+
+        assertEquals(
+            expected = TestColor.Yellow,
+            actual = tree.getColor(
+                nodeHandle = handle90,
+            ),
+        )
+
+        assertEquals(
+            expected = 110,
+            actual = tree.getPayload(
+                nodeHandle = handle110,
+            ),
+        )
+
+        assertEquals(
+            expected = TestColor.Blue,
+            actual = tree.getColor(
+                nodeHandle = handle110,
+            ),
+        )
 
         assertEquals(
             expected = NodeData(
@@ -611,14 +682,13 @@ class MutableUnbalancedBinaryTreeTests {
             direction = BinaryTree.RotationDirection.CounterClockwise,
         )
 
-        // FIXME: Preserve colors
         assertEquals(
             expected = NodeData(
                 payload = 100,
                 color = TestColor.Green,
                 leftChild = NodeData(
                     payload = 50,
-                    color = TestColor.Green,
+                    color = TestColor.Blue,
                     leftChild = NodeData(
                         payload = 25,
                         color = TestColor.Green,
@@ -628,43 +698,43 @@ class MutableUnbalancedBinaryTreeTests {
                         ),
                         rightChild = NodeData(
                             payload = 30,
-                            color = TestColor.Green,
+                            color = TestColor.Yellow,
                         ),
                     ),
                     rightChild = NodeData(
                         payload = 75,
-                        color = TestColor.Green,
+                        color = TestColor.Yellow,
                         leftChild = NodeData(
                             payload = 60,
-                            color = TestColor.Green,
+                            color = TestColor.Yellow,
                         ),
                         rightChild = NodeData(
                             payload = 80,
-                            color = TestColor.Green,
+                            color = TestColor.Blue,
                         ),
                     ),
                 ),
                 rightChild = NodeData(
                     payload = 175,
-                    color = TestColor.Green,
+                    color = TestColor.Blue,
                     leftChild = NodeData(
                         payload = 150,
-                        color = TestColor.Green,
+                        color = TestColor.Yellow,
                         leftChild = NodeData(
                             payload = 125,
-                            color = TestColor.Green,
+                            color = TestColor.Blue,
                             leftChild = NodeData(
                                 payload = 110,
                                 color = TestColor.Green,
                             ),
                             rightChild = NodeData(
                                 payload = 130,
-                                color = TestColor.Green,
+                                color = TestColor.Blue,
                             ),
                         ),
                         rightChild = NodeData(
                             payload = 160,
-                            color = TestColor.Green,
+                            color = TestColor.Yellow,
                         ),
                     ),
                     rightChild = NodeData(

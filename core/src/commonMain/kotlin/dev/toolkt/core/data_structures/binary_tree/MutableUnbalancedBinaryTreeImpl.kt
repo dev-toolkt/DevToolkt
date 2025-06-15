@@ -1,0 +1,553 @@
+package dev.toolkt.core.data_structures.binary_tree
+
+import dev.toolkt.core.data_structures.binary_tree.MutableUnbalancedBinaryTreeImpl.HandleImpl
+import dev.toolkt.core.data_structures.binary_tree.MutableUnbalancedBinaryTreeImpl.ProperNode
+import kotlin.jvm.JvmInline
+
+class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
+    internal val origin: OriginNode<PayloadT, ColorT> = OriginNode(),
+) : MutableUnbalancedBinaryTree<PayloadT, ColorT> {
+    internal sealed interface ParentNode<PayloadT, ColorT> {
+        fun buildParentLink(
+            child: ProperNode<PayloadT, ColorT>,
+        ): ParentLink<PayloadT, ColorT>
+    }
+
+    internal class OriginNode<PayloadT, ColorT>(
+        private var mutableRoot: ProperNode<PayloadT, ColorT>? = null,
+    ) : ParentNode<PayloadT, ColorT> {
+        val root: ProperNode<PayloadT, ColorT>?
+            get() = mutableRoot
+
+        fun setRoot(
+            newRoot: ProperNode<PayloadT, ColorT>?,
+        ) {
+            mutableRoot = newRoot
+        }
+
+        override fun buildParentLink(
+            child: ProperNode<PayloadT, ColorT>,
+        ): ParentLink<PayloadT, ColorT> {
+            if (child != root) {
+                throw IllegalArgumentException("Child node must be the root of the tree")
+            }
+
+            return OriginLink(
+                origin = this,
+            )
+        }
+
+    }
+
+    internal class ProperNode<PayloadT, ColorT>(
+        private var mutableParent: ParentNode<PayloadT, ColorT>,
+        private var mutableLeftChild: ProperNode<PayloadT, ColorT>? = null,
+        private var mutableRightChild: ProperNode<PayloadT, ColorT>? = null,
+        private var mutableSubtreeSize: Int = 1,
+        private var mutableColor: ColorT,
+        val payload: PayloadT,
+    ) : ParentNode<PayloadT, ColorT> {
+        data class IntegrityVerificationResult(
+            val computedSubtreeSize: Int,
+        )
+
+        companion object {
+            fun <PayloadT, ColorT> link(
+                parent: ProperNode<PayloadT, ColorT>,
+                side: BinaryTree.Side,
+                child: ProperNode<PayloadT, ColorT>?,
+            ) {
+                parent.setChild(
+                    child = child,
+                    side = side,
+                )
+
+                child?.setParent(
+                    parent = parent,
+                )
+            }
+        }
+
+        override fun buildParentLink(
+            child: ProperNode<PayloadT, ColorT>,
+        ): ParentLink<PayloadT, ColorT> = ProperParentLink(
+            parent = this,
+            childSide = getChildSide(child = child),
+        )
+
+        val parent: ParentNode<PayloadT, ColorT>
+            get() = mutableParent
+
+        val parentLink: ParentLink<PayloadT, ColorT>
+            get() = parent.buildParentLink(
+                child = this,
+            )
+
+        val properParentLink: ProperParentLink<PayloadT, ColorT>?
+            get() = parentLink as? ProperParentLink<PayloadT, ColorT>
+
+        val properParent: ProperNode<PayloadT, ColorT>?
+            get() = properParentLink?.parent
+
+        val leftChild: ProperNode<PayloadT, ColorT>?
+            get() = mutableLeftChild
+
+        val rightChild: ProperNode<PayloadT, ColorT>?
+            get() = mutableRightChild
+
+        val subtreeSize: Int
+            get() = mutableSubtreeSize
+
+        val color: ColorT
+            get() = mutableColor
+
+        fun isLeaf(): Boolean = leftChild == null && rightChild == null
+
+        fun getChild(
+            side: BinaryTree.Side,
+        ): ProperNode<PayloadT, ColorT>? = when (side) {
+            BinaryTree.Side.Left -> leftChild
+            BinaryTree.Side.Right -> rightChild
+        }
+
+        fun getChildSide(
+            child: ProperNode<PayloadT, ColorT>,
+        ): BinaryTree.Side = when {
+            child === leftChild -> BinaryTree.Side.Left
+            child === rightChild -> BinaryTree.Side.Right
+            else -> throw IllegalArgumentException("The given node is not a child of this node")
+        }
+
+        fun setChild(
+            child: ProperNode<PayloadT, ColorT>?,
+            side: BinaryTree.Side,
+        ) {
+            when (side) {
+                BinaryTree.Side.Left -> mutableLeftChild = child
+                BinaryTree.Side.Right -> mutableRightChild = child
+            }
+        }
+
+        fun setParent(
+            parent: ParentNode<PayloadT, ColorT>,
+        ) {
+            mutableParent = parent
+        }
+
+        fun setSubtreeSize(
+            size: Int,
+        ) {
+            require(size >= 0)
+
+            mutableSubtreeSize = size
+        }
+
+        fun setColor(
+            color: ColorT,
+        ) {
+            mutableColor = color
+        }
+
+        fun verifyIntegrity(
+            expectedParent: ParentNode<PayloadT, ColorT>,
+        ): IntegrityVerificationResult {
+            if (parent != expectedParent) {
+                throw AssertionError("Inconsistent parent, expected: $expectedParent, actual: ${this.parent}")
+            }
+
+            val computedLeftSubtreeSize = leftChild?.verifyIntegrity(
+                expectedParent = this,
+            )?.computedSubtreeSize ?: 0
+
+            val computedRightSubtreeSize = rightChild?.verifyIntegrity(
+                expectedParent = this,
+            )?.computedSubtreeSize ?: 0
+
+            val computedTotalSubtreeSize = computedLeftSubtreeSize + 1 + computedRightSubtreeSize
+
+            if (mutableSubtreeSize != computedTotalSubtreeSize) {
+                throw AssertionError("Inconsistent cached subtree size, true: $computedTotalSubtreeSize, cached: $mutableSubtreeSize")
+            }
+
+            return IntegrityVerificationResult(
+                computedSubtreeSize = computedTotalSubtreeSize,
+            )
+        }
+
+        fun updateSubtreeSizeRecursively(
+            /**
+             * The number of gained descendants. If negative, it means the node
+             * lost descendants.
+             */
+            delta: Int,
+        ) {
+            setSubtreeSize(subtreeSize + delta)
+
+            properParent?.updateSubtreeSizeRecursively(
+                delta = delta,
+            )
+        }
+    }
+
+    internal sealed class ParentLink<PayloadT, ColorT> {
+        abstract val parent: ParentNode<PayloadT, ColorT>
+
+        abstract val childLocation: BinaryTree.Location<PayloadT, ColorT>
+
+        fun clearChild() {
+            linkChild(newChild = null)
+        }
+
+        abstract fun linkChild(
+            newChild: ProperNode<PayloadT, ColorT>?,
+        )
+    }
+
+    internal class OriginLink<PayloadT, ColorT>(
+        private val origin: OriginNode<PayloadT, ColorT>,
+    ) : ParentLink<PayloadT, ColorT>() {
+        override val parent: ParentNode<PayloadT, ColorT>
+            get() = origin
+
+        override val childLocation: BinaryTree.Location<PayloadT, ColorT>
+            get() = BinaryTree.RootLocation
+
+        override fun linkChild(
+            newChild: ProperNode<PayloadT, ColorT>?,
+        ) {
+            origin.setRoot(
+                newRoot = newChild
+            )
+
+            newChild?.setParent(
+                parent = origin,
+            )
+        }
+    }
+
+    internal class ProperParentLink<PayloadT, ColorT>(
+        override val parent: ProperNode<PayloadT, ColorT>,
+        val childSide: BinaryTree.Side,
+    ) : ParentLink<PayloadT, ColorT>() {
+        val siblingSide: BinaryTree.Side
+            get() = childSide.opposite
+
+        val sibling: ProperNode<PayloadT, ColorT>?
+            get() = parent.getChild(side = siblingSide)
+
+        override val childLocation: BinaryTree.Location<PayloadT, ColorT>
+            get() = BinaryTree.RelativeLocation(
+                parentHandle = parent.pack(),
+                side = childSide,
+            )
+
+        override fun linkChild(
+            newChild: ProperNode<PayloadT, ColorT>?,
+        ) {
+            ProperNode.link(
+                parent = parent,
+                child = newChild,
+                side = childSide,
+            )
+        }
+    }
+
+    @JvmInline
+    internal value class HandleImpl<PayloadT, ColorT>(
+        val properNode: ProperNode<PayloadT, ColorT>,
+    ) : BinaryTree.NodeHandle<PayloadT, ColorT>
+
+    /**
+     * Put a new node with the given [payload] and [color] at the given free
+     * [location].
+     *
+     * @return A handle to the put node
+     * @throws IllegalArgumentException if the location is taken
+     */
+    override fun put(
+        location: BinaryTree.Location<PayloadT, ColorT>,
+        payload: PayloadT,
+        color: ColorT,
+    ): BinaryTree.NodeHandle<PayloadT, ColorT> {
+        val newNode = ProperNode(
+            mutableParent = origin,
+            mutableColor = color,
+            payload = payload,
+        )
+
+        when (location) {
+            BinaryTree.RootLocation -> {
+                if (origin.root != null) {
+                    throw IllegalStateException("The tree already has a root")
+                }
+
+                origin.setRoot(
+                    newRoot = newNode,
+                )
+            }
+
+            is BinaryTree.RelativeLocation<PayloadT, ColorT> -> {
+                val parent = location.parentHandle.unpack()
+                val side = location.side
+
+                val existingChild = resolveImpl(location = location)
+
+                if (existingChild != null) {
+                    throw IllegalStateException("Cannot insert leaf to a non-empty location")
+                }
+
+                ProperNode.link(
+                    parent = parent,
+                    side = side,
+                    child = newNode,
+                )
+
+                parent.updateSubtreeSizeRecursively(
+                    delta = +1,
+                )
+            }
+        }
+
+        return newNode.pack()
+    }
+
+    /**
+     * Remove the leaf corresponding to the given [leafHandle] from the tree.
+     *
+     * @throws IllegalArgumentException if the node is not really a leaf
+     */
+    override fun cutOff(
+        leafHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
+    ): BinaryTree.Location<PayloadT, ColorT> {
+        val node = leafHandle.unpack()
+
+        if (!node.isLeaf()) {
+            throw IllegalArgumentException("The given node is not a leaf")
+        }
+
+        val parentLink = node.parentLink
+
+        val properParent = parentLink.parent.asProper
+
+        parentLink.clearChild()
+
+        properParent?.updateSubtreeSizeRecursively(
+            delta = -1,
+        )
+
+        return parentLink.childLocation
+    }
+
+    /**
+     * Elevate the node corresponding to the given [nodeHandle] (replace its
+     * parent with this node). Requires that this node is not the root and has
+     * no sibling. May result in the tree re-balancing.
+     *
+     * Remove a single-child node corresponding to the given [nodeHandle] from
+     * the tree by replacing it with its child.
+     *
+     * @throws IllegalArgumentException if the node is a root or has a sibling
+     */
+    override fun collapse(
+        nodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
+    ) {
+        val node = nodeHandle.unpack()
+
+        if (node.leftChild != null && node.rightChild != null) {
+            throw IllegalArgumentException("Cannot collapse a node with two children")
+        }
+
+        val singleChild = node.leftChild ?: node.rightChild ?: throw IllegalArgumentException("Cannot collapse a leaf")
+
+        val parentLink = node.parentLink
+
+        parentLink.linkChild(singleChild)
+
+        parentLink.parent.asProper?.updateSubtreeSizeRecursively(
+            delta = -1,
+        )
+    }
+
+    /**
+     * Swap two given nodes. Doesn't affect the colors, meaning that the first
+     * node will have the second node's color after the swap and the second
+     * node will have the first node's color.
+     */
+    override fun swap(
+        firstNodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
+        secondNodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
+    ) {
+        val firstNode = firstNodeHandle.unpack()
+        val secondNode = secondNodeHandle.unpack()
+
+        val firstParentLink = firstNode.parentLink
+        val firstLeftChild = firstNode.leftChild
+        val firstRightChild = firstNode.rightChild
+        val firstSubtreeSize = firstNode.subtreeSize
+        val firstColor = firstNode.color
+
+        val secondParentLink = secondNode.parentLink
+        val secondLeftChild = secondNode.leftChild
+        val secondRightChild = secondNode.rightChild
+        val secondSubtreeSize = secondNode.subtreeSize
+        val secondColor = secondNode.color
+
+        firstParentLink.linkChild(secondNode)
+
+        ProperNode.link(
+            parent = secondNode,
+            child = firstLeftChild,
+            side = BinaryTree.Side.Left,
+        )
+
+        ProperNode.link(
+            parent = secondNode,
+            child = firstRightChild,
+            side = BinaryTree.Side.Right,
+        )
+
+        secondNode.setSubtreeSize(firstSubtreeSize)
+        secondNode.setColor(firstColor)
+
+        secondParentLink.linkChild(firstNode)
+
+        ProperNode.link(
+            parent = firstNode,
+            child = secondLeftChild,
+            side = BinaryTree.Side.Left,
+        )
+
+        ProperNode.link(
+            parent = firstNode,
+            child = secondRightChild,
+            side = BinaryTree.Side.Right,
+        )
+
+        firstNode.setSubtreeSize(secondSubtreeSize)
+        firstNode.setColor(secondColor)
+    }
+
+    /**
+     * Rotate the subtree starting at node corresponding to [pivotNodeHandle] in
+     * the given direction.
+     *
+     * @return A handle to the new root of the subtree after the rotation
+     * @throws IllegalStateException if the pivot has no child on the respective side
+     */
+    override fun rotate(
+        pivotNodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
+        direction: BinaryTree.RotationDirection,
+    ): BinaryTree.NodeHandle<PayloadT, ColorT> {
+
+        val pivotNode = pivotNodeHandle.unpack()
+
+        val parentLink = pivotNode.parentLink
+
+        val ascendingChild = pivotNode.getChild(side = direction.startSide)
+            ?: throw IllegalStateException("The pivot node has no child on the ${direction.startSide} side")
+
+        val closeGrandchild = ascendingChild.getChild(side = direction.endSide)
+
+        val distantGrandchild = ascendingChild.getChild(side = direction.startSide)
+
+        ProperNode.link(
+            parent = pivotNode,
+            child = closeGrandchild,
+            side = direction.startSide,
+        )
+
+        ProperNode.link(
+            parent = ascendingChild,
+            child = pivotNode,
+            side = direction.endSide,
+        )
+
+        parentLink.linkChild(
+            newChild = ascendingChild,
+        )
+
+        val originalPivotNodeSubtreeSize = pivotNode.subtreeSize
+        val originalDistantGrandchildSize = distantGrandchild.subtreeSizeOrZero
+
+        // The ascending node has exactly the same set of descendants as the pivot
+        // node had before (with the exception that the parent-child relation
+        // inverted, but that doesn't affect the subtree size)
+        ascendingChild.setSubtreeSize(originalPivotNodeSubtreeSize)
+
+        // The pivot node lost descendants in the subtree of its original
+        // distant grandchild. It also lost the ascending child.
+        pivotNode.setSubtreeSize(originalPivotNodeSubtreeSize - originalDistantGrandchildSize - 1)
+
+        return ascendingChild.pack()
+    }
+
+    override val root: BinaryTree.NodeHandle<PayloadT, ColorT>?
+        get() = origin.root?.pack()
+
+    override val size: Int
+        get() = origin.root?.subtreeSize ?: 0
+
+    private fun resolveImpl(
+        location: BinaryTree.Location<PayloadT, ColorT>,
+    ): ProperNode<PayloadT, ColorT>? = when (location) {
+        BinaryTree.RootLocation -> origin.root
+
+        is BinaryTree.RelativeLocation<PayloadT, ColorT> -> {
+            val parent = location.parentHandle.unpack()
+            val side = location.side
+
+            parent.getChild(
+                side = side,
+            )
+        }
+    }
+
+    override fun resolve(
+        location: BinaryTree.Location<PayloadT, ColorT>,
+    ): BinaryTree.NodeHandle<PayloadT, ColorT>? = resolveImpl(
+        location = location,
+    )?.pack()
+
+    /**
+     * Get the payload of the node associated with the given [nodeHandle].
+     */
+    override fun getPayload(
+        nodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
+    ): PayloadT = nodeHandle.unpack().payload
+
+    override fun getSubtreeSize(
+        subtreeRootHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
+    ): Int = subtreeRootHandle.unpack().subtreeSizeOrZero
+
+    override fun getColor(
+        nodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
+    ): ColorT = nodeHandle.unpack().color
+
+    /**
+     * Get the handle to the parent of the node associated with the given [nodeHandle].
+     */
+    override fun getParent(
+        nodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
+    ): BinaryTree.NodeHandle<PayloadT, ColorT>? {
+        val node = nodeHandle.unpack()
+        return node.properParent?.pack()
+    }
+}
+
+private val <PayloadT, ColorT> ProperNode<PayloadT, ColorT>?.subtreeSizeOrZero: Int
+    get() = this?.subtreeSize ?: 0
+
+private val <PayloadT, ColorT> MutableUnbalancedBinaryTreeImpl.ParentNode<PayloadT, ColorT>.asProper: ProperNode<PayloadT, ColorT>?
+    get() = this as? ProperNode<PayloadT, ColorT>
+
+private fun <PayloadT, ColorT> BinaryTree.NodeHandle<PayloadT, ColorT>.unpack(): ProperNode<PayloadT, ColorT> {
+    @Suppress("UNCHECKED_CAST") val handleImpl =
+        this as? HandleImpl<PayloadT, ColorT> ?: throw IllegalArgumentException("Unrelated handle type")
+
+    return handleImpl.properNode
+}
+
+private fun <PayloadT, ColorT> ProperNode<PayloadT, ColorT>.pack(): BinaryTree.NodeHandle<PayloadT, ColorT> =
+    HandleImpl(
+        properNode = this,
+    )

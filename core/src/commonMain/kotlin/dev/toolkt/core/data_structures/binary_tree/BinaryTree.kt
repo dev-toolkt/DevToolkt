@@ -111,6 +111,10 @@ interface BinaryTree<out PayloadT, out ColorT> {
         nodeHandle: NodeHandle<@UnsafeVariance PayloadT, @UnsafeVariance ColorT>,
     ): PayloadT
 
+    fun getSubtreeSize(
+        subtreeRootHandle: BinaryTree.NodeHandle<@UnsafeVariance PayloadT, @UnsafeVariance ColorT>,
+    ): Int
+
     fun getColor(
         nodeHandle: NodeHandle<@UnsafeVariance PayloadT, @UnsafeVariance ColorT>,
     ): ColorT
@@ -195,12 +199,6 @@ fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getRightChild(
     nodeHandle = nodeHandle,
     side = BinaryTree.Side.Right,
 )
-
-fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getSubtreeSize(
-    subtreeRootHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
-): Int {
-    TODO()
-}
 
 fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.calculateSubtreeSize(
     subtreeRootHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
