@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsSubTargetDsl
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
 }
@@ -11,15 +13,12 @@ kotlin {
 
     js(IR) {
         browser {
-            testTask {
-                useMocha {
-                    // System tests involve garbage collection
-                    timeout = "15s"
-                }
-            }
+            testWithExtendedTimeout()
         }
 
-        nodejs()
+        nodejs {
+            testWithExtendedTimeout()
+        }
 
         binaries.executable()
     }
@@ -31,6 +30,15 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.coroutines.test)
+        }
+    }
+}
+
+fun KotlinJsSubTargetDsl.testWithExtendedTimeout() {
+    testTask {
+        useMocha {
+            // System tests involve garbage collection
+            timeout = "15s"
         }
     }
 }
