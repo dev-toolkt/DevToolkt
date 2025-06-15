@@ -2,9 +2,7 @@ package dev.toolkt.core.data_structures.binary_tree
 
 interface MutableUnbalancedBinaryTree<PayloadT, ColorT> : BinaryTree<PayloadT, ColorT> {
     companion object {
-        fun <PayloadT, ColorT> create(): MutableUnbalancedBinaryTree<PayloadT, ColorT> {
-            TODO()
-        }
+        fun <PayloadT, ColorT> create(): MutableUnbalancedBinaryTree<PayloadT, ColorT> = MutableUnbalancedBinaryTreeImpl()
     }
 
     /**
