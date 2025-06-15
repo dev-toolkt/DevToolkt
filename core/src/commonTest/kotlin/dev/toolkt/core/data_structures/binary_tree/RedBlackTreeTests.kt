@@ -1,6 +1,5 @@
 package dev.toolkt.core.data_structures.binary_tree
 
-import dev.toolkt.core.assertHolds
 import dev.toolkt.core.data_structures.binary_tree.RedBlackTree.Color
 import dev.toolkt.core.data_structures.binary_tree.test_utils.NodeData
 import dev.toolkt.core.data_structures.binary_tree.test_utils.buildBalance
@@ -9,8 +8,6 @@ import dev.toolkt.core.data_structures.binary_tree.test_utils.getHandle
 import dev.toolkt.core.data_structures.binary_tree.test_utils.insertVerified
 import dev.toolkt.core.data_structures.binary_tree.test_utils.loadVerified
 import dev.toolkt.core.data_structures.binary_tree.test_utils.removeVerified
-import dev.toolkt.core.data_structures.binary_tree.test_utils.verifyFamily
-import dev.toolkt.core.todo
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
