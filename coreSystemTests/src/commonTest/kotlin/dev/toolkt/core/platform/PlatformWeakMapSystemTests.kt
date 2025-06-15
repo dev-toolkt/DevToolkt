@@ -2,15 +2,9 @@ package dev.toolkt.core.platform
 
 import dev.toolkt.core.platform.test_utils.assertEqualsEventually
 import dev.toolkt.core.platform.test_utils.runTestDefault
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.test.TestResult
-import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.withContext
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 

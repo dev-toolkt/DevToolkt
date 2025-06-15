@@ -16,7 +16,6 @@ class RedBlackTree<PayloadT>(
 
     companion object;
 
-
     override fun rebalanceAfterPut(
         putNodeHandle: BinaryTree.NodeHandle<PayloadT, Color>,
     ) {

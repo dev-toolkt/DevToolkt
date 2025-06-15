@@ -98,6 +98,8 @@ interface BinaryTree<out PayloadT, out ColorT> {
 
     val root: NodeHandle<PayloadT, ColorT>?
 
+    val size: Int
+
     fun resolve(
         location: Location<@UnsafeVariance PayloadT, @UnsafeVariance ColorT>,
     ): NodeHandle<PayloadT, ColorT>?
@@ -120,6 +122,8 @@ interface BinaryTree<out PayloadT, out ColorT> {
         nodeHandle: NodeHandle<@UnsafeVariance PayloadT, @UnsafeVariance ColorT>,
     ): NodeHandle<PayloadT, ColorT>?
 }
+
+fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.isEmpty(): Boolean = size == 0
 
 fun <PayloadT, MetadataT> BinaryTree.RelativeLocation<PayloadT, MetadataT>.getSibling(
     tree: BinaryTree<PayloadT, MetadataT>,
