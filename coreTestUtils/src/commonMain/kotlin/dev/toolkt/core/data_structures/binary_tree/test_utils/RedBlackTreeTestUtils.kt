@@ -42,13 +42,17 @@ fun <PayloadT : Comparable<PayloadT>> RedBlackTree.Companion.loadVerified(
         rootData = rootData,
     )
 
-    internalTree.verifyIntegrity(
-        heightVerificator = BalanceVerificator,
-        colorVerificator = RedBlackColorVerificator,
-    )
+    internalTree.verifyIntegrityRedBlack()
 
     return RedBlackTree(
         internalTree = internalTree,
+    )
+}
+
+fun <PayloadT : Comparable<PayloadT>> BinaryTree<PayloadT, RedBlackTree.Color>.verifyIntegrityRedBlack(
+) {
+    this.verifyIntegrityBalanced(
+        colorVerificator = RedBlackColorVerificator,
     )
 }
 

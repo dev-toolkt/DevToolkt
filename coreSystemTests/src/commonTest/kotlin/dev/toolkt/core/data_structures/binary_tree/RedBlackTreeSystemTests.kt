@@ -1,7 +1,6 @@
 package dev.toolkt.core.data_structures.binary_tree
 
-import dev.toolkt.core.data_structures.binary_tree.test_utils.insertVerified
-import dev.toolkt.core.data_structures.binary_tree.test_utils.removeVerified
+import dev.toolkt.core.data_structures.binary_tree.test_utils.verifyIntegrityRedBlack
 import kotlin.random.Random
 import kotlin.random.nextInt
 import kotlin.test.Ignore
@@ -31,20 +30,22 @@ class RedBlackTreeSystemTests {
             if (shouldRemove && !tree.isEmpty()) {
                 val nodeHandle = nodeHandles.getRandom(random = random)
 
-                tree.removeVerified(
+                tree.remove(
                     nodeHandle = nodeHandle,
                 )
             } else {
                 val freeLocations = tree.findFreeLocations()
                 val location = freeLocations.getRandom(random = random)
 
-                val insertedNodeHandle = tree.insertVerified(
+                val insertedNodeHandle = tree.insert(
                     location = location,
                     payload = random.nextInt()
                 )
 
                 nodeHandles.add(insertedNodeHandle)
             }
+
+            tree.verifyIntegrityRedBlack()
         }
     }
 }
