@@ -3,45 +3,36 @@ package dev.toolkt.core.data_structures.binary_tree.test_utils
 import dev.toolkt.core.data_structures.binary_tree.BinaryTree
 import dev.toolkt.core.data_structures.binary_tree.getLeftChild
 import dev.toolkt.core.data_structures.binary_tree.getRightChild
+import dev.toolkt.core.pairs.sorted
 
-data class IntegrityVerificationResult(
+private data class IntegrityVerificationResult(
     val computedSubtreeSize: Int,
+)
+
+private data class BalanceVerificationResult(
     val computedSubtreeHeight: Int,
 )
 
-interface HeightVerificator {
-    fun verifySubtreeHeight(
-        leftSubtreeHeight: Int,
-        rightSubtreeHeight: Int,
-    )
-}
-
-interface ColorVerificator<ColorT> {
-    fun verifyColor(
-        parentColor: ColorT,
-        nodeColor: ColorT,
-    )
-}
-
-fun <PayloadT : Comparable<PayloadT>, ColorT> BinaryTree<PayloadT, ColorT>.verifyIntegrity(
-    heightVerificator: HeightVerificator?,
-    colorVerificator: ColorVerificator<ColorT>?,
-) {
+fun <PayloadT, ColorT> BinaryTree<PayloadT, ColorT>.verifyIntegrity() {
     val rootHandle = this.root ?: return
 
     verifySubtreeIntegrity(
         nodeHandle = rootHandle,
         expectedParentHandle = null,
-        heightVerificator = heightVerificator,
-        colorVerificator = colorVerificator,
     )
 }
 
-fun <PayloadT : Comparable<PayloadT>, ColorT> BinaryTree<PayloadT, ColorT>.verifySubtreeIntegrity(
+fun <PayloadT : Comparable<PayloadT>, ColorT> BinaryTree<PayloadT, ColorT>.verifyBalance() {
+    val rootHandle = this.root ?: return
+
+    verifySubtreeBalance(
+        nodeHandle = rootHandle,
+    )
+}
+
+private fun <PayloadT, ColorT> BinaryTree<PayloadT, ColorT>.verifySubtreeIntegrity(
     nodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
     expectedParentHandle: BinaryTree.NodeHandle<PayloadT, ColorT>?,
-    heightVerificator: HeightVerificator?,
-    colorVerificator: ColorVerificator<ColorT>?,
 ): IntegrityVerificationResult {
     val actualParentHandle = getParent(nodeHandle = nodeHandle)
 
@@ -55,32 +46,16 @@ fun <PayloadT : Comparable<PayloadT>, ColorT> BinaryTree<PayloadT, ColorT>.verif
     val rightChildHandle = getRightChild(nodeHandle = nodeHandle)
 
     val leftSubtreeVerificationResult = leftChildHandle?.let {
-        val leftPayload = getPayload(nodeHandle = it)
-
-        if (leftPayload >= payload) {
-            throw AssertionError("Left child payload $leftPayload is not less than parent payload $payload")
-        }
-
         verifySubtreeIntegrity(
             nodeHandle = it,
             expectedParentHandle = nodeHandle,
-            heightVerificator = heightVerificator,
-            colorVerificator = colorVerificator,
         )
     }
 
     val rightSubtreeVerificationResult = rightChildHandle?.let {
-        val rightPayload = getPayload(nodeHandle = it)
-
-        if (rightPayload <= payload) {
-            throw AssertionError("Right child payload $rightPayload is not greater than parent payload $payload")
-        }
-
         verifySubtreeIntegrity(
             nodeHandle = it,
             expectedParentHandle = nodeHandle,
-            heightVerificator = heightVerificator,
-            colorVerificator = colorVerificator,
         )
     }
 
@@ -94,28 +69,39 @@ fun <PayloadT : Comparable<PayloadT>, ColorT> BinaryTree<PayloadT, ColorT>.verif
         throw AssertionError("Inconsistent subtree size, computed: $computedTotalSubtreeSize, cached: $cachedSubtreeSize")
     }
 
-    val computedLeftSubtreeHeight = leftSubtreeVerificationResult?.computedSubtreeHeight ?: 0
-    val computedRightSubtreeHeight = rightSubtreeVerificationResult?.computedSubtreeHeight ?: 0
-
-    heightVerificator?.verifySubtreeHeight(
-        leftSubtreeHeight = computedLeftSubtreeHeight,
-        rightSubtreeHeight = computedRightSubtreeHeight,
+    return IntegrityVerificationResult(
+        computedSubtreeSize = computedTotalSubtreeSize,
     )
+}
 
-    val computedMaxSubtreeHeight = maxOf(computedLeftSubtreeHeight, computedRightSubtreeHeight) + 1
+private fun <PayloadT : Comparable<PayloadT>, ColorT> BinaryTree<PayloadT, ColorT>.verifySubtreeBalance(
+    nodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
+): BalanceVerificationResult {
+    val leftChildHandle = getLeftChild(nodeHandle = nodeHandle)
+    val rightChildHandle = getRightChild(nodeHandle = nodeHandle)
 
-    if (actualParentHandle != null) {
-        val parentColor = getColor(actualParentHandle)
-        val nodeColor = getColor(nodeHandle = nodeHandle)
-
-        colorVerificator?.verifyColor(
-            parentColor = parentColor,
-            nodeColor = nodeColor,
+    val leftSubtreeVerificationResult = leftChildHandle?.let {
+        verifySubtreeBalance(
+            nodeHandle = it,
         )
     }
 
-    return IntegrityVerificationResult(
-        computedSubtreeSize = computedTotalSubtreeSize,
-        computedSubtreeHeight = computedMaxSubtreeHeight,
+    val rightSubtreeVerificationResult = rightChildHandle?.let {
+        verifySubtreeBalance(
+            nodeHandle = it,
+        )
+    }
+
+    val (minPathLength, maxPathLength) = Pair(
+        leftSubtreeVerificationResult?.computedSubtreeHeight ?: 1,
+        rightSubtreeVerificationResult?.computedSubtreeHeight ?: 1,
+    ).sorted()
+
+    if (maxPathLength > 2 * minPathLength) {
+        throw AssertionError("Unbalanced subtree, min subtree height: $minPathLength, max subtree height: $maxPathLength")
+    }
+
+    return BalanceVerificationResult(
+        computedSubtreeHeight = maxPathLength,
     )
 }

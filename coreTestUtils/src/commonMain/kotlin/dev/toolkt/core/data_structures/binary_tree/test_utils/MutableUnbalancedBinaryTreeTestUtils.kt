@@ -3,26 +3,23 @@ package dev.toolkt.core.data_structures.binary_tree.test_utils
 import dev.toolkt.core.data_structures.binary_tree.BinaryTree
 import dev.toolkt.core.data_structures.binary_tree.MutableUnbalancedBinaryTree
 
-fun <PayloadT: Comparable<PayloadT>, ColorT> MutableUnbalancedBinaryTree<PayloadT, ColorT>.putVerified(
+fun <PayloadT : Comparable<PayloadT>, ColorT> MutableUnbalancedBinaryTree<PayloadT, ColorT>.attachVerified(
     location: BinaryTree.Location<PayloadT, ColorT>,
     payload: PayloadT,
     color: ColorT,
 ): BinaryTree.NodeHandle<PayloadT, ColorT> {
-    val insertedNodeHandle = this.put(
+    val insertedNodeHandle = this.attach(
         location = location,
         payload = payload,
         color = color,
     )
 
-    verifyIntegrity(
-        heightVerificator = null,
-        colorVerificator = null,
-    )
+    verifyIntegrity()
 
     return insertedNodeHandle
 }
 
-fun <PayloadT: Comparable<PayloadT>, ColorT> MutableUnbalancedBinaryTree<PayloadT, ColorT>.swapVerified(
+fun <PayloadT : Comparable<PayloadT>, ColorT> MutableUnbalancedBinaryTree<PayloadT, ColorT>.swapVerified(
     firstNodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
     secondNodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
 ) {
@@ -31,28 +28,22 @@ fun <PayloadT: Comparable<PayloadT>, ColorT> MutableUnbalancedBinaryTree<Payload
         secondNodeHandle = secondNodeHandle,
     )
 
-    verifyIntegrity(
-        heightVerificator = null,
-        colorVerificator = null,
-    )
+    verifyIntegrity()
 }
 
-fun <PayloadT: Comparable<PayloadT>, ColorT> MutableUnbalancedBinaryTree<PayloadT, ColorT>.cutOffVerified(
+fun <PayloadT : Comparable<PayloadT>, ColorT> MutableUnbalancedBinaryTree<PayloadT, ColorT>.cutOffVerified(
     leafHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
 ): BinaryTree.Location<PayloadT, ColorT> {
     val cutOffLeafLocation = this.cutOff(
         leafHandle = leafHandle,
     )
 
-    verifyIntegrity(
-        heightVerificator = null,
-        colorVerificator = null,
-    )
+    verifyIntegrity()
 
     return cutOffLeafLocation
 }
 
-fun <PayloadT: Comparable<PayloadT>, ColorT> MutableUnbalancedBinaryTree<PayloadT, ColorT>.rotateVerified(
+fun <PayloadT : Comparable<PayloadT>, ColorT> MutableUnbalancedBinaryTree<PayloadT, ColorT>.rotateVerified(
     pivotNodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
     direction: BinaryTree.RotationDirection,
 ): BinaryTree.NodeHandle<PayloadT, ColorT> {
@@ -61,10 +52,7 @@ fun <PayloadT: Comparable<PayloadT>, ColorT> MutableUnbalancedBinaryTree<Payload
         direction = direction,
     )
 
-    verifyIntegrity(
-        heightVerificator = null,
-        colorVerificator = null,
-    )
+    verifyIntegrity()
 
     return newSubtreeRootHandle
 }
