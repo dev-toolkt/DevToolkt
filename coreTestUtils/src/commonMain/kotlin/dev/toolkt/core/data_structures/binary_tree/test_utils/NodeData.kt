@@ -17,7 +17,7 @@ data class NodeData<PayloadT, ColorT>(
         tree: MutableUnbalancedBinaryTree<PayloadT, ColorT>,
         location: BinaryTree.Location<PayloadT, ColorT>,
     ) {
-        val nodeHandle = tree.put(
+        val nodeHandle = tree.attach(
             location = location,
             payload = payload,
             color = color,

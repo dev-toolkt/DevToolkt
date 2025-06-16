@@ -3,36 +3,37 @@ package dev.toolkt.core.data_structures.binary_tree.test_utils
 import dev.toolkt.core.data_structures.binary_tree.BinaryTree
 import dev.toolkt.core.data_structures.binary_tree.MutableUnbalancedBinaryTree
 import dev.toolkt.core.data_structures.binary_tree.RedBlackTree
+import dev.toolkt.core.data_structures.binary_tree.getLeftChild
+import dev.toolkt.core.data_structures.binary_tree.getRightChild
 import dev.toolkt.core.range.split
 import kotlin.random.Random
 
-data object RedBlackColorVerificator : ColorVerificator<RedBlackTree.Color> {
-    override fun verifyColor(
-        parentColor: RedBlackTree.Color,
-        nodeColor: RedBlackTree.Color,
-    ) {
-        if (parentColor == RedBlackTree.Color.Red && nodeColor == RedBlackTree.Color.Red) {
-            throw AssertionError("Red node cannot have red parent")
-        }
-    }
-}
+private data class ColorVerificationResult(
+    val blackHeight: Int,
+)
 
 fun <PayloadT : Comparable<PayloadT>> RedBlackTree<PayloadT>.insertVerified(
     location: BinaryTree.Location<PayloadT, RedBlackTree.Color>,
     payload: PayloadT,
-): BinaryTree.NodeHandle<PayloadT, RedBlackTree.Color> = insertVerified(
-    location = location,
-    payload = payload,
-    colorVerificator = RedBlackColorVerificator,
-)
+): BinaryTree.NodeHandle<PayloadT, RedBlackTree.Color> {
+    val insertedNodeHandle = insert(
+        location = location,
+        payload = payload,
+    )
+
+    verify()
+
+    return insertedNodeHandle
+}
 
 fun <PayloadT : Comparable<PayloadT>> RedBlackTree<PayloadT>.removeVerified(
     nodeHandle: BinaryTree.NodeHandle<PayloadT, RedBlackTree.Color>,
 ) {
-    removeVerified(
+    remove(
         nodeHandle = nodeHandle,
-        colorVerificator = RedBlackColorVerificator,
     )
+
+    verify()
 }
 
 fun <PayloadT : Comparable<PayloadT>> RedBlackTree.Companion.loadVerified(
@@ -42,18 +43,68 @@ fun <PayloadT : Comparable<PayloadT>> RedBlackTree.Companion.loadVerified(
         rootData = rootData,
     )
 
-    internalTree.verifyIntegrityRedBlack()
+    internalTree.verify()
 
     return RedBlackTree(
         internalTree = internalTree,
     )
 }
 
-fun <PayloadT : Comparable<PayloadT>> BinaryTree<PayloadT, RedBlackTree.Color>.verifyIntegrityRedBlack(
-) {
-    this.verifyIntegrityBalanced(
-        colorVerificator = RedBlackColorVerificator,
-    )
+fun <PayloadT : Comparable<PayloadT>> BinaryTree<PayloadT, RedBlackTree.Color>.verify() {
+    verifyIntegrity()
+    verifyBalance()
+    verifyColor()
+}
+
+private fun <PayloadT : Comparable<PayloadT>> BinaryTree<PayloadT, RedBlackTree.Color>.verifyColor() {
+    val rootHandle = this.root ?: return
+
+    verifySubtreeColor(parentColor = null, rootHandle)
+}
+
+private fun <PayloadT : Comparable<PayloadT>> BinaryTree<PayloadT, RedBlackTree.Color>.verifySubtreeColor(
+    parentColor: RedBlackTree.Color?,
+    nodeHandle: BinaryTree.NodeHandle<PayloadT, RedBlackTree.Color>,
+): ColorVerificationResult {
+    val nodeColor = getColor(nodeHandle = nodeHandle)
+
+    if (parentColor == RedBlackTree.Color.Red && nodeColor == RedBlackTree.Color.Red) {
+        throw AssertionError("Red node cannot have a red parent")
+    }
+
+    val leftChildHandle = getLeftChild(nodeHandle = nodeHandle)
+    val rightChildHandle = getRightChild(nodeHandle = nodeHandle)
+
+
+    val leftSubtreeVerificationResult = leftChildHandle?.let {
+        verifySubtreeColor(
+            parentColor = nodeColor,
+            nodeHandle = it,
+        )
+    }
+
+    val rightSubtreeVerificationResult = rightChildHandle?.let {
+        verifySubtreeColor(
+            parentColor = nodeColor,
+            nodeHandle = it,
+        )
+    }
+
+    val leftSubtreeBlackHeight = leftSubtreeVerificationResult?.blackHeight ?: 1
+    val rightSubtreeBlackHeight = rightSubtreeVerificationResult?.blackHeight ?: 1
+
+    val ownBlackHeight = when (nodeColor) {
+        RedBlackTree.Color.Red -> 0
+        RedBlackTree.Color.Black -> 1
+    }
+
+    if (leftSubtreeBlackHeight != rightSubtreeBlackHeight) {
+        throw AssertionError("Left and right subtrees must have the same black height, but left: $leftSubtreeBlackHeight, right: $rightSubtreeBlackHeight")
+    } else {
+        return ColorVerificationResult(
+            blackHeight = leftSubtreeBlackHeight + ownBlackHeight,
+        )
+    }
 }
 
 fun RedBlackTree.Companion.buildBalance(
@@ -72,9 +123,9 @@ private fun RedBlackTree.Companion.buildBalance(
     payloadRange: ClosedFloatingPointRange<Double>,
     parentColor: RedBlackTree.Color = RedBlackTree.Color.Red,
 ): NodeData<Double, RedBlackTree.Color>? {
-    require(requiredBlackDepth >= 0)
+    require(requiredBlackDepth >= 1)
 
-    if (requiredBlackDepth == 0) {
+    if (requiredBlackDepth == 1) {
         return null
     }
 
@@ -94,8 +145,8 @@ private fun RedBlackTree.Companion.buildBalance(
     }
 
     val newRequiredBlackDepth = when (color) {
-        RedBlackTree.Color.Black -> requiredBlackDepth
-        else -> requiredBlackDepth - 1
+        RedBlackTree.Color.Black -> requiredBlackDepth - 1
+        else -> requiredBlackDepth
     }
 
     return NodeData(

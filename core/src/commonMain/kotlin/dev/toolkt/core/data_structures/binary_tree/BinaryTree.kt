@@ -1,5 +1,7 @@
 package dev.toolkt.core.data_structures.binary_tree
 
+import kotlin.random.Random
+
 interface BinaryTree<out PayloadT, out ColorT> {
     /**
      * A side of the tree or the tree's node, either left or right.
@@ -129,13 +131,6 @@ interface BinaryTree<out PayloadT, out ColorT> {
 
 fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.isEmpty(): Boolean = size == 0
 
-fun <PayloadT, MetadataT> BinaryTree.RelativeLocation<PayloadT, MetadataT>.getSibling(
-    tree: BinaryTree<PayloadT, MetadataT>,
-): BinaryTree.NodeHandle<PayloadT, MetadataT>? = tree.getChild(
-    nodeHandle = parentHandle,
-    side = siblingSide,
-)
-
 fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.traverse(): Sequence<BinaryTree.NodeHandle<PayloadT, MetadataT>> =
     this.traverseOrEmpty(
         subtreeRootHandle = root,
@@ -184,6 +179,41 @@ fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getChild(
     side: BinaryTree.Side,
 ): BinaryTree.NodeHandle<PayloadT, MetadataT>? = resolve(
     location = nodeHandle.getChildLocation(side = side),
+)
+
+/**
+ * Get children of this node, starting from the given [side]. The first
+ * child will be the "closer" child, the second one will be the "distant"
+ * child.
+ */
+fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getChildren(
+    nodeHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
+    side: BinaryTree.Side,
+): Pair<
+        BinaryTree.NodeHandle<PayloadT, MetadataT>?,
+        BinaryTree.NodeHandle<PayloadT, MetadataT>?,
+        > {
+    val closerChild = getChild(
+        nodeHandle = nodeHandle,
+        side = side,
+    )
+
+    val distantChild = getChild(
+        nodeHandle = nodeHandle,
+        side = side.opposite,
+    )
+
+    return Pair(closerChild, distantChild)
+}
+
+/**
+ * Get a sibling of a node occupying the given [location] in the tree.
+ */
+fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getSibling(
+    location: BinaryTree.RelativeLocation<PayloadT, MetadataT>,
+): BinaryTree.NodeHandle<PayloadT, MetadataT>? = getChild(
+    nodeHandle = location.parentHandle,
+    side = location.siblingSide,
 )
 
 fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getLeftChild(
@@ -293,7 +323,7 @@ fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.locateRelatively(
 }
 
 interface Guide<in PayloadT, MetadataT> {
-    interface Instruction
+    sealed interface Instruction
 
     data class TurnInstruction(
         /**
@@ -308,6 +338,7 @@ interface Guide<in PayloadT, MetadataT> {
     data object StopInstruction : Instruction
 
     fun instruct(
+        tree: BinaryTree<PayloadT, MetadataT>,
         nodeHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
     ): Instruction
 }
@@ -381,6 +412,21 @@ fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getSideMostFreeLocatio
     )
 }
 
+fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getSideMostDescendant(
+    nodeHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
+    side: BinaryTree.Side,
+): BinaryTree.NodeHandle<PayloadT, MetadataT> {
+    val sideChildHandle = getChild(
+        nodeHandle = nodeHandle,
+        side = side,
+    ) ?: return nodeHandle
+
+    return getSideMostDescendant(
+        nodeHandle = sideChildHandle,
+        side = side,
+    )
+}
+
 /**
  * Get the in-order neighbour (predecessor / successor) of the node associated with
  * [nodeHandle] on the specified [side].
@@ -417,33 +463,15 @@ fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getInOrderNeighbour(
     nodeHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
     side: BinaryTree.Side,
 ): BinaryTree.NodeHandle<PayloadT, MetadataT>? {
-    TODO() // Maybe getNextInOrderFreeLocation should be used directly to determine if a node has a successor
-}
-
-fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getNextInOrderLocation(
-    nodeHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
-    side: BinaryTree.Side,
-): BinaryTree.RelativeLocation<PayloadT, MetadataT> = getNextDeeperInOrderLocation(
-    nodeHandle = nodeHandle,
-    side = side,
-) ?: BinaryTree.RelativeLocation(
-    parentHandle = nodeHandle,
-    side = side,
-)
-
-fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getNextDeeperInOrderLocation(
-    nodeHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
-    side: BinaryTree.Side,
-): BinaryTree.RelativeLocation<PayloadT, MetadataT>? {
-    val sideChildHandle = getChild(
+    val sideChild = getChild(
         nodeHandle = nodeHandle,
         side = side,
     ) ?: return null
 
-    return getSideMostFreeLocation(
-        nodeHandle = sideChildHandle,
+    return getSideMostDescendant(
+        nodeHandle = sideChild,
         side = side.opposite,
-    )
+    ) ?: sideChild
 }
 
 fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getInOrderPredecessor(
@@ -461,8 +489,78 @@ fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getInOrderSuccessor(
 )
 
 fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.findLeafGuided(
-    originNodeHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
     guide: Guide<PayloadT, MetadataT>,
 ): BinaryTree.NodeHandle<PayloadT, MetadataT>? {
-    TODO()
+    val root = this.root ?: return null
+
+    return findLeafGuided(
+        nodeHandle = root,
+        guide = guide,
+    )
+}
+
+fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.findLeafGuided(
+    nodeHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
+    guide: Guide<PayloadT, MetadataT>,
+): BinaryTree.NodeHandle<PayloadT, MetadataT>? {
+    val instruction = guide.instruct(
+        tree = this,
+        nodeHandle = nodeHandle,
+    )
+
+    when (instruction) {
+        Guide.StopInstruction -> return nodeHandle
+
+        is Guide.TurnInstruction -> {
+            val child = getChild(
+                nodeHandle = nodeHandle,
+                side = instruction.side,
+            ) ?: return null
+
+            return findLeafGuided(
+                nodeHandle = child,
+                guide = guide,
+            )
+        }
+    }
+}
+
+fun <PayloadT, ColorT> BinaryTree<PayloadT, ColorT>.getRandomFreeLocation(
+    random: Random,
+): BinaryTree.Location<PayloadT, ColorT> {
+    val root = this.root ?: return BinaryTree.RootLocation
+
+    return getRandomFreeLocation(
+        nodeHandle = root,
+        random = random,
+    )
+}
+
+fun <PayloadT, ColorT> BinaryTree<PayloadT, ColorT>.getRandomFreeLocation(
+    nodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
+    random: Random,
+): BinaryTree.RelativeLocation<PayloadT, ColorT> {
+    val side = random.nextSide()
+
+    val relativeLocation = BinaryTree.RelativeLocation(
+        parentHandle = nodeHandle,
+        side = side,
+    )
+
+    val sideChild = resolve(
+        location = relativeLocation,
+    )
+
+    return when (sideChild) {
+        null -> relativeLocation
+        else -> getRandomFreeLocation(
+            nodeHandle = sideChild,
+            random = random,
+        )
+    }
+}
+
+fun Random.nextSide(): BinaryTree.Side = when (nextBoolean()) {
+    true -> BinaryTree.Side.Left
+    false -> BinaryTree.Side.Right
 }

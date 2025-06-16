@@ -6,13 +6,21 @@ interface MutableUnbalancedBinaryTree<PayloadT, ColorT> : BinaryTree<PayloadT, C
     }
 
     /**
-     * Put a new node with the given [payload] and [color] at the given free
+     * Set the color of the node corresponding to the given [nodeHandle] to [newColor]
+     */
+    fun setColor(
+        nodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
+        newColor: ColorT,
+    )
+
+    /**
+     * Attach a new leaf with the given [payload] and [color] at the given free
      * [location].
      *
-     * @return A handle to the put node
+     * @return A handle to the attached leaf
      * @throws IllegalArgumentException if the location is taken
      */
-    fun put(
+    fun attach(
         location: BinaryTree.Location<PayloadT, ColorT>,
         payload: PayloadT,
         color: ColorT,
@@ -28,23 +36,26 @@ interface MutableUnbalancedBinaryTree<PayloadT, ColorT> : BinaryTree<PayloadT, C
     ): BinaryTree.Location<PayloadT, ColorT>
 
     /**
-     * Elevate the node corresponding to the given [nodeHandle] (replace its
-     * parent with this node). Requires that this node is not the root and has
-     * no sibling. May result in the tree re-balancing.
-     *
      * Remove a single-child node corresponding to the given [nodeHandle] from
      * the tree by replacing it with its child.
      *
-     * @throws IllegalArgumentException if the node is a root or has a sibling
+     * @throws IllegalArgumentException if the node is a leaf or has two children
+     * @return A handle to the elevated child of the removed node
      */
     fun collapse(
         nodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
-    )
+    ): BinaryTree.NodeHandle<PayloadT, ColorT>
 
     /**
-     * Swap two given nodes. Doesn't affect the colors, meaning that the first
-     * node will have the second node's color after the swap and the second
-     * node will have the first node's color.
+     * Swap two node corresponding to the [firstNodeHandle] with the node
+     * corresponding to the [secondNodeHandle].
+     *
+     * Doesn't affect the colors, meaning that the first node will have the second
+     * node's original color after the swap and the second node will have the first
+     * node's original color.
+     *
+     * Handles aren't affected, meaning that the first node will still be reachable
+     * by the first handle and the second node will still be reachable by the second handle.
      */
     fun swap(
         firstNodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
@@ -62,4 +73,20 @@ interface MutableUnbalancedBinaryTree<PayloadT, ColorT> : BinaryTree<PayloadT, C
         pivotNodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
         direction: BinaryTree.RotationDirection,
     ): BinaryTree.NodeHandle<PayloadT, ColorT>
+}
+
+internal fun <PayloadT, ColorT> MutableUnbalancedBinaryTree<PayloadT, ColorT>.paint(
+    nodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
+    newColor: ColorT,
+) {
+    val color = getColor(nodeHandle = nodeHandle)
+
+    if (color == newColor) {
+        throw IllegalStateException("The node is already painted $newColor")
+    }
+
+    setColor(
+        nodeHandle = nodeHandle,
+        newColor = newColor,
+    )
 }

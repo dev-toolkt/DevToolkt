@@ -1,21 +1,18 @@
 package dev.toolkt.core.data_structures.binary_tree
 
-import dev.toolkt.core.data_structures.binary_tree.test_utils.verifyIntegrityRedBlack
+import dev.toolkt.core.data_structures.binary_tree.test_utils.verify
 import kotlin.random.Random
-import kotlin.random.nextInt
-import kotlin.test.Ignore
 import kotlin.test.Test
 
 class RedBlackTreeSystemTests {
-    private val operationCount = 10000
+    private val operationCount = 20_000
 
     @Test
-    @Ignore
     fun testFuzzy() {
         val random = Random
 
         val tree = RedBlackTree<Int>()
-        val nodeHandles = mutableSetOf<BinaryTree.NodeHandle<Int, RedBlackTree.Color>>()
+        val nodeHandles = ArrayDeque<BinaryTree.NodeHandle<Int, RedBlackTree.Color>>()
 
         (0 until operationCount).forEach { operationIndex ->
             val progress = operationIndex.toDouble() / operationCount
@@ -28,45 +25,28 @@ class RedBlackTreeSystemTests {
             val shouldRemove = random.nextBool(chance = removeChance)
 
             if (shouldRemove && !tree.isEmpty()) {
-                val nodeHandle = nodeHandles.getRandom(random = random)
+                val nodeHandle = nodeHandles.removeFirst()
 
                 tree.remove(
                     nodeHandle = nodeHandle,
                 )
             } else {
-                val freeLocations = tree.findFreeLocations()
-                val location = freeLocations.getRandom(random = random)
+                val location = tree.getRandomFreeLocation(random = random)
+
+                val payload = random.nextInt()
 
                 val insertedNodeHandle = tree.insert(
                     location = location,
-                    payload = random.nextInt()
+                    payload = payload,
                 )
 
-                nodeHandles.add(insertedNodeHandle)
+                nodeHandles.addLast(insertedNodeHandle)
             }
 
-            tree.verifyIntegrityRedBlack()
+            tree.verify()
         }
     }
 }
-
-fun <PayloadT, ColorT> BinaryTree<PayloadT, ColorT>.findAllLocations(): List<BinaryTree.Location<PayloadT, ColorT>> =
-    listOf(BinaryTree.RootLocation) + traverse().flatMap {
-        listOf(
-            it.getLeftChildLocation(),
-            it.getRightChildLocation(),
-        )
-    }.toList()
-
-fun <PayloadT, ColorT> BinaryTree<PayloadT, ColorT>.findFreeLocations(): List<BinaryTree.Location<PayloadT, ColorT>> =
-    findAllLocations().filter { resolve(it) == null }
-
-fun <E> List<E>.getRandom(random: Random): E {
-    val index = random.nextInt(indices)
-    return this[index]
-}
-
-fun <E> Collection<E>.getRandom(random: Random): E = toList().getRandom(random = random)
 
 /**
  * @param chance The chance of returning true, between 0.0 and 1.0.

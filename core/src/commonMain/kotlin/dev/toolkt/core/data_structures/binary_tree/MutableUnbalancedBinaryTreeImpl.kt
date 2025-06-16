@@ -1,5 +1,6 @@
 package dev.toolkt.core.data_structures.binary_tree
 
+import dev.toolkt.core.data_structures.binary_tree.BinaryTree.Side
 import dev.toolkt.core.data_structures.binary_tree.MutableUnbalancedBinaryTreeImpl.HandleImpl
 import dev.toolkt.core.data_structures.binary_tree.MutableUnbalancedBinaryTreeImpl.ProperNode
 import kotlin.jvm.JvmInline
@@ -54,9 +55,13 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
         companion object {
             fun <PayloadT, ColorT> link(
                 parent: ProperNode<PayloadT, ColorT>,
-                side: BinaryTree.Side,
+                side: Side,
                 child: ProperNode<PayloadT, ColorT>?,
             ) {
+                if (parent == child) {
+                    throw IllegalArgumentException("Cannot link a node with itself")
+                }
+
                 parent.setChild(
                     child = child,
                     side = side,
@@ -104,33 +109,37 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
         fun isLeaf(): Boolean = leftChild == null && rightChild == null
 
         fun getChild(
-            side: BinaryTree.Side,
+            side: Side,
         ): ProperNode<PayloadT, ColorT>? = when (side) {
-            BinaryTree.Side.Left -> leftChild
-            BinaryTree.Side.Right -> rightChild
+            Side.Left -> leftChild
+            Side.Right -> rightChild
         }
 
         fun getChildSide(
             child: ProperNode<PayloadT, ColorT>,
-        ): BinaryTree.Side = when {
-            child === leftChild -> BinaryTree.Side.Left
-            child === rightChild -> BinaryTree.Side.Right
+        ): Side = when {
+            child === leftChild -> Side.Left
+            child === rightChild -> Side.Right
             else -> throw IllegalArgumentException("The given node is not a child of this node")
         }
 
         fun setChild(
             child: ProperNode<PayloadT, ColorT>?,
-            side: BinaryTree.Side,
+            side: Side,
         ) {
             when (side) {
-                BinaryTree.Side.Left -> mutableLeftChild = child
-                BinaryTree.Side.Right -> mutableRightChild = child
+                Side.Left -> mutableLeftChild = child
+                Side.Right -> mutableRightChild = child
             }
         }
 
         fun setParent(
             parent: ParentNode<PayloadT, ColorT>,
         ) {
+            if (parent == this) {
+                throw IllegalArgumentException("Cannot set a node as its own parent")
+            }
+
             mutableParent = parent
         }
 
@@ -227,9 +236,9 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
 
     internal class ProperParentLink<PayloadT, ColorT>(
         override val parent: ProperNode<PayloadT, ColorT>,
-        val childSide: BinaryTree.Side,
+        val childSide: Side,
     ) : ParentLink<PayloadT, ColorT>() {
-        val siblingSide: BinaryTree.Side
+        val siblingSide: Side
             get() = childSide.opposite
 
         val sibling: ProperNode<PayloadT, ColorT>?
@@ -264,7 +273,7 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
      * @return A handle to the put node
      * @throws IllegalArgumentException if the location is taken
      */
-    override fun put(
+    override fun attach(
         location: BinaryTree.Location<PayloadT, ColorT>,
         payload: PayloadT,
         color: ColorT,
@@ -350,7 +359,7 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
      */
     override fun collapse(
         nodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
-    ) {
+    ): BinaryTree.NodeHandle<PayloadT, ColorT> {
         val node = nodeHandle.unpack()
 
         if (node.leftChild != null && node.rightChild != null) {
@@ -366,6 +375,8 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
         parentLink.parent.asProper?.updateSubtreeSizeRecursively(
             delta = -1,
         )
+
+        return singleChild.pack()
     }
 
     /**
@@ -380,6 +391,92 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
         val firstNode = firstNodeHandle.unpack()
         val secondNode = secondNodeHandle.unpack()
 
+        require(firstNode != secondNode) {
+            "Cannot swap a node with itself"
+        }
+
+        when {
+            firstNode.parent == secondNode -> {
+                swapWithParent(
+                    parent = secondNode,
+                    node = firstNode,
+                )
+            }
+
+            secondNode.parent == firstNode -> {
+                swapWithParent(
+                    parent = firstNode,
+                    node = secondNode,
+                )
+            }
+
+            else -> {
+                swapDisjoint(
+                    firstNode = firstNode,
+                    secondNode = secondNode,
+                )
+            }
+        }
+    }
+
+    private fun swapWithParent(
+        parent: ProperNode<PayloadT, ColorT>,
+        node: ProperNode<PayloadT, ColorT>,
+    ) {
+        val parentSubtreeSize = parent.subtreeSize
+        val parentColor = parent.color
+        val grandparentLink = parent.parentLink
+
+        val nodeSubtreeSize = node.subtreeSize
+        val nodeColor = node.color
+
+        val side = parent.getChildSide(child = node)
+        val siblingSide = side.opposite
+
+        val sibling = parent.getChild(side = siblingSide)
+
+        val leftChild = node.leftChild
+        val rightChild = node.rightChild
+
+        grandparentLink.linkChild(
+            newChild = node,
+        )
+
+        ProperNode.link(
+            parent = node,
+            child = parent,
+            side = side,
+        )
+
+        ProperNode.link(
+            parent = node,
+            child = sibling,
+            side = siblingSide,
+        )
+
+        node.setSubtreeSize(parentSubtreeSize)
+        node.setColor(parentColor)
+
+        ProperNode.link(
+            parent = parent,
+            child = leftChild,
+            side = Side.Left,
+        )
+
+        ProperNode.link(
+            parent = parent,
+            child = rightChild,
+            side = Side.Right,
+        )
+
+        parent.setSubtreeSize(nodeSubtreeSize)
+        parent.setColor(nodeColor)
+    }
+
+    private fun swapDisjoint(
+        firstNode: ProperNode<PayloadT, ColorT>,
+        secondNode: ProperNode<PayloadT, ColorT>,
+    ) {
         val firstParentLink = firstNode.parentLink
         val firstLeftChild = firstNode.leftChild
         val firstRightChild = firstNode.rightChild
@@ -397,13 +494,13 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
         ProperNode.link(
             parent = secondNode,
             child = firstLeftChild,
-            side = BinaryTree.Side.Left,
+            side = Side.Left,
         )
 
         ProperNode.link(
             parent = secondNode,
             child = firstRightChild,
-            side = BinaryTree.Side.Right,
+            side = Side.Right,
         )
 
         secondNode.setSubtreeSize(firstSubtreeSize)
@@ -414,13 +511,13 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
         ProperNode.link(
             parent = firstNode,
             child = secondLeftChild,
-            side = BinaryTree.Side.Left,
+            side = Side.Left,
         )
 
         ProperNode.link(
             parent = firstNode,
             child = secondRightChild,
-            side = BinaryTree.Side.Right,
+            side = Side.Right,
         )
 
         firstNode.setSubtreeSize(secondSubtreeSize)
@@ -531,6 +628,17 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
     ): BinaryTree.NodeHandle<PayloadT, ColorT>? {
         val node = nodeHandle.unpack()
         return node.properParent?.pack()
+    }
+
+    override fun setColor(
+        nodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
+        newColor: ColorT,
+    ) {
+        val node = nodeHandle.unpack()
+
+        node.setColor(
+            color = newColor,
+        )
     }
 }
 
