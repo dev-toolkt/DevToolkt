@@ -15,7 +15,7 @@ class MutableTotalOrderTests {
     fun testInitial() {
         val mutableTotalOrder = MutableTotalOrder<Fruit>()
 
-        mutableTotalOrder.verifyOrder(
+        mutableTotalOrder.verifyContent(
             pairs = emptyList(),
         )
     }
@@ -43,7 +43,7 @@ class MutableTotalOrderTests {
             element = Fruit.Raspberry,
         )
 
-        mutableTotalOrder.verifyOrder(
+        mutableTotalOrder.verifyContent(
             handleBanana to Fruit.Banana,
             handleOrange to Fruit.Orange,
             handleKiwi to Fruit.Kiwi,
@@ -61,7 +61,7 @@ class MutableTotalOrderTests {
             element = Fruit.Banana,
         )
 
-        mutableTotalOrder.verifyOrder(
+        mutableTotalOrder.verifyContent(
             handleBanana to Fruit.Banana,
         )
     }
@@ -75,7 +75,7 @@ class MutableTotalOrderTests {
             element = Fruit.Grape,
         )
 
-        mutableTotalOrder.verifyOrder(
+        mutableTotalOrder.verifyContent(
             handleGrape to Fruit.Grape,
         )
     }
@@ -105,7 +105,7 @@ class MutableTotalOrderTests {
         )
 
 
-        mutableTotalOrder.verifyOrder(
+        mutableTotalOrder.verifyContent(
             handleBanana to Fruit.Banana,
             handleStrawberry to Fruit.Strawberry,
             handleWatermelon to Fruit.Watermelon,
@@ -137,7 +137,7 @@ class MutableTotalOrderTests {
             element = Fruit.Mango,
         )
 
-        mutableTotalOrder.verifyOrder(
+        mutableTotalOrder.verifyContent(
             handleBanana to Fruit.Banana,
             handleKiwi to Fruit.Kiwi,
             handleOrange to Fruit.Orange,
@@ -152,7 +152,7 @@ class MutableTotalOrderTests {
             element = Fruit.Pineapple,
         )
 
-        mutableTotalOrder.verifyOrder(
+        mutableTotalOrder.verifyContent(
             handleBanana to Fruit.Banana,
             handleOrange to Fruit.Orange,
             handleKiwi to Fruit.Kiwi,
@@ -179,20 +179,20 @@ class MutableTotalOrderTests {
 
         mutableTotalOrder.remove(handle = handleOrange)
 
-        mutableTotalOrder.verifyOrder(
+        mutableTotalOrder.verifyContent(
             handleApple to Fruit.Apple,
             handleKiwi to Fruit.Kiwi,
         )
 
         mutableTotalOrder.remove(handle = handleApple)
 
-        mutableTotalOrder.verifyOrder(
+        mutableTotalOrder.verifyContent(
             handleKiwi to Fruit.Kiwi,
         )
 
         mutableTotalOrder.remove(handle = handleKiwi)
 
-        mutableTotalOrder.verifyOrder(
+        mutableTotalOrder.verifyContent(
             pairs = emptyList(),
         )
     }

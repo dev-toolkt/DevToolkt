@@ -24,15 +24,15 @@ fun <E> MutableTotalOrder<E>.findHandle(
     element: E,
 ): MutableTotalOrder.Handle<E> = traverse().first { get(it) == element }
 
-fun <E> MutableTotalOrder<E>.verifyOrder(
+fun <E> MutableTotalOrder<E>.verifyContent(
     vararg pairs: Pair<MutableTotalOrder.Handle<E>, E>,
 ) {
-    verifyOrder(
+    verifyContent(
         pairs = pairs.toList(),
     )
 }
 
-fun <E> MutableTotalOrder<E>.verifyOrder(
+fun <E> MutableTotalOrder<E>.verifyContent(
     pairs: List<Pair<MutableTotalOrder.Handle<E>, E>>,
 ) {
     val traversedHandles = traverse().toList()
