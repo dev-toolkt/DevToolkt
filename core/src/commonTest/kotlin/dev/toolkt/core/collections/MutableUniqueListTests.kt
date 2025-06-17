@@ -148,6 +148,28 @@ class MutableUniqueListTests {
     }
 
     @Test
+    fun testAdd_atIndex_duplicate() {
+        val mutableUniqueList = mutableUniqueListOf(
+            Fruit.Strawberry,
+            Fruit.Grape,
+            Fruit.Watermelon,
+            Fruit.Orange,
+        )
+
+        mutableUniqueList.add(
+            index = 2,
+            Fruit.Watermelon,
+        )
+
+        mutableUniqueList.verifyContent(
+            Fruit.Strawberry,
+            Fruit.Grape,
+            Fruit.Watermelon,
+            Fruit.Orange,
+        )
+    }
+
+    @Test
     fun testAdd_atIndex_last() {
         val mutableUniqueList = mutableUniqueListOf(
             Fruit.Strawberry,
