@@ -5,6 +5,15 @@ import dev.toolkt.core.errors.assert
 abstract class AbstractBalancedBinaryTree<PayloadT, ColorT>(
     protected val internalTree: MutableUnbalancedBinaryTree<PayloadT, ColorT>,
 ) : MutableBalancedBinaryTree<PayloadT, ColorT>, BinaryTree<PayloadT, ColorT> by internalTree {
+    override fun setPayload(
+        nodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
+        payload: PayloadT,
+    ) {
+        internalTree.setPayload(
+            nodeHandle = nodeHandle,
+            payload = payload,
+        )
+    }
 
     final override fun insert(
         location: BinaryTree.Location<PayloadT, ColorT>,

@@ -46,7 +46,7 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
         private var mutableRightChild: ProperNode<PayloadT, ColorT>? = null,
         private var mutableSubtreeSize: Int = 1,
         private var mutableColor: ColorT,
-        val payload: PayloadT,
+        private var mutablePayload: PayloadT,
     ) : ParentNode<PayloadT, ColorT> {
         data class IntegrityVerificationResult(
             val computedSubtreeSize: Int,
@@ -103,6 +103,9 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
         val subtreeSize: Int
             get() = mutableSubtreeSize
 
+        val payload: PayloadT
+            get() = mutablePayload
+
         val color: ColorT
             get() = mutableColor
 
@@ -149,6 +152,12 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
             require(size >= 0)
 
             mutableSubtreeSize = size
+        }
+
+        fun setPayload(
+            payload: PayloadT,
+        ) {
+            mutablePayload = payload
         }
 
         fun setColor(
@@ -281,7 +290,7 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
         val newNode = ProperNode(
             mutableParent = origin,
             mutableColor = color,
-            payload = payload,
+            mutablePayload = payload,
         )
 
         when (location) {
@@ -628,6 +637,17 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
     ): BinaryTree.NodeHandle<PayloadT, ColorT>? {
         val node = nodeHandle.unpack()
         return node.properParent?.pack()
+    }
+
+    override fun setPayload(
+        nodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
+        payload: PayloadT,
+    ) {
+        val node = nodeHandle.unpack()
+
+        node.setPayload(
+            payload = payload,
+        )
     }
 
     override fun setColor(
