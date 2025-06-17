@@ -510,6 +510,16 @@ fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.findLeafGuided(
     )
 }
 
+fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.findLocationGuided(
+    guide: Guide<PayloadT, MetadataT>,
+): BinaryTree.Location<PayloadT, MetadataT> {
+    TODO()
+}
+
+fun <PayloadT : Comparable<PayloadT>, MetadataT> BinaryTree<PayloadT, MetadataT>.findLocationComparable(): BinaryTree.Location<PayloadT, MetadataT> {
+    TODO()
+}
+
 fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.findLeafGuided(
     nodeHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
     guide: Guide<PayloadT, MetadataT>,

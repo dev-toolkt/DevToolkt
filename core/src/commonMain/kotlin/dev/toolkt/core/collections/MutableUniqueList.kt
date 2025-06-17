@@ -72,6 +72,7 @@ class MutableUniqueList<E>() : AbstractMutableList<E>() {
         }
     }
 
+    // FIXME: Don't add if it's already present.
     /**
      * Inserts an element into the list at the specified [index].
      * Guarantees logarithmic time complexity.
