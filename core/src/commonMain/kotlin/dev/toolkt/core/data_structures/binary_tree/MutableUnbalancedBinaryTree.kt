@@ -6,6 +6,14 @@ interface MutableUnbalancedBinaryTree<PayloadT, ColorT> : BinaryTree<PayloadT, C
     }
 
     /**
+     * Set the payload of the node corresponding to the given [nodeHandle].
+     */
+    fun setPayload(
+        nodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
+        payload: PayloadT,
+    )
+
+    /**
      * Set the color of the node corresponding to the given [nodeHandle] to [newColor]
      */
     fun setColor(

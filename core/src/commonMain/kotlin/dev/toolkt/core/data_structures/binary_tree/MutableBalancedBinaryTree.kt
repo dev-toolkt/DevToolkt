@@ -2,6 +2,14 @@ package dev.toolkt.core.data_structures.binary_tree
 
 interface MutableBalancedBinaryTree<PayloadT, ColorT> : BinaryTree<PayloadT, ColorT> {
     /**
+     * Set the payload of the node corresponding to the given [nodeHandle].
+     */
+    fun setPayload(
+        nodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
+        payload: PayloadT,
+    )
+
+    /**
      * Insert a new node with the given [payload] at the given free [location].
      *
      * May result in the tree re-balancing.

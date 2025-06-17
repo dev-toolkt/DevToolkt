@@ -395,6 +395,17 @@ fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getSingleChild(
 )
 
 fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getSideMostFreeLocation(
+    side: BinaryTree.Side,
+): BinaryTree.Location<PayloadT, MetadataT> {
+    val root = this.root ?: return BinaryTree.RootLocation
+
+    return getSideMostFreeLocation(
+        nodeHandle = root,
+        side = side,
+    )
+}
+
+fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getSideMostFreeLocation(
     nodeHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
     side: BinaryTree.Side,
 ): BinaryTree.RelativeLocation<PayloadT, MetadataT> {
