@@ -104,7 +104,6 @@ class MutableTotalOrderTests {
             element = Fruit.Mango,
         )
 
-
         mutableTotalOrder.verifyContent(
             handleBanana to Fruit.Banana,
             handleStrawberry to Fruit.Strawberry,
@@ -160,6 +159,40 @@ class MutableTotalOrderTests {
             handlePineapple to Fruit.Pineapple,
             handleStrawberry to Fruit.Strawberry,
             handleWatermelon to Fruit.Watermelon,
+        )
+    }
+
+    @Test
+    fun testAddRelative_duplicate() {
+        val (mutableTotalOrder, handles) = MutableTotalOrder.of(
+            Fruit.Banana,
+            Fruit.Orange,
+            Fruit.Kiwi,
+            Fruit.Strawberry,
+            Fruit.Watermelon,
+        )
+
+        val (
+            handleBanana,
+            handleOrange,
+            handleKiwi1,
+            handleStrawberry,
+            handleWatermelon,
+        ) = handles
+
+        val handleKiwi2 = mutableTotalOrder.addRelative(
+            handle = handleWatermelon,
+            relation = OrderRelation.Smaller,
+            element = Fruit.Kiwi,
+        )
+
+        mutableTotalOrder.verifyContent(
+            handleBanana to Fruit.Banana,
+            handleKiwi1 to Fruit.Kiwi,
+            handleOrange to Fruit.Orange,
+            handleStrawberry to Fruit.Strawberry,
+            handleWatermelon to Fruit.Watermelon,
+            handleKiwi2 to Fruit.Kiwi,
         )
     }
 
