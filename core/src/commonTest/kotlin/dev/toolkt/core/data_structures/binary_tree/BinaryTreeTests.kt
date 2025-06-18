@@ -164,7 +164,7 @@ class BinaryTreeTests {
 
         assertEquals(
             expected = successorHandle,
-            actual = tree.getInOrderSuccessor(nodeHandle = nodeHandle),
+            actual = tree.getInOrderDescendantSuccessor(nodeHandle = nodeHandle),
         )
     }
 }

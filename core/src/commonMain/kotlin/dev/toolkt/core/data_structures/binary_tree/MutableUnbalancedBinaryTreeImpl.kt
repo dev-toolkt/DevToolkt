@@ -3,7 +3,6 @@ package dev.toolkt.core.data_structures.binary_tree
 import dev.toolkt.core.data_structures.binary_tree.BinaryTree.Side
 import dev.toolkt.core.data_structures.binary_tree.MutableUnbalancedBinaryTreeImpl.HandleImpl
 import dev.toolkt.core.data_structures.binary_tree.MutableUnbalancedBinaryTreeImpl.ProperNode
-import kotlin.jvm.JvmInline
 
 class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
     internal val origin: OriginNode<PayloadT, ColorT> = OriginNode(),
@@ -48,9 +47,18 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
         private var mutableColor: ColorT,
         private var mutablePayload: PayloadT,
     ) : ParentNode<PayloadT, ColorT> {
+        enum class Validity {
+            Valid, Invalid,
+        }
+
         data class IntegrityVerificationResult(
             val computedSubtreeSize: Int,
         )
+
+        private var validity = Validity.Valid
+
+        val isValid: Boolean
+            get() = validity == Validity.Valid
 
         companion object {
             fun <PayloadT, ColorT> link(
@@ -130,6 +138,8 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
             child: ProperNode<PayloadT, ColorT>?,
             side: Side,
         ) {
+            requireValid()
+
             when (side) {
                 Side.Left -> mutableLeftChild = child
                 Side.Right -> mutableRightChild = child
@@ -139,6 +149,8 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
         fun setParent(
             parent: ParentNode<PayloadT, ColorT>,
         ) {
+            requireValid()
+
             if (parent == this) {
                 throw IllegalArgumentException("Cannot set a node as its own parent")
             }
@@ -149,6 +161,8 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
         fun setSubtreeSize(
             size: Int,
         ) {
+            requireValid()
+
             require(size >= 0)
 
             mutableSubtreeSize = size
@@ -157,18 +171,24 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
         fun setPayload(
             payload: PayloadT,
         ) {
+            requireValid()
+
             mutablePayload = payload
         }
 
         fun setColor(
             color: ColorT,
         ) {
+            requireValid()
+
             mutableColor = color
         }
 
         fun verifyIntegrity(
             expectedParent: ParentNode<PayloadT, ColorT>,
         ): IntegrityVerificationResult {
+            requireValid()
+
             if (parent != expectedParent) {
                 throw AssertionError("Inconsistent parent, expected: $expectedParent, actual: ${this.parent}")
             }
@@ -199,11 +219,27 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
              */
             delta: Int,
         ) {
+            requireValid()
+
             setSubtreeSize(subtreeSize + delta)
 
             properParent?.updateSubtreeSizeRecursively(
                 delta = delta,
             )
+        }
+
+        private fun requireValid() {
+            if (validity == Validity.Invalid) {
+                throw IllegalStateException("The node is already invalidated")
+            }
+        }
+
+        fun invalidate() {
+            if (validity == Validity.Invalid) {
+                throw IllegalStateException("The node is already invalidated")
+            }
+
+            validity = Validity.Invalid
         }
     }
 
@@ -270,10 +306,37 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
         }
     }
 
-    @JvmInline
-    internal value class HandleImpl<PayloadT, ColorT>(
-        val properNode: ProperNode<PayloadT, ColorT>,
-    ) : BinaryTree.NodeHandle<PayloadT, ColorT>
+    internal class HandleImpl<PayloadT, ColorT>(
+        private val properNode: ProperNode<PayloadT, ColorT>,
+    ) : BinaryTree.NodeHandle<PayloadT, ColorT> {
+        init {
+            require(properNode.isValid) {
+                "The node is already invalidated"
+            }
+        }
+
+        fun resolve(): ProperNode<PayloadT, ColorT> {
+            if (!properNode.isValid) {
+                throw IllegalStateException("The node has been invalidated")
+            }
+
+            return properNode
+        }
+
+        override fun equals(other: Any?): Boolean {
+            val otherHandle = other as? HandleImpl<PayloadT, ColorT> ?: return false
+            return properNode == otherHandle.properNode
+        }
+
+        override fun toString(): String = "HandleImpl#${properNode}"
+
+        override fun hashCode(): Int {
+            throw UnsupportedOperationException()
+        }
+
+        override val isValid: Boolean
+            get() = properNode.isValid
+    }
 
     /**
      * Put a new node with the given [payload] and [color] at the given free
@@ -353,6 +416,8 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
             delta = -1,
         )
 
+        node.invalidate()
+
         return parentLink.childLocation
     }
 
@@ -384,6 +449,8 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
         parentLink.parent.asProper?.updateSubtreeSizeRecursively(
             delta = -1,
         )
+
+        node.invalidate()
 
         return singleChild.pack()
     }
@@ -544,7 +611,6 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
         pivotNodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
         direction: BinaryTree.RotationDirection,
     ): BinaryTree.NodeHandle<PayloadT, ColorT> {
-
         val pivotNode = pivotNodeHandle.unpack()
 
         val parentLink = pivotNode.parentLink
@@ -672,7 +738,9 @@ private fun <PayloadT, ColorT> BinaryTree.NodeHandle<PayloadT, ColorT>.unpack():
     @Suppress("UNCHECKED_CAST") val handleImpl =
         this as? HandleImpl<PayloadT, ColorT> ?: throw IllegalArgumentException("Unrelated handle type")
 
-    return handleImpl.properNode
+    val properNode = handleImpl.resolve()
+
+    return properNode
 }
 
 private fun <PayloadT, ColorT> ProperNode<PayloadT, ColorT>.pack(): BinaryTree.NodeHandle<PayloadT, ColorT> =
