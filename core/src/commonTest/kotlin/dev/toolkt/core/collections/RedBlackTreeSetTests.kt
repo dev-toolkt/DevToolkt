@@ -13,7 +13,7 @@ class RedBlackTreeSetTests {
 
         set.verifyContent(
             elements = emptyList(),
-            controlElements = listOf(10, 20, 30),
+            controlElements = setOf(10, 20, 30),
         )
     }
 
@@ -27,7 +27,7 @@ class RedBlackTreeSetTests {
 
         set.verifyContent(
             elements = listOf(10),
-            controlElements = listOf(20, 30),
+            controlElements = setOf(20, 30),
         )
     }
 
@@ -49,7 +49,7 @@ class RedBlackTreeSetTests {
 
         set.verifyContent(
             elements = listOf(10, 15, 20, 30),
-            controlElements = listOf(-10, 40, 50),
+            controlElements = setOf(-10, 40, 50),
         )
     }
 
@@ -71,7 +71,7 @@ class RedBlackTreeSetTests {
 
         set.verifyContent(
             elements = listOf(10, 30),
-            controlElements = listOf(20, 40, 50),
+            controlElements = setOf(20, 40, 50),
         )
 
         assertTrue(
@@ -80,7 +80,7 @@ class RedBlackTreeSetTests {
 
         set.verifyContent(
             elements = listOf(30),
-            controlElements = listOf(10, 20, 40, 50),
+            controlElements = setOf(10, 20, 40, 50),
         )
 
         assertTrue(
@@ -89,7 +89,7 @@ class RedBlackTreeSetTests {
 
         set.verifyContent(
             elements = emptyList(),
-            controlElements = listOf(10, 20, 30, 40, 50),
+            controlElements = setOf(10, 20, 30, 40, 50),
         )
     }
 
@@ -111,7 +111,7 @@ class RedBlackTreeSetTests {
 
         set.verifyContent(
             elements = listOf(10, 20, 30),
-            controlElements = listOf(40, 50),
+            controlElements = setOf(40, 50),
         )
     }
 }

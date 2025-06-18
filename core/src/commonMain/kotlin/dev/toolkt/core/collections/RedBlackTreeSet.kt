@@ -1,7 +1,7 @@
 package dev.toolkt.core.collections
 
 import dev.toolkt.core.data_structures.binary_tree.RedBlackTree
-import dev.toolkt.core.data_structures.binary_tree.findLocationComparable
+import dev.toolkt.core.data_structures.binary_tree.find
 
 class RedBlackTreeSet<E : Comparable<E>>() : AbstractMutableSet<E>() {
     private val tree = RedBlackTree<E>()
@@ -14,7 +14,7 @@ class RedBlackTreeSet<E : Comparable<E>>() : AbstractMutableSet<E>() {
     }
 
     override fun add(element: E): Boolean {
-        val location = tree.findLocationComparable()
+        val location = tree.find(element)
 
         when {
             tree.resolve(location = location) == null -> {
@@ -33,7 +33,7 @@ class RedBlackTreeSet<E : Comparable<E>>() : AbstractMutableSet<E>() {
     }
 
     override fun contains(element: E): Boolean {
-        val location = tree.findLocationComparable()
+        val location = tree.find(element)
         return tree.resolve(location = location) != null
     }
 }

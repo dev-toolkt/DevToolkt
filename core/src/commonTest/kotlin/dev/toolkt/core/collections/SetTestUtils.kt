@@ -4,8 +4,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 fun <E> Set<E>.verifyContent(
-    elements: Collection<E>,
-    controlElements: Collection<E>,
+    elements: List<E>,
+    controlElements: Set<E>,
 ) {
     assertEquals(
         expected = elements.size,
@@ -13,17 +13,17 @@ fun <E> Set<E>.verifyContent(
         message = "Actual size does not match expected size: expected ${elements.size}, got $size",
     )
 
-    val expectedListElements = elements.sortedBy { it.hashCode() }
-    val listElements = toList().sortedBy { it.hashCode() }
+    // Actual list elements in the iteration order
+    val actualElements = toList()
 
     assertEquals(
-        expected = expectedListElements,
-        actual = listElements,
-        message = "Actual elements do not match expected elements: expected $expectedListElements, got $listElements",
+        expected = elements,
+        actual = actualElements,
+        message = "Actual elements do not match expected elements: expected $elements, got $actualElements",
     )
 
     assertTrue(
-        actual = controlElements.none { listElements.contains(it) },
+        actual = controlElements.none { actualElements.contains(it) },
     )
 
     assertTrue(

@@ -67,7 +67,9 @@ interface BinaryTree<out PayloadT, out ColorT> {
      * removed through this handle. If two handles correspond to the same node,
      * they compare equal.
      */
-    interface NodeHandle<out PayloadT, out MetadataT>
+    interface NodeHandle<out PayloadT, out MetadataT> {
+        val isValid: Boolean
+    }
 
     sealed interface Location<out PayloadT, out MetadataT> {
         val parentHandle: NodeHandle<PayloadT, MetadataT>?
@@ -470,7 +472,7 @@ fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getNextInOrderFreeLoca
  * no child on the specified [side]. This neighbour node will have no children
  * on the side opposite to [side].
  */
-fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getInOrderNeighbour(
+fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getInOrderDescendantNeighbour(
     nodeHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
     side: BinaryTree.Side,
 ): BinaryTree.NodeHandle<PayloadT, MetadataT>? {
@@ -482,19 +484,19 @@ fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getInOrderNeighbour(
     return getSideMostDescendant(
         nodeHandle = sideChild,
         side = side.opposite,
-    ) ?: sideChild
+    )
 }
 
-fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getInOrderPredecessor(
+fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getInOrderDescendantPredecessor(
     nodeHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
-): BinaryTree.NodeHandle<PayloadT, MetadataT>? = getInOrderNeighbour(
+): BinaryTree.NodeHandle<PayloadT, MetadataT>? = getInOrderDescendantNeighbour(
     nodeHandle = nodeHandle,
     side = BinaryTree.Side.Left,
 )
 
-fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getInOrderSuccessor(
+fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getInOrderDescendantSuccessor(
     nodeHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
-): BinaryTree.NodeHandle<PayloadT, MetadataT>? = getInOrderNeighbour(
+): BinaryTree.NodeHandle<PayloadT, MetadataT>? = getInOrderDescendantNeighbour(
     nodeHandle = nodeHandle,
     side = BinaryTree.Side.Right,
 )
@@ -516,8 +518,51 @@ fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.findLocationGuided(
     TODO()
 }
 
-fun <PayloadT : Comparable<PayloadT>, MetadataT> BinaryTree<PayloadT, MetadataT>.findLocationComparable(): BinaryTree.Location<PayloadT, MetadataT> {
-    TODO()
+fun <PayloadT : Comparable<PayloadT>, MetadataT> BinaryTree<PayloadT, MetadataT>.find(
+    payload: PayloadT,
+): BinaryTree.Location<PayloadT, MetadataT> = findBy(
+    payload = payload,
+    comparator = naturalOrder(),
+)
+
+fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.findBy(
+    payload: PayloadT,
+    comparator: Comparator<PayloadT>,
+): BinaryTree.Location<PayloadT, MetadataT> = findBy(
+    startingLocation = BinaryTree.RootLocation,
+    payload = payload,
+    comparator = comparator,
+)
+
+private tailrec fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.findBy(
+    startingLocation: BinaryTree.Location<PayloadT, MetadataT>,
+    payload: PayloadT,
+    comparator: Comparator<PayloadT>,
+): BinaryTree.Location<PayloadT, MetadataT> {
+    // If the location is free, this is an appropriate location for [payload] (the tree doesn't seem to contain it)
+    val nodeHandle = resolve(location = startingLocation) ?: return startingLocation
+
+    val nodePayload = getPayload(nodeHandle = nodeHandle)
+    val result = comparator.compare(payload, nodePayload)
+
+    return when {
+        // Recurse left
+        result < 0 -> findBy(
+            startingLocation = nodeHandle.getLeftChildLocation(),
+            payload = payload,
+            comparator = comparator,
+        )
+
+        // Recurse right
+        result > 0 -> findBy(
+            startingLocation = nodeHandle.getRightChildLocation(),
+            payload = payload,
+            comparator = comparator,
+        )
+
+        // If the comparator considers payloads equal, we've found the payload in the tree
+        else -> startingLocation
+    }
 }
 
 fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.findLeafGuided(
