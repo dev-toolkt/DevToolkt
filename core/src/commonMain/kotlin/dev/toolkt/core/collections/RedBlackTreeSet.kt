@@ -2,9 +2,7 @@ package dev.toolkt.core.collections
 
 import dev.toolkt.core.data_structures.binary_tree.RedBlackTree
 import dev.toolkt.core.data_structures.binary_tree.findLocationComparable
-import kotlin.jvm.JvmInline
 
-@JvmInline
 class RedBlackTreeSet<E : Comparable<E>>() : AbstractMutableSet<E>() {
     private val tree = RedBlackTree<E>()
 
