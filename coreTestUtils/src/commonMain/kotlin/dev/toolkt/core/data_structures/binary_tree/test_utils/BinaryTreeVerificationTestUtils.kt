@@ -1,8 +1,13 @@
 package dev.toolkt.core.data_structures.binary_tree.test_utils
 
 import dev.toolkt.core.data_structures.binary_tree.BinaryTree
+import dev.toolkt.core.data_structures.binary_tree.getInOrderNeighbour
+import dev.toolkt.core.data_structures.binary_tree.getInOrderPredecessor
+import dev.toolkt.core.data_structures.binary_tree.getInOrderSuccessor
 import dev.toolkt.core.data_structures.binary_tree.getLeftChild
 import dev.toolkt.core.data_structures.binary_tree.getRightChild
+import dev.toolkt.core.data_structures.binary_tree.traverse
+import dev.toolkt.core.iterable.withNeighboursOrNull
 import dev.toolkt.core.pairs.sorted
 
 private data class IntegrityVerificationResult(
@@ -16,10 +21,47 @@ private data class BalanceVerificationResult(
 fun <PayloadT, ColorT> BinaryTree<PayloadT, ColorT>.verifyIntegrity() {
     val rootHandle = this.root ?: return
 
-    verifySubtreeIntegrity(
+    val rootResult = verifySubtreeIntegrity(
         nodeHandle = rootHandle,
         expectedParentHandle = null,
     )
+
+    val naivelyTraversedNodeHandles = traverseNaively().toList()
+
+    val traversedNodeHandles = traverse().toList()
+
+    if (naivelyTraversedNodeHandles != traversedNodeHandles) {
+        throw AssertionError("Inconsistent traversal")
+    }
+
+    if (traversedNodeHandles.size != rootResult.computedSubtreeSize) {
+        throw AssertionError("Inconsistent tree size, computed: ${rootResult.computedSubtreeSize}, traversal: ${traversedNodeHandles.size}")
+    }
+
+    val uniqueNodeHandles = traversedNodeHandles.toSet()
+
+    if (traversedNodeHandles.size != uniqueNodeHandles.size) {
+        throw AssertionError("Traversal contains duplicate nodes")
+    }
+
+    naivelyTraversedNodeHandles.asSequence().withNeighboursOrNull()
+        .forEach { (naivePredecessorHandle, nodeHandle, naiveSuccessorHandle) ->
+            val predecessorHandle = getInOrderPredecessor(
+                nodeHandle = nodeHandle,
+            )
+
+            if (predecessorHandle != naivePredecessorHandle) {
+                throw AssertionError("Inconsistent predecessor for node $nodeHandle, naive: $naivePredecessorHandle, actual: $predecessorHandle")
+            }
+
+            val successorHandle = getInOrderSuccessor(
+                nodeHandle = nodeHandle,
+            )
+
+            if (successorHandle != naiveSuccessorHandle) {
+                throw AssertionError("Inconsistent successor for node $nodeHandle, naive: $naiveSuccessorHandle, actual: $successorHandle")
+            }
+        }
 }
 
 fun <PayloadT : Comparable<PayloadT>, ColorT> BinaryTree<PayloadT, ColorT>.verifyBalance() {
@@ -39,8 +81,6 @@ private fun <PayloadT, ColorT> BinaryTree<PayloadT, ColorT>.verifySubtreeIntegri
     if (actualParentHandle != expectedParentHandle) {
         throw AssertionError("Inconsistent parent")
     }
-
-    val payload = getPayload(nodeHandle = nodeHandle)
 
     val leftChildHandle = getLeftChild(nodeHandle = nodeHandle)
     val rightChildHandle = getRightChild(nodeHandle = nodeHandle)

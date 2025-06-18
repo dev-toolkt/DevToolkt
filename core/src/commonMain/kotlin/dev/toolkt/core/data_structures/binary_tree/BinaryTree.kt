@@ -1,5 +1,6 @@
 package dev.toolkt.core.data_structures.binary_tree
 
+import dev.toolkt.core.iterable.withNeighboursOrNull
 import kotlin.random.Random
 
 interface BinaryTree<out PayloadT, out ColorT> {
@@ -144,10 +145,6 @@ fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.traverse(
     val leftChild = getChild(
         nodeHandle = rootHandle,
         side = BinaryTree.Side.Left,
-    )
-
-    val payload = getPayload(
-        nodeHandle = rootHandle,
     )
 
     val rightChild = getChild(
@@ -466,6 +463,42 @@ fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getNextInOrderFreeLoca
 
 /**
  * Get the in-order neighbour (predecessor / successor) of the node associated with
+ * [nodeHandle] on the specified [side].
+ *
+ * @return A handle to the in-order neighbour node, or null if the given node is the first / last node in the tree's
+ * order.
+ */
+fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getInOrderNeighbour(
+    nodeHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
+    side: BinaryTree.Side,
+): BinaryTree.NodeHandle<PayloadT, MetadataT>? {
+    // FIXME: Performance
+    val withNeighbours = traverse().withNeighboursOrNull().find { it.element == nodeHandle }
+        ?: throw IllegalArgumentException("The tree doesn't contain the given node")
+
+    return when (side) {
+        BinaryTree.Side.Left -> withNeighbours.prevElement
+        BinaryTree.Side.Right -> withNeighbours.nextElement
+    }
+}
+
+fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getInOrderPredecessor(
+    nodeHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
+): BinaryTree.NodeHandle<PayloadT, MetadataT>? = getInOrderNeighbour(
+    nodeHandle = nodeHandle,
+    side = BinaryTree.Side.Left,
+)
+
+fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getInOrderSuccessor(
+    nodeHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
+): BinaryTree.NodeHandle<PayloadT, MetadataT>? = getInOrderNeighbour(
+    nodeHandle = nodeHandle,
+    side = BinaryTree.Side.Right,
+)
+
+
+/**
+ * Get the in-order descendant neighbour (predecessor / successor) of the node associated with
  * [nodeHandle] on the specified [side].
  *
  * @return A handle to the in-order neighbour node, or null if the given node has
