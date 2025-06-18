@@ -9,9 +9,9 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
     internal val origin: OriginNode<PayloadT, ColorT> = OriginNode(),
 ) : MutableUnbalancedBinaryTree<PayloadT, ColorT> {
     internal sealed interface ParentNode<PayloadT, ColorT> {
-        fun buildParentLink(
+        fun buildUpLink(
             child: ProperNode<PayloadT, ColorT>,
-        ): ParentLink<PayloadT, ColorT>
+        ): UpLink<PayloadT, ColorT>
     }
 
     internal class OriginNode<PayloadT, ColorT>(
@@ -26,9 +26,9 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
             mutableRoot = newRoot
         }
 
-        override fun buildParentLink(
+        override fun buildUpLink(
             child: ProperNode<PayloadT, ColorT>,
-        ): ParentLink<PayloadT, ColorT> {
+        ): UpLink<PayloadT, ColorT> {
             if (child != root) {
                 throw IllegalArgumentException("Child node must be the root of the tree")
             }
@@ -82,9 +82,9 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
             }
         }
 
-        override fun buildParentLink(
+        override fun buildUpLink(
             child: ProperNode<PayloadT, ColorT>,
-        ): ParentLink<PayloadT, ColorT> = ProperParentLink(
+        ): UpLink<PayloadT, ColorT> = ParentLink(
             parent = this,
             childSide = getChildSide(child = child),
         )
@@ -92,16 +92,16 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
         val parent: ParentNode<PayloadT, ColorT>
             get() = mutableParent
 
-        val parentLink: ParentLink<PayloadT, ColorT>
-            get() = parent.buildParentLink(
+        val upLink: UpLink<PayloadT, ColorT>
+            get() = parent.buildUpLink(
                 child = this,
             )
 
-        val properParentLink: ProperParentLink<PayloadT, ColorT>?
-            get() = parentLink as? ProperParentLink<PayloadT, ColorT>
+        val parentLink: ParentLink<PayloadT, ColorT>?
+            get() = upLink as? ParentLink<PayloadT, ColorT>
 
         val properParent: ProperNode<PayloadT, ColorT>?
-            get() = properParentLink?.parent
+            get() = parentLink?.parent
 
         val leftChild: ProperNode<PayloadT, ColorT>?
             get() = mutableLeftChild
@@ -244,7 +244,7 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
         }
     }
 
-    internal sealed class ParentLink<PayloadT, ColorT> {
+    internal sealed class UpLink<PayloadT, ColorT> {
         abstract val parent: ParentNode<PayloadT, ColorT>
 
         abstract val childLocation: BinaryTree.Location<PayloadT, ColorT>
@@ -260,7 +260,7 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
 
     internal class OriginLink<PayloadT, ColorT>(
         private val origin: OriginNode<PayloadT, ColorT>,
-    ) : ParentLink<PayloadT, ColorT>() {
+    ) : UpLink<PayloadT, ColorT>() {
         override val parent: ParentNode<PayloadT, ColorT>
             get() = origin
 
@@ -280,10 +280,10 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
         }
     }
 
-    internal class ProperParentLink<PayloadT, ColorT>(
+    internal class ParentLink<PayloadT, ColorT>(
         override val parent: ProperNode<PayloadT, ColorT>,
         val childSide: Side,
-    ) : ParentLink<PayloadT, ColorT>() {
+    ) : UpLink<PayloadT, ColorT>() {
         val siblingSide: Side
             get() = childSide.opposite
 
@@ -397,7 +397,7 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
             throw IllegalArgumentException("The given node is not a leaf")
         }
 
-        val parentLink = node.parentLink
+        val parentLink = node.upLink
 
         val properParent = parentLink.parent.asProper
 
@@ -433,7 +433,7 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
 
         val singleChild = node.leftChild ?: node.rightChild ?: throw IllegalArgumentException("Cannot collapse a leaf")
 
-        val parentLink = node.parentLink
+        val parentLink = node.upLink
 
         parentLink.linkChild(singleChild)
 
@@ -492,7 +492,7 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
     ) {
         val parentSubtreeSize = parent.subtreeSize
         val parentColor = parent.color
-        val grandparentLink = parent.parentLink
+        val grandparentLink = parent.upLink
 
         val nodeSubtreeSize = node.subtreeSize
         val nodeColor = node.color
@@ -544,13 +544,13 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
         firstNode: ProperNode<PayloadT, ColorT>,
         secondNode: ProperNode<PayloadT, ColorT>,
     ) {
-        val firstParentLink = firstNode.parentLink
+        val firstParentLink = firstNode.upLink
         val firstLeftChild = firstNode.leftChild
         val firstRightChild = firstNode.rightChild
         val firstSubtreeSize = firstNode.subtreeSize
         val firstColor = firstNode.color
 
-        val secondParentLink = secondNode.parentLink
+        val secondParentLink = secondNode.upLink
         val secondLeftChild = secondNode.leftChild
         val secondRightChild = secondNode.rightChild
         val secondSubtreeSize = secondNode.subtreeSize
@@ -604,7 +604,7 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
     ): BinaryTree.NodeHandle<PayloadT, ColorT> {
         val pivotNode = pivotNodeHandle.unpack()
 
-        val parentLink = pivotNode.parentLink
+        val parentLink = pivotNode.upLink
 
         val ascendingChild = pivotNode.getChild(side = direction.startSide)
             ?: throw IllegalStateException("The pivot node has no child on the ${direction.startSide} side")
