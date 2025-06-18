@@ -45,7 +45,7 @@ abstract class AbstractBalancedBinaryTree<PayloadT, ColorT>(
 
             val successorHandle = internalTree.getInOrderDescendantSuccessor(
                 nodeHandle = nodeHandle,
-            ) ?: throw AssertionError("A node with two children must have a successor")
+            ) ?: throw AssertionError("A node with two children must have a descendant successor")
 
             internalTree.swap(
                 nodeHandle,

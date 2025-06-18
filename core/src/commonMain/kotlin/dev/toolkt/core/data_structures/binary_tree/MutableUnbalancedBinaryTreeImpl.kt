@@ -3,6 +3,7 @@ package dev.toolkt.core.data_structures.binary_tree
 import dev.toolkt.core.data_structures.binary_tree.BinaryTree.Side
 import dev.toolkt.core.data_structures.binary_tree.MutableUnbalancedBinaryTreeImpl.HandleImpl
 import dev.toolkt.core.data_structures.binary_tree.MutableUnbalancedBinaryTreeImpl.ProperNode
+import kotlin.jvm.JvmInline
 
 class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
     internal val origin: OriginNode<PayloadT, ColorT> = OriginNode(),
@@ -306,7 +307,8 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
         }
     }
 
-    internal class HandleImpl<PayloadT, ColorT>(
+    @JvmInline
+    internal value class HandleImpl<PayloadT, ColorT>(
         private val properNode: ProperNode<PayloadT, ColorT>,
     ) : BinaryTree.NodeHandle<PayloadT, ColorT> {
         init {
@@ -321,17 +323,6 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
             }
 
             return properNode
-        }
-
-        override fun equals(other: Any?): Boolean {
-            val otherHandle = other as? HandleImpl<PayloadT, ColorT> ?: return false
-            return properNode == otherHandle.properNode
-        }
-
-        override fun toString(): String = "HandleImpl#${properNode}"
-
-        override fun hashCode(): Int {
-            throw UnsupportedOperationException()
         }
 
         override val isValid: Boolean
