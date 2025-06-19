@@ -125,6 +125,14 @@ interface BinaryTree<out PayloadT, out ColorT> {
     ): ColorT
 
     /**
+     * Get the handle to the in-order neighbour from the given [side] of the node associated with the given [nodeHandle]
+     */
+    fun getInOrderNeighbour(
+        nodeHandle: NodeHandle<@UnsafeVariance PayloadT, @UnsafeVariance ColorT>,
+        side: Side,
+    ): NodeHandle<PayloadT, ColorT>?
+
+    /**
      * Get the handle to the parent of the node associated with the given [nodeHandle].
      */
     fun getParent(
@@ -459,27 +467,6 @@ fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getNextInOrderFreeLoca
         nodeHandle = sideChildHandle,
         side = side.opposite,
     )
-}
-
-/**
- * Get the in-order neighbour (predecessor / successor) of the node associated with
- * [nodeHandle] on the specified [side].
- *
- * @return A handle to the in-order neighbour node, or null if the given node is the first / last node in the tree's
- * order.
- */
-fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getInOrderNeighbour(
-    nodeHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
-    side: BinaryTree.Side,
-): BinaryTree.NodeHandle<PayloadT, MetadataT>? {
-    // FIXME: Performance
-    val withNeighbours = traverse().withNeighboursOrNull().find { it.element == nodeHandle }
-        ?: throw IllegalArgumentException("The tree doesn't contain the given node")
-
-    return when (side) {
-        BinaryTree.Side.Left -> withNeighbours.prevElement
-        BinaryTree.Side.Right -> withNeighbours.nextElement
-    }
 }
 
 fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getInOrderPredecessor(

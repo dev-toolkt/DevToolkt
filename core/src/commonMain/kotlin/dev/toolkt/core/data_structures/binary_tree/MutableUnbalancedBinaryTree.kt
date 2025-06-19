@@ -55,8 +55,8 @@ interface MutableUnbalancedBinaryTree<PayloadT, ColorT> : BinaryTree<PayloadT, C
     ): BinaryTree.NodeHandle<PayloadT, ColorT>
 
     /**
-     * Swap two node corresponding to the [firstNodeHandle] with the node
-     * corresponding to the [secondNodeHandle].
+     * Swap two node corresponding to the [nodeHandle] with its in-order neighbour
+     * descendant on the given [side].
      *
      * Doesn't affect the colors, meaning that the first node will have the second
      * node's original color after the swap and the second node will have the first
@@ -64,10 +64,13 @@ interface MutableUnbalancedBinaryTree<PayloadT, ColorT> : BinaryTree<PayloadT, C
      *
      * Handles aren't affected, meaning that the first node will still be reachable
      * by the first handle and the second node will still be reachable by the second handle.
+     *
+     * @throws IllegalStateException if the node doesn't have an in-order descendant
+     * neighbour on the given [side] (it doesn't even have a child on that side)
      */
     fun swap(
-        firstNodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
-        secondNodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
+        nodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
+        side: BinaryTree.Side,
     )
 
     /**
