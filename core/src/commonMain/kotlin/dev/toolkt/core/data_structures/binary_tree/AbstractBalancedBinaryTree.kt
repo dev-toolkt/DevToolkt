@@ -43,13 +43,9 @@ abstract class AbstractBalancedBinaryTree<PayloadT, ColorT>(
             // If the node has two children, we can't directly remove it, but we can swap it with its
             // successor
 
-            val successorHandle = internalTree.getInOrderDescendantSuccessor(
-                nodeHandle = nodeHandle,
-            ) ?: throw AssertionError("A node with two children must have a descendant successor")
-
             internalTree.swap(
-                nodeHandle,
-                successorHandle,
+                nodeHandle = nodeHandle,
+                side = BinaryTree.Side.Right,
             )
 
             // After the swap, the node has at most one child (as the successor

@@ -20,12 +20,12 @@ fun <PayloadT : Comparable<PayloadT>, ColorT> MutableUnbalancedBinaryTree<Payloa
 }
 
 fun <PayloadT : Comparable<PayloadT>, ColorT> MutableUnbalancedBinaryTree<PayloadT, ColorT>.swapVerified(
-    firstNodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
-    secondNodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
+    nodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
+    side: BinaryTree.Side,
 ) {
     this.swap(
-        firstNodeHandle = firstNodeHandle,
-        secondNodeHandle = secondNodeHandle,
+        nodeHandle = nodeHandle,
+        side = side,
     )
 
     verifyIntegrity()
@@ -55,4 +55,16 @@ fun <PayloadT : Comparable<PayloadT>, ColorT> MutableUnbalancedBinaryTree<Payloa
     verifyIntegrity()
 
     return newSubtreeRootHandle
+}
+
+fun <PayloadT : Comparable<PayloadT>, ColorT> MutableUnbalancedBinaryTree<PayloadT, ColorT>.collapseVerified(
+    nodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
+): BinaryTree.NodeHandle<PayloadT, ColorT> {
+    val elevatedChildHandle = this.collapse(
+        nodeHandle = nodeHandle,
+    )
+
+    verifyIntegrity()
+
+    return elevatedChildHandle
 }
