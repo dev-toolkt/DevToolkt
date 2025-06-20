@@ -4,7 +4,9 @@ import dev.toolkt.core.data_structures.binary_tree.BinaryTree
 import dev.toolkt.core.data_structures.binary_tree.getInOrderPredecessor
 import dev.toolkt.core.data_structures.binary_tree.getInOrderSuccessor
 import dev.toolkt.core.data_structures.binary_tree.getLeftChild
+import dev.toolkt.core.data_structures.binary_tree.getRank
 import dev.toolkt.core.data_structures.binary_tree.getRightChild
+import dev.toolkt.core.data_structures.binary_tree.select
 import dev.toolkt.core.data_structures.binary_tree.traverse
 import dev.toolkt.core.iterable.withNeighboursOrNull
 import dev.toolkt.core.pairs.sorted
@@ -44,7 +46,7 @@ fun <PayloadT, ColorT> BinaryTree<PayloadT, ColorT>.verifyIntegrity() {
     }
 
     naivelyTraversedNodeHandles.asSequence().withNeighboursOrNull()
-        .forEach { (naivePredecessorHandle, nodeHandle, naiveSuccessorHandle) ->
+        .forEachIndexed { index, (naivePredecessorHandle, nodeHandle, naiveSuccessorHandle) ->
             val predecessorHandle = getInOrderPredecessor(
                 nodeHandle = nodeHandle,
             )
@@ -59,6 +61,18 @@ fun <PayloadT, ColorT> BinaryTree<PayloadT, ColorT>.verifyIntegrity() {
 
             if (successorHandle != naiveSuccessorHandle) {
                 throw AssertionError("Inconsistent successor for node $nodeHandle, naive: $naiveSuccessorHandle, actual: $successorHandle")
+            }
+
+            val selectedNodeHandle = select(index = index)
+
+            if (selectedNodeHandle != nodeHandle) {
+                throw AssertionError("Inconsistent selection for index $index, naive: $nodeHandle, actual: $selectedNodeHandle")
+            }
+
+            val rank = getRank(nodeHandle = nodeHandle)
+
+            if (rank != index) {
+                throw AssertionError("Inconsistent rank for node $nodeHandle, expected: $index, actual: $rank")
             }
         }
 }

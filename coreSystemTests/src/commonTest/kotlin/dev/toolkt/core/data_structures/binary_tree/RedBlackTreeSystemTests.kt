@@ -5,7 +5,7 @@ import kotlin.random.Random
 import kotlin.test.Test
 
 class RedBlackTreeSystemTests {
-    private val operationCount = 20_000
+    private val operationCount = 10_000
 
     @Test
     fun testFuzzy() {
