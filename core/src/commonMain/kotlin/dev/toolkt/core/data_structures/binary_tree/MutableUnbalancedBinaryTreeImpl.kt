@@ -193,33 +193,11 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
                     side = side,
                 )
 
-                when (downLink) {
-                    is ChildLink<PayloadT, ColorT> -> {
-                        downLink.child.setParent(
-                            parent = parent,
-                        )
-                    }
-
-                    else -> {}
+                if (downLink is ChildLink<PayloadT, ColorT>) {
+                    downLink.child.setParent(
+                        parent = parent,
+                    )
                 }
-            }
-
-            // TODO: Nuke?
-            fun <PayloadT, ColorT> link(
-                parent: ProperNode<PayloadT, ColorT>,
-                side: Side,
-                downLink: DownLink<PayloadT, ColorT>?,
-            ) {
-                parent.setDownLink(
-                    downLink = downLink,
-                    side = side,
-                )
-
-                val childLink = downLink as? ChildLink<PayloadT, ColorT> ?: return
-
-                childLink.child.setParent(
-                    parent = parent,
-                )
             }
         }
 
@@ -758,8 +736,6 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
     ) {
         val topNode = nodeHandle.unpack()
         val topUpLink = topNode.upLink
-        val topNodeColor = topNode.color
-        val topNodeSubtreeSize = topNode.subtreeSize
 
         val neighbourRelation = topNode.getInOrderNeighbourRelation(
             side = side,
@@ -767,213 +743,124 @@ class MutableUnbalancedBinaryTreeImpl<PayloadT, ColorT> internal constructor(
             ?: throw AssertionError("The node doesn't have an in-order descendant neighbour on the $side side")
 
         val neighbour = neighbourRelation.neighbour
-        val neighbourColor = neighbour.color
-        val neighbourSubtreeSize = neighbour.subtreeSize
 
-        val bottomNeighbourRelation = neighbour.getInOrderNeighbourRelation(
-            side = side,
-        )
+        // Prepare the relinking transactionally
 
-        val bottomDownLink = bottomNeighbourRelation?.directDownLink
-
-        val oppositeNeighbourRelation = topNode.getInOrderNeighbourRelation(
+        val relinkNeighbour = prepareSwapNodeRelink(
+            sourceNode = neighbour,
+            targetNode = topNode,
             side = side.opposite,
         )
 
-        val directOppositeDownLink = oppositeNeighbourRelation?.directDownLink
+        val relinkInterconnection = prepareSwapInterconnectionRelink(
+            topNode = topNode,
+            neighbourRelation = neighbourRelation,
+            side = side,
+        )
 
-        when (neighbourRelation) {
-            is InOrderNeighbourRelation.Close<PayloadT, ColorT> -> {
-                ProperNode.linkChild(
-                    parent = neighbour,
-                    side = side,
-                    child = topNode,
-                )
-            }
+        val relinkTopNode = prepareSwapNodeRelink(
+            sourceNode = topNode,
+            targetNode = neighbour,
+            side = side,
+        )
 
-            is InOrderNeighbourRelation.Distant<PayloadT, ColorT> -> {
-                val intermediateChild = neighbourRelation.intermediateChild
-                val distantNeighbourParent = neighbourRelation.distantNeighbour.properParent
-                    ?: throw AssertionError("The in-order neighbour should have a proper parent")
+        // Start the actual relinking
 
-                ProperNode.linkChild(
-                    parent = neighbour,
-                    side = side,
-                    child = intermediateChild,
-                )
-
-                ProperNode.linkChild(
-                    parent = distantNeighbourParent,
-                    side = side.opposite,
-                    child = topNode,
-                )
-            }
-        }
-
+        // Relink the top up-link
         topUpLink.relink(
             newChild = neighbour,
         )
 
-        ProperNode.linkDown(
-            parent = neighbour,
-            side = side.opposite,
-            downLink = directOppositeDownLink,
-        )
+        // Relink the top node's subtree from the opposite side
+        relinkNeighbour()
 
-        oppositeNeighbourRelation?.asDescendant?.descendantNeighbour?.let { oppositeDescendantNeighbour ->
-            ProperNode.linkUp(
-                descendant = oppositeDescendantNeighbour,
-                side = side,
-                ascendant = neighbour,
-            )
-        }
+        // Relink the connection on the path between the top node and the neighbour
+        relinkInterconnection()
 
-        neighbour.setColor(topNodeColor)
-        neighbour.setSubtreeSize(topNodeSubtreeSize)
-
+        // Invert the neighbour down-link between the top node and the neighbour
         ProperNode.linkUp(
             descendant = topNode,
             side = side.opposite,
             ascendant = neighbour,
         )
 
-        ProperNode.linkDown(
-            parent = topNode,
+        // Relink the neighbour's subtree from the primary side
+        relinkTopNode()
+    }
+
+    /**
+     * Prepare the symmetric part of the swap operation
+     *
+     * @return a function that performs the relinking
+     */
+    private fun prepareSwapNodeRelink(
+        sourceNode: ProperNode<PayloadT, ColorT>,
+        targetNode: ProperNode<PayloadT, ColorT>,
+        side: Side,
+    ): () -> Unit {
+        val targetNeighbourRelation = targetNode.getInOrderNeighbourRelation(
             side = side,
-            downLink = bottomDownLink,
         )
 
-        bottomNeighbourRelation?.asDescendant?.descendantNeighbour?.let { bottomDescendantNeighbour ->
-            ProperNode.linkUp(
-                descendant = bottomDescendantNeighbour,
-                side = side.opposite,
-                ascendant = topNode,
+        val sourceNodeColor = targetNode.color
+        val sourceNodeSubtreeSize = targetNode.subtreeSize
+
+        return {
+            ProperNode.linkDown(
+                parent = sourceNode,
+                side = side,
+                downLink = targetNeighbourRelation?.directDownLink,
             )
-        }
 
-        topNode.setColor(neighbourColor)
-        topNode.setSubtreeSize(neighbourSubtreeSize)
-    }
-
-    private fun swapWithParent(
-        parentLink: ParentLink<PayloadT, ColorT>,
-        node: ProperNode<PayloadT, ColorT>,
-    ) {
-        val parent = parentLink.parent
-        val childSide = parentLink.childSide
-
-        val parentSubtreeSize = parent.subtreeSize
-        val parentColor = parent.color
-        val grandparentLink = parent.upLink
-
-        val nodeSubtreeSize = node.subtreeSize
-        val nodeColor = node.color
-
-        val side = parent.getChildSide(child = node)
-        val siblingSide = side.opposite
-
-        val siblingDownLink = parent.getDownLink(side = siblingSide)
-
-        val closeChild = node.getChild(side = childSide)
-        val distantChildDownLink = node.getDownLink(side = childSide.opposite)
-
-        grandparentLink.relink(
-            newChild = node,
-        )
-
-        ProperNode.linkChild(
-            parent = node,
-            child = parent,
-            side = side,
-        )
-
-        ProperNode.link(
-            parent = node,
-            downLink = siblingDownLink,
-            side = siblingSide,
-        )
-
-        node.setSubtreeSize(parentSubtreeSize)
-        node.setColor(parentColor)
-
-        when (closeChild) {
-            null -> {
-                parent.setDownLink(
-                    downLink = NeighbourLink(
-                        neighbour = node,
-                    ),
+            targetNeighbourRelation?.asDescendant?.descendantNeighbour?.let { oppositeDescendantNeighbour ->
+                ProperNode.linkUp(
+                    descendant = oppositeDescendantNeighbour,
                     side = side.opposite,
+                    ascendant = sourceNode,
                 )
             }
 
-            else -> {
+            sourceNode.setColor(sourceNodeColor)
+            sourceNode.setSubtreeSize(sourceNodeSubtreeSize)
+        }
+    }
+
+    private fun prepareSwapInterconnectionRelink(
+        topNode: ProperNode<PayloadT, ColorT>,
+        neighbourRelation: InOrderNeighbourRelation.Descendant<PayloadT, ColorT>,
+        side: Side,
+    ): () -> Unit {
+        val neighbour = neighbourRelation.neighbour
+
+        return when (neighbourRelation) {
+            is InOrderNeighbourRelation.Close<PayloadT, ColorT> -> ({
                 ProperNode.linkChild(
-                    parent = parent,
-                    side = side.opposite,
-                    child = closeChild,
+                    parent = neighbour,
+                    side = side,
+                    child = topNode,
                 )
+            })
+
+            is InOrderNeighbourRelation.Distant<PayloadT, ColorT> -> {
+                val intermediateChild = neighbourRelation.intermediateChild
+                val distantNeighbourParent = neighbourRelation.distantNeighbour.properParent
+                    ?: throw AssertionError("The in-order neighbour should have a proper parent")
+
+                ({
+                    ProperNode.linkChild(
+                        parent = neighbour,
+                        side = side,
+                        child = intermediateChild,
+                    )
+
+                    ProperNode.linkChild(
+                        parent = distantNeighbourParent,
+                        side = side.opposite,
+                        child = topNode,
+                    )
+                })
             }
         }
-
-        ProperNode.link(
-            parent = parent,
-            downLink = distantChildDownLink,
-            side = Side.Right,
-        )
-
-        parent.setSubtreeSize(nodeSubtreeSize)
-        parent.setColor(nodeColor)
-    }
-
-    private fun swapDisjoint(
-        firstNode: ProperNode<PayloadT, ColorT>,
-        secondNode: ProperNode<PayloadT, ColorT>,
-    ) {
-        val firstParentLink = firstNode.upLink
-        val firstLeftDownLink = firstNode.getDownLink(side = Side.Left)
-        val firstRightDownLink = firstNode.getDownLink(side = Side.Right)
-        val firstSubtreeSize = firstNode.subtreeSize
-        val firstColor = firstNode.color
-
-        val secondParentLink = secondNode.upLink
-        val secondLeftDownLink = secondNode.getDownLink(side = Side.Left)
-        val secondRightDownLink = secondNode.getDownLink(side = Side.Right)
-        val secondSubtreeSize = secondNode.subtreeSize
-        val secondColor = secondNode.color
-
-        firstParentLink.relink(secondNode)
-
-        ProperNode.link(
-            parent = secondNode,
-            downLink = firstLeftDownLink,
-            side = Side.Left,
-        )
-
-        ProperNode.link(
-            parent = secondNode,
-            downLink = firstRightDownLink,
-            side = Side.Right,
-        )
-
-        secondNode.setSubtreeSize(firstSubtreeSize)
-        secondNode.setColor(firstColor)
-
-        secondParentLink.relink(firstNode)
-
-        ProperNode.link(
-            parent = firstNode,
-            downLink = secondLeftDownLink,
-            side = Side.Left,
-        )
-
-        ProperNode.link(
-            parent = firstNode,
-            downLink = secondRightDownLink,
-            side = Side.Right,
-        )
-
-        firstNode.setSubtreeSize(secondSubtreeSize)
-        firstNode.setColor(secondColor)
     }
 
     override fun rotate(
