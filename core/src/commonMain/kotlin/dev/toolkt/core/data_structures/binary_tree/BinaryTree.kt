@@ -1,6 +1,5 @@
 package dev.toolkt.core.data_structures.binary_tree
 
-import dev.toolkt.core.iterable.withNeighboursOrNull
 import kotlin.random.Random
 
 interface BinaryTree<out PayloadT, out ColorT> {
@@ -329,27 +328,6 @@ fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.locateRelatively(
     )
 }
 
-interface Guide<in PayloadT, MetadataT> {
-    sealed interface Instruction
-
-    data class TurnInstruction(
-        /**
-         * The side of the tree to turn to
-         */
-        val side: BinaryTree.Side,
-    ) : Instruction
-
-    /**
-     * An instruction to stop
-     */
-    data object StopInstruction : Instruction
-
-    fun instruct(
-        tree: BinaryTree<PayloadT, MetadataT>,
-        nodeHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
-    ): Instruction
-}
-
 /**
  * @return the set of the given node and its proper ancestors
  */
@@ -520,133 +498,3 @@ fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getInOrderDescendantSu
     nodeHandle = nodeHandle,
     side = BinaryTree.Side.Right,
 )
-
-fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.findLeafGuided(
-    guide: Guide<PayloadT, MetadataT>,
-): BinaryTree.NodeHandle<PayloadT, MetadataT>? {
-    val root = this.root ?: return null
-
-    return findLeafGuided(
-        nodeHandle = root,
-        guide = guide,
-    )
-}
-
-fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.findLocationGuided(
-    guide: Guide<PayloadT, MetadataT>,
-): BinaryTree.Location<PayloadT, MetadataT> {
-    TODO()
-}
-
-fun <PayloadT : Comparable<PayloadT>, MetadataT> BinaryTree<PayloadT, MetadataT>.find(
-    payload: PayloadT,
-): BinaryTree.Location<PayloadT, MetadataT> = findBy(
-    payload = payload,
-    comparator = naturalOrder(),
-)
-
-fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.findBy(
-    payload: PayloadT,
-    comparator: Comparator<PayloadT>,
-): BinaryTree.Location<PayloadT, MetadataT> = findBy(
-    startingLocation = BinaryTree.RootLocation,
-    payload = payload,
-    comparator = comparator,
-)
-
-private tailrec fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.findBy(
-    startingLocation: BinaryTree.Location<PayloadT, MetadataT>,
-    payload: PayloadT,
-    comparator: Comparator<PayloadT>,
-): BinaryTree.Location<PayloadT, MetadataT> {
-    // If the location is free, this is an appropriate location for [payload] (the tree doesn't seem to contain it)
-    val nodeHandle = resolve(location = startingLocation) ?: return startingLocation
-
-    val nodePayload = getPayload(nodeHandle = nodeHandle)
-    val result = comparator.compare(payload, nodePayload)
-
-    return when {
-        // Recurse left
-        result < 0 -> findBy(
-            startingLocation = nodeHandle.getLeftChildLocation(),
-            payload = payload,
-            comparator = comparator,
-        )
-
-        // Recurse right
-        result > 0 -> findBy(
-            startingLocation = nodeHandle.getRightChildLocation(),
-            payload = payload,
-            comparator = comparator,
-        )
-
-        // If the comparator considers payloads equal, we've found the payload in the tree
-        else -> startingLocation
-    }
-}
-
-fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.findLeafGuided(
-    nodeHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
-    guide: Guide<PayloadT, MetadataT>,
-): BinaryTree.NodeHandle<PayloadT, MetadataT>? {
-    val instruction = guide.instruct(
-        tree = this,
-        nodeHandle = nodeHandle,
-    )
-
-    when (instruction) {
-        Guide.StopInstruction -> return nodeHandle
-
-        is Guide.TurnInstruction -> {
-            val child = getChild(
-                nodeHandle = nodeHandle,
-                side = instruction.side,
-            ) ?: return null
-
-            return findLeafGuided(
-                nodeHandle = child,
-                guide = guide,
-            )
-        }
-    }
-}
-
-fun <PayloadT, ColorT> BinaryTree<PayloadT, ColorT>.getRandomFreeLocation(
-    random: Random,
-): BinaryTree.Location<PayloadT, ColorT> {
-    val root = this.root ?: return BinaryTree.RootLocation
-
-    return getRandomFreeLocation(
-        nodeHandle = root,
-        random = random,
-    )
-}
-
-fun <PayloadT, ColorT> BinaryTree<PayloadT, ColorT>.getRandomFreeLocation(
-    nodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
-    random: Random,
-): BinaryTree.RelativeLocation<PayloadT, ColorT> {
-    val side = random.nextSide()
-
-    val relativeLocation = BinaryTree.RelativeLocation(
-        parentHandle = nodeHandle,
-        side = side,
-    )
-
-    val sideChild = resolve(
-        location = relativeLocation,
-    )
-
-    return when (sideChild) {
-        null -> relativeLocation
-        else -> getRandomFreeLocation(
-            nodeHandle = sideChild,
-            random = random,
-        )
-    }
-}
-
-fun Random.nextSide(): BinaryTree.Side = when (nextBoolean()) {
-    true -> BinaryTree.Side.Left
-    false -> BinaryTree.Side.Right
-}
