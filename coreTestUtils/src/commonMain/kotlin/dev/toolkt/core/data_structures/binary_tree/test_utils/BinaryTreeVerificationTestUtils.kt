@@ -63,14 +63,6 @@ fun <PayloadT, ColorT> BinaryTree<PayloadT, ColorT>.verifyIntegrity() {
         }
 }
 
-fun <PayloadT : Comparable<PayloadT>, ColorT> BinaryTree<PayloadT, ColorT>.verifyBalance() {
-    val rootHandle = this.root ?: return
-
-    verifySubtreeBalance(
-        nodeHandle = rootHandle,
-    )
-}
-
 private fun <PayloadT, ColorT> BinaryTree<PayloadT, ColorT>.verifySubtreeIntegrity(
     nodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
     expectedParentHandle: BinaryTree.NodeHandle<PayloadT, ColorT>?,
@@ -113,7 +105,15 @@ private fun <PayloadT, ColorT> BinaryTree<PayloadT, ColorT>.verifySubtreeIntegri
     )
 }
 
-private fun <PayloadT : Comparable<PayloadT>, ColorT> BinaryTree<PayloadT, ColorT>.verifySubtreeBalance(
+fun <PayloadT, ColorT> BinaryTree<PayloadT, ColorT>.verifyBalance() {
+    val rootHandle = this.root ?: return
+
+    verifySubtreeBalance(
+        nodeHandle = rootHandle,
+    )
+}
+
+private fun <PayloadT, ColorT> BinaryTree<PayloadT, ColorT>.verifySubtreeBalance(
     nodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
 ): BalanceVerificationResult {
     val leftChildHandle = getLeftChild(nodeHandle = nodeHandle)
@@ -143,4 +143,44 @@ private fun <PayloadT : Comparable<PayloadT>, ColorT> BinaryTree<PayloadT, Color
     return BalanceVerificationResult(
         computedSubtreeHeight = maxPathLength,
     )
+}
+
+fun <PayloadT : Comparable<PayloadT>, ColorT> BinaryTree<PayloadT, ColorT>.verifyOrder() {
+    val rootHandle = this.root ?: return
+
+    verifySubtreeOrder(
+        nodeHandle = rootHandle,
+    )
+}
+
+private fun <PayloadT : Comparable<PayloadT>, ColorT> BinaryTree<PayloadT, ColorT>.verifySubtreeOrder(
+    nodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
+) {
+    val payload = getPayload(nodeHandle = nodeHandle)
+    val leftChildHandle = getLeftChild(nodeHandle = nodeHandle)
+    val rightChildHandle = getRightChild(nodeHandle = nodeHandle)
+
+    leftChildHandle?.let {
+        val leftPayload = getPayload(nodeHandle = it)
+
+        if (leftPayload >= payload) {
+            throw AssertionError("Left child payload $leftPayload is not less than parent payload $payload")
+        }
+
+        verifySubtreeOrder(
+            nodeHandle = it,
+        )
+    }
+
+    val rightSubtreeVerificationResult = rightChildHandle?.let {
+        val rightPayload = getPayload(nodeHandle = it)
+
+        if (rightPayload <= payload) {
+            throw AssertionError("Right child payload $rightPayload is not greater than parent payload $payload")
+        }
+
+        verifySubtreeOrder(
+            nodeHandle = it,
+        )
+    }
 }
