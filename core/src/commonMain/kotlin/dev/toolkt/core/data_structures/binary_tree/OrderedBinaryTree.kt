@@ -1,5 +1,6 @@
 package dev.toolkt.core.data_structures.binary_tree
 
+// TODO: Nuke
 interface OrderedBinaryTree<out DataT> {
     interface Node<out DataT>
 
