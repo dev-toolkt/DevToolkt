@@ -1,11 +1,9 @@
 package dev.toolkt.core.collections
 
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-@Ignore
 class RedBlackTreeSetTests {
     @Test
     fun testInitial() {

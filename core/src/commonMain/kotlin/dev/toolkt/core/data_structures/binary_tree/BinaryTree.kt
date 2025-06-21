@@ -140,9 +140,7 @@ interface BinaryTree<out PayloadT, out ColorT> {
 fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.isEmpty(): Boolean = size == 0
 
 fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.traverse(): Sequence<BinaryTree.NodeHandle<PayloadT, MetadataT>> {
-    val minimalNodeHandle = getSideMostDescendant(
-        side = BinaryTree.Side.Left,
-    ) ?: return emptySequence()
+    val minimalNodeHandle = getMinimalDescendant() ?: return emptySequence()
 
     return generateSequence(
         minimalNodeHandle,
@@ -283,6 +281,16 @@ fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.locateRelatively(
         side = side,
     )
 }
+
+fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getMinimalDescendant(): BinaryTree.NodeHandle<PayloadT, MetadataT>? =
+    getSideMostDescendant(
+        side = BinaryTree.Side.Left,
+    )
+
+fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getMaximalDescendant(): BinaryTree.NodeHandle<PayloadT, MetadataT>? =
+    getSideMostDescendant(
+        side = BinaryTree.Side.Right,
+    )
 
 fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getSideMostDescendant(
     side: BinaryTree.Side,
