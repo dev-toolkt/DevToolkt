@@ -9,6 +9,8 @@ plugins {
     alias(libs.plugins.kotlinx.benchmark)
 }
 
+group = "dev.toolkt"
+
 repositories {
     mavenCentral()
 }
@@ -18,7 +20,8 @@ kotlin {
         freeCompilerArgs.addAll(
             listOf(
                 "-Xexpect-actual-classes",
-            )
+                "-Xconsistent-data-class-copy-visibility",
+            ),
         )
     }
 
@@ -36,6 +39,7 @@ kotlin {
 
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(project(":coreTestUtils"))
         }
 
         jvmMain.dependencies {}
