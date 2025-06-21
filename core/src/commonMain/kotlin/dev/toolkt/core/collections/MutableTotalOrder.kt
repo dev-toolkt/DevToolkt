@@ -3,7 +3,10 @@ package dev.toolkt.core.collections
 import dev.toolkt.core.data_structures.binary_tree.BinaryTree
 import dev.toolkt.core.data_structures.binary_tree.RedBlackTree
 import dev.toolkt.core.data_structures.binary_tree.getChildLocation
+import dev.toolkt.core.data_structures.binary_tree.getRank
 import dev.toolkt.core.data_structures.binary_tree.getSideMostFreeLocation
+import dev.toolkt.core.data_structures.binary_tree.insertRelative
+import dev.toolkt.core.data_structures.binary_tree.select
 import dev.toolkt.core.data_structures.binary_tree.traverse
 import dev.toolkt.core.order.OrderRelation
 import kotlin.jvm.JvmInline
@@ -37,16 +40,18 @@ class MutableTotalOrder<E> {
         )
     }
 
-    fun select(
+    fun get(
         index: Int,
-    ): Handle<E> {
-        TODO()
+    ): Handle<E>? {
+        val nodeHandle = tree.select(index)
+        return nodeHandle?.pack()
     }
 
-    fun rank(
+    fun indexOf(
         handle: Handle<E>,
     ): Int {
-        TODO()
+        val nodeHandle = handle.unpack()
+        return tree.getRank(nodeHandle = nodeHandle)
     }
 
     fun addRelative(
@@ -56,10 +61,9 @@ class MutableTotalOrder<E> {
     ): Handle<E> {
         val nodeHandle = handle.unpack()
 
-        val insertedNodeHandle = tree.insert(
-            location = nodeHandle.getChildLocation(
-                side = relation.side,
-            ),
+        val insertedNodeHandle = tree.insertRelative(
+            nodeHandle = nodeHandle,
+            side = relation.side,
             payload = element,
         )
 

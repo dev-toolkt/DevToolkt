@@ -44,12 +44,15 @@ fun <E> MutableTotalOrder<E>.verifyContent(
     )
 
     pairs.forEachIndexed { index, (handle, element) ->
+        val payload = get(handle)
+
         val traversedHandle = traversedHandles[index]
+        val traversedPayload = get(traversedHandle)
 
         assertEquals(
             expected = handle,
             actual = traversedHandle,
-            message = "Traversed handle at index $index does not match expected handle: expected $handle, got $traversedHandle",
+            message = "Traversed handle at index $index does not match expected handle: expected $payload, got $traversedPayload",
         )
 
         val gotElement = get(handle = handle)
@@ -57,18 +60,19 @@ fun <E> MutableTotalOrder<E>.verifyContent(
         assertEquals(
             expected = element,
             actual = gotElement,
-            message = "Got element at handle $handle does not match expected element: expected $element, got $gotElement",
+            message = "Got element at handle $handle does not match expected element: expected $payload, got $traversedPayload",
         )
 
-        val selectedHandle = select(index)
+        val selectedHandle = get(index)
+        val selectedPayload = selectedHandle?.let { get(it) }
 
         assertEquals(
             expected = handle,
             actual = selectedHandle,
-            message = "Selected handle at index $index does not match expected handle: expected $handle, got $selectedHandle",
+            message = "Selected handle at index $index does not match expected handle: expected $payload, got $selectedPayload",
         )
 
-        val rankedIndex = rank(handle)
+        val rankedIndex = indexOf(handle)
 
         assertEquals(
             expected = index,

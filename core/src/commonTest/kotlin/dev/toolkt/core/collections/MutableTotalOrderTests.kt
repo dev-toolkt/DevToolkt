@@ -2,10 +2,8 @@ package dev.toolkt.core.collections
 
 
 import dev.toolkt.core.order.OrderRelation
-import kotlin.test.Ignore
 import kotlin.test.Test
 
-@Ignore
 class MutableTotalOrderTests {
     private enum class Fruit {
         Apple, Raspberry, Banana, Orange, Kiwi, Mango, Pineapple, Strawberry, Watermelon, Grape,
@@ -105,9 +103,9 @@ class MutableTotalOrderTests {
         )
 
         mutableTotalOrder.verifyContent(
-            handleBanana to Fruit.Banana,
-            handleStrawberry to Fruit.Strawberry,
             handleWatermelon to Fruit.Watermelon,
+            handleStrawberry to Fruit.Strawberry,
+            handleBanana to Fruit.Banana,
             handleMango to Fruit.Mango,
         )
     }
@@ -138,9 +136,9 @@ class MutableTotalOrderTests {
 
         mutableTotalOrder.verifyContent(
             handleBanana to Fruit.Banana,
-            handleKiwi to Fruit.Kiwi,
-            handleOrange to Fruit.Orange,
             handleMango to Fruit.Mango,
+            handleOrange to Fruit.Orange,
+            handleKiwi to Fruit.Kiwi,
             handleStrawberry to Fruit.Strawberry,
             handleWatermelon to Fruit.Watermelon,
         )
@@ -153,10 +151,10 @@ class MutableTotalOrderTests {
 
         mutableTotalOrder.verifyContent(
             handleBanana to Fruit.Banana,
-            handleOrange to Fruit.Orange,
-            handleKiwi to Fruit.Kiwi,
             handleMango to Fruit.Mango,
             handlePineapple to Fruit.Pineapple,
+            handleOrange to Fruit.Orange,
+            handleKiwi to Fruit.Kiwi,
             handleStrawberry to Fruit.Strawberry,
             handleWatermelon to Fruit.Watermelon,
         )
@@ -188,11 +186,11 @@ class MutableTotalOrderTests {
 
         mutableTotalOrder.verifyContent(
             handleBanana to Fruit.Banana,
-            handleKiwi1 to Fruit.Kiwi,
             handleOrange to Fruit.Orange,
+            handleKiwi1 to Fruit.Kiwi,
             handleStrawberry to Fruit.Strawberry,
-            handleWatermelon to Fruit.Watermelon,
             handleKiwi2 to Fruit.Kiwi,
+            handleWatermelon to Fruit.Watermelon,
         )
     }
 

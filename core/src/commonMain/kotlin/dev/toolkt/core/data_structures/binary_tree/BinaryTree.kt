@@ -348,3 +348,19 @@ fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getInOrderSuccessor(
     nodeHandle = nodeHandle,
     side = BinaryTree.Side.Right,
 )
+
+fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getNextInOrderFreeLocation(
+    nodeHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
+    side: BinaryTree.Side,
+): BinaryTree.RelativeLocation<PayloadT, MetadataT> {
+    val sideChildLocation = nodeHandle.getChildLocation(side = side)
+
+    val sideChildHandle = resolve(
+        location = sideChildLocation,
+    ) ?: return sideChildLocation
+
+    return getSideMostFreeLocation(
+        nodeHandle = sideChildHandle,
+        side = side.opposite,
+    )
+}

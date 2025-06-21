@@ -23,7 +23,10 @@ class MutableUniqueList<E>() : AbstractMutableList<E>() {
     override fun get(
         index: Int,
     ): E {
-        val handle = mutableTotalOrder.select(index = index)
+        val handle = mutableTotalOrder.get(index = index) ?: throw IndexOutOfBoundsException(
+            "Index $index is out of bounds for size ${handleIndex.size}."
+        )
+
         return mutableTotalOrder.get(handle = handle)
     }
 
@@ -37,7 +40,10 @@ class MutableUniqueList<E>() : AbstractMutableList<E>() {
         index: Int,
         element: E,
     ): E {
-        val handle = mutableTotalOrder.select(index = index)
+        val handle = mutableTotalOrder.get(index = index) ?: throw IndexOutOfBoundsException(
+            "Index $index is out of bounds for size ${handleIndex.size}."
+        )
+
         val previous = mutableTotalOrder.get(handle = handle)
 
         mutableTotalOrder.set(handle = handle, element = element)
@@ -97,7 +103,9 @@ class MutableUniqueList<E>() : AbstractMutableList<E>() {
                     "Index $index is out of bounds for size ${handleIndex.size}."
                 }
 
-                val neighbourHandle = mutableTotalOrder.select(index = index)
+                val neighbourHandle = mutableTotalOrder.get(index = index) ?: throw IndexOutOfBoundsException(
+                    "Index $index is out of bounds for size ${handleIndex.size}."
+                )
 
                 mutableTotalOrder.addRelative(
                     handle = neighbourHandle,
@@ -119,7 +127,10 @@ class MutableUniqueList<E>() : AbstractMutableList<E>() {
     override fun removeAt(
         index: Int,
     ): E {
-        val handle = mutableTotalOrder.select(index = index)
+        val handle = mutableTotalOrder.get(index = index) ?: throw IndexOutOfBoundsException(
+            "Index $index is out of bounds for size ${handleIndex.size}."
+        )
+
         val removedElement = mutableTotalOrder.get(handle = handle)
 
         mutableTotalOrder.remove(handle = handle)
@@ -167,7 +178,7 @@ class MutableUniqueList<E>() : AbstractMutableList<E>() {
         element: E,
     ): Int {
         val handle = handleIndex[element] ?: return -1
-        return mutableTotalOrder.rank(handle = handle)
+        return mutableTotalOrder.indexOf(handle = handle)
     }
 
     /**

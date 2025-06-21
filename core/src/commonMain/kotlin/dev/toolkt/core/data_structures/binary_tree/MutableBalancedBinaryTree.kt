@@ -34,3 +34,19 @@ interface MutableBalancedBinaryTree<PayloadT, ColorT> : BinaryTree<PayloadT, Col
         nodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
     )
 }
+
+fun <PayloadT, ColorT> MutableBalancedBinaryTree<PayloadT, ColorT>.insertRelative(
+    nodeHandle: BinaryTree.NodeHandle<PayloadT, ColorT>,
+    side: BinaryTree.Side,
+    payload: PayloadT,
+): BinaryTree.NodeHandle<PayloadT, ColorT> {
+    val location = getNextInOrderFreeLocation(
+        nodeHandle = nodeHandle,
+        side = side,
+    )
+
+    return insert(
+        location = location,
+        payload = payload,
+    )
+}
