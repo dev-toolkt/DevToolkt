@@ -139,39 +139,16 @@ interface BinaryTree<out PayloadT, out ColorT> {
 
 fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.isEmpty(): Boolean = size == 0
 
-fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.traverse(): Sequence<BinaryTree.NodeHandle<PayloadT, MetadataT>> =
-    this.traverseOrEmpty(
-        subtreeRootHandle = root,
-    )
-
-fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.traverse(
-    rootHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
-): Sequence<BinaryTree.NodeHandle<PayloadT, MetadataT>> {
-    val leftChild = getChild(
-        nodeHandle = rootHandle,
+fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.traverse(): Sequence<BinaryTree.NodeHandle<PayloadT, MetadataT>> {
+    val minimalNodeHandle = getSideMostDescendant(
         side = BinaryTree.Side.Left,
-    )
+    ) ?: return emptySequence()
 
-    val rightChild = getChild(
-        nodeHandle = rootHandle,
-        side = BinaryTree.Side.Right,
-    )
-
-    return sequence {
-        yieldAll(traverseOrEmpty(subtreeRootHandle = leftChild))
-        yield(rootHandle)
-        yieldAll(traverseOrEmpty(subtreeRootHandle = rightChild))
+    return generateSequence(
+        minimalNodeHandle,
+    ) { nodeHandle ->
+        getInOrderSuccessor(nodeHandle = nodeHandle)
     }
-}
-
-private fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.traverseOrEmpty(
-    subtreeRootHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>?,
-): Sequence<BinaryTree.NodeHandle<PayloadT, MetadataT>> {
-    if (subtreeRootHandle == null) return emptySequence()
-
-    return this.traverse(
-        rootHandle = subtreeRootHandle,
-    )
 }
 
 /**
@@ -307,6 +284,13 @@ fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.locateRelatively(
     )
 }
 
+fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getSideMostDescendant(
+    side: BinaryTree.Side,
+): BinaryTree.NodeHandle<PayloadT, MetadataT>? = getSideMostFreeLocation(
+    side = side,
+).parentHandle
+
+
 fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getSideMostFreeLocation(
     side: BinaryTree.Side,
 ): BinaryTree.Location<PayloadT, MetadataT> {
@@ -335,6 +319,7 @@ fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getSideMostFreeLocatio
         side = side,
     )
 }
+
 fun <PayloadT, MetadataT> BinaryTree<PayloadT, MetadataT>.getInOrderPredecessor(
     nodeHandle: BinaryTree.NodeHandle<PayloadT, MetadataT>,
 ): BinaryTree.NodeHandle<PayloadT, MetadataT>? = getInOrderNeighbour(

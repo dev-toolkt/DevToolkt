@@ -20,12 +20,14 @@ private data class BalanceVerificationResult(
 )
 
 fun <PayloadT, ColorT> BinaryTree<PayloadT, ColorT>.verifyIntegrity() {
-    val rootHandle = this.root ?: return
+    val rootResult = this.root?.let { rootHandle ->
+        verifySubtreeIntegrity(
+            nodeHandle = rootHandle,
+            expectedParentHandle = null,
+        )
+    }
 
-    val rootResult = verifySubtreeIntegrity(
-        nodeHandle = rootHandle,
-        expectedParentHandle = null,
-    )
+    val computedSubtreeSize = rootResult?.computedSubtreeSize ?: 0
 
     val naivelyTraversedNodeHandles = traverseNaively().toList()
 
@@ -35,8 +37,8 @@ fun <PayloadT, ColorT> BinaryTree<PayloadT, ColorT>.verifyIntegrity() {
         throw AssertionError("Inconsistent traversal")
     }
 
-    if (traversedNodeHandles.size != rootResult.computedSubtreeSize) {
-        throw AssertionError("Inconsistent tree size, computed: ${rootResult.computedSubtreeSize}, traversal: ${traversedNodeHandles.size}")
+    if (traversedNodeHandles.size != computedSubtreeSize) {
+        throw AssertionError("Inconsistent tree size, computed: ${computedSubtreeSize}, traversal: ${traversedNodeHandles.size}")
     }
 
     val uniqueNodeHandles = traversedNodeHandles.toSet()
