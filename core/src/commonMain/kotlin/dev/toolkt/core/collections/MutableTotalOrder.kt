@@ -2,7 +2,6 @@ package dev.toolkt.core.collections
 
 import dev.toolkt.core.data_structures.binary_tree.BinaryTree
 import dev.toolkt.core.data_structures.binary_tree.RedBlackTree
-import dev.toolkt.core.data_structures.binary_tree.getChildLocation
 import dev.toolkt.core.data_structures.binary_tree.getRank
 import dev.toolkt.core.data_structures.binary_tree.getSideMostFreeLocation
 import dev.toolkt.core.data_structures.binary_tree.insertRelative

@@ -47,8 +47,8 @@ abstract class HandleIterator<E, HandleT : Any>(
         /**
          * The iterator's initial state or the state after a remove() call. The
          * iterator is _not_ ready for another remove() call. The iterator is ready
-         * for a next() call, but it will throw if the next element (which is
-         * already known) is null.
+         * for a next() call, but it will throw if there's no next element in
+         * the iteration (we already know if that's the case, as we're "ahead").
          */
         @JvmInline
         value class Ahead<HandleT : Any>(

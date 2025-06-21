@@ -1,6 +1,5 @@
 package dev.toolkt.core.collections
 
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
@@ -8,7 +7,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
-@Ignore
 class MutableUniqueListTests {
     private enum class Fruit {
         Apple, Raspberry, Banana, Orange, Kiwi, Mango, Pineapple, Strawberry, Watermelon, Grape,
@@ -30,7 +28,7 @@ class MutableUniqueListTests {
             Fruit.Orange,
             Fruit.Kiwi,
             Fruit.Strawberry,
-            Fruit.Watermelon,
+            Fruit.Pineapple,
         )
 
         mutableUniqueList[1] = Fruit.Raspberry
@@ -40,7 +38,24 @@ class MutableUniqueListTests {
             Fruit.Raspberry,
             Fruit.Kiwi,
             Fruit.Strawberry,
+            Fruit.Pineapple,
+        )
+    }
+
+    @Test
+    fun testSet_duplicate() {
+        val mutableUniqueList = mutableUniqueListOf(
+            Fruit.Banana,
+            Fruit.Orange,
+            Fruit.Kiwi,
+            Fruit.Strawberry,
             Fruit.Watermelon,
+        )
+
+        assertIs<IllegalStateException>(
+            assertFails {
+                mutableUniqueList[3] = Fruit.Orange
+            },
         )
     }
 
@@ -156,16 +171,13 @@ class MutableUniqueListTests {
             Fruit.Orange,
         )
 
-        mutableUniqueList.add(
-            index = 2,
-            Fruit.Watermelon,
-        )
-
-        mutableUniqueList.verifyContent(
-            Fruit.Strawberry,
-            Fruit.Grape,
-            Fruit.Watermelon,
-            Fruit.Orange,
+        assertIs<IllegalStateException>(
+            assertFails {
+                mutableUniqueList.add(
+                    index = 2,
+                    Fruit.Watermelon,
+                )
+            },
         )
     }
 
@@ -269,10 +281,11 @@ class MutableUniqueListTests {
             Fruit.Orange,
         )
 
-        assertIs<IllegalArgumentException>(
+        assertIs<IndexOutOfBoundsException>(
             assertFails {
                 mutableUniqueList.removeAt(3)
-            })
+            },
+        )
     }
 
     @Test

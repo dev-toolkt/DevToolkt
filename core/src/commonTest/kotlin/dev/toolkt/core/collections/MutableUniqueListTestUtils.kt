@@ -34,7 +34,6 @@ fun <E> MutableUniqueList<E>.verifyContent(
             message = "List does not contain expected element: $element",
         )
 
-
         val foundIndex = indexOf(element)
 
         assertEquals(

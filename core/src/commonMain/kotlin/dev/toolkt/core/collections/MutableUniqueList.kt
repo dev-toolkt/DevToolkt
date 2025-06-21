@@ -6,7 +6,7 @@ import dev.toolkt.core.order.OrderRelation
  * A hybrid collection that combines the properties of a mutable list and a set.
  * Each element is guaranteed to be unique, and the order of elements is maintained.
  * All fundamental operations have logarithmic time complexity. This collection
- * consumes roughly twice the memory of a regular collection of the given size.
+ * consumes roughly twice the memory as a regular collection of the given size.
  */
 class MutableUniqueList<E>() : AbstractMutableList<E>() {
     private val mutableTotalOrder = MutableTotalOrder<E>()
@@ -44,11 +44,32 @@ class MutableUniqueList<E>() : AbstractMutableList<E>() {
             "Index $index is out of bounds for size ${handleIndex.size}."
         )
 
-        val previous = mutableTotalOrder.get(handle = handle)
+        val previousElement = mutableTotalOrder.get(handle = handle)
 
-        mutableTotalOrder.set(handle = handle, element = element)
+        if (previousElement == element) {
+            return previousElement
+        }
 
-        return previous
+        val previousElementHandle = handleIndex.remove(previousElement)
+
+        if (previousElementHandle != handle) {
+            throw AssertionError("Inconsistent element handle")
+        }
+
+        val newElementHandle = handleIndex[element]
+
+        if (newElementHandle != null) {
+            throw IllegalStateException("The list already contains $element")
+        }
+
+        mutableTotalOrder.set(
+            handle = handle,
+            element = element,
+        )
+
+        handleIndex[element] = handle
+
+        return previousElement
     }
 
     /**
@@ -87,6 +108,12 @@ class MutableUniqueList<E>() : AbstractMutableList<E>() {
         index: Int,
         element: E,
     ) {
+        val existingHandle = handleIndex[element]
+
+        if (existingHandle != null) {
+            throw IllegalStateException("The list already contains $element")
+        }
+
         val newHandle = when (index) {
             0 -> mutableTotalOrder.addExtremal(
                 relation = OrderRelation.Smaller,
@@ -109,7 +136,7 @@ class MutableUniqueList<E>() : AbstractMutableList<E>() {
 
                 mutableTotalOrder.addRelative(
                     handle = neighbourHandle,
-                    relation = OrderRelation.Greater,
+                    relation = OrderRelation.Smaller,
                     element = element,
                 )
             }
@@ -167,7 +194,6 @@ class MutableUniqueList<E>() : AbstractMutableList<E>() {
     override fun contains(
         element: E,
     ): Boolean = handleIndex.containsKey(element)
-
 
     /**
      * Returns the index of the occurrence of the specified element in the list, or -1 if the specified
