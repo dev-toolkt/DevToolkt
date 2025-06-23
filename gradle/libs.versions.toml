@@ -3,7 +3,7 @@
 
 [versions]
 kotlinx-benchmark = "0.4.13"
-kotlin = "2.1.21"
+kotlin = "2.2.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
